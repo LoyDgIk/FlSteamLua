@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "0.1.2"
 #endif
 #ifndef BuildDir
   #define BuildDir "..\..\build\windows\x64\runner\Release"
@@ -26,15 +26,16 @@ UninstallDisplayIcon={app}\fl_steam_lua.exe
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
-CloseApplications=yes
+CloseApplications=no
 RestartApplications=no
 LicenseFile=..\..\LICENSE
 
 [Languages]
+Name: "chinesesimp"; MessagesFile: "ChineseSimplified.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
 
 [Files]
 Source: "{#BuildDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -44,4 +45,29 @@ Name: "{group}\FlSteamLua"; Filename: "{app}\fl_steam_lua.exe"
 Name: "{autodesktop}\FlSteamLua"; Filename: "{app}\fl_steam_lua.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\fl_steam_lua.exe"; Description: "Launch FlSteamLua"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\fl_steam_lua.exe"; Description: "{cm:LaunchProgram,FlSteamLua}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+procedure KillApplicationProcess(const ImageName: String);
+var
+  ResultCode: Integer;
+begin
+  Exec(
+    ExpandConstant('{sys}\taskkill.exe'),
+    '/F /T /IM ' + ImageName,
+    '',
+    SW_HIDE,
+    ewWaitUntilTerminated,
+    ResultCode
+  );
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  NeedsRestart := False;
+  KillApplicationProcess('fl_steam_lua.exe');
+  KillApplicationProcess('steam_worker.exe');
+  KillApplicationProcess('lan_transfer_engine.exe');
+  Sleep(300);
+  Result := '';
+end;

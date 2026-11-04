@@ -5,6 +5,15 @@ generated from the matching version section.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-04
+
+### Changed
+
+- The Windows installer now offers Simplified Chinese and English, with
+  Simplified Chinese selected first.
+- Setup force-closes a running FlSteamLua application, worker and LAN transfer
+  engine before replacing installed files.
+
 ## [0.1.1] - 2026-11-04
 
 ### Added

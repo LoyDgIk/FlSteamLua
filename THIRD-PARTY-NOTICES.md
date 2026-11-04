@@ -78,6 +78,14 @@ official release of either upstream project.
 - Configuration, OAuth, cloud requests, deployment and backup management are
   reimplemented in Dart. The native DLL retains its original license.
 
+## Inno Setup Chinese translation
+
+- Source: https://github.com/jrsoftware/issrc
+- File: `packaging/windows/ChineseSimplified.isl`
+- Maintainer credited by the upstream file: Zhenghan Yang (Kira).
+- Usage: Simplified Chinese installer messages compiled into the Windows setup
+  executable.
+
 ## Excluded Steamless unpackers
 
 The Steamless unpackers encountered in the functional upstream use

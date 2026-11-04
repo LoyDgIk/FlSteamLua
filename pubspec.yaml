@@ -1,7 +1,7 @@
 name: fl_steam_lua
 description: "A Flutter desktop companion for Steam libraries, achievements and saves."
 publish_to: 'none'
-version: 0.1.1+2
+version: 0.1.2+3
 
 environment:
   sdk: ^3.12.2
