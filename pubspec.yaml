@@ -1,0 +1,62 @@
+name: fl_steam_lua
+description: "A Flutter desktop companion for Steam libraries, achievements and saves."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.0.0
+  http: ^1.6.0
+  html: ^0.15.6
+  path: ^1.9.1
+  ffi: ^2.1.4
+  win32: ^5.14.0
+  win32_registry: ^2.1.0
+  archive: ^4.0.7
+  crypto: ^3.0.6
+  pointycastle: ^4.0.0
+  protobuf: ^4.0.0
+  fixnum: ^1.1.1
+  xml: ^6.6.1
+  url_launcher: ^6.3.2
+  file_picker: ^10.3.3
+  window_manager: ^0.5.1
+  tray_manager: ^0.5.2
+  flutter_qjs_next: ^1.5.2
+  animations: ^2.0.11
+  desktop_drop: ^0.7.0
+  material_color_utilities: ^0.13.0
+  material_new_shapes: ^1.0.0
+  path_parsing: ^1.1.0
+  emoji_regex: ^0.0.5
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/licenses/
+    - assets/manifest_sources/
+    - assets/branding/
+    - assets/fonts/JetBrainsMono-OFL.txt
+    - assets/fonts/Twemoji-Mozilla-LICENSE.md
+  shaders:
+    - assets/fonts/liquid_glass.frag
+  fonts:
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+    - family: Twemoji
+      fonts:
+        - asset: assets/fonts/Twemoji.Mozilla.ttf

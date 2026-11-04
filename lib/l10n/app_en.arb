@@ -1,0 +1,1939 @@
+{
+  "@@locale": "en",
+  "languageName": "English",
+  "@languageName": {
+    "description": "The native name of this language, shown in the language picker."
+  },
+  "updateKeySubscriptions": "Update key subscriptions",
+  "launch": "Launch {value1}",
+  "@launch": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "stop": "Stop {value1}",
+  "@stop": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteLuaRecord": "Delete Lua record?",
+  "onlyThisLuaFileIsRemovedTheGameStaysInstalledAndABackupIsSavedFirst": "Only this Lua file is removed. The game stays installed, and a backup is saved first.",
+  "cancel": "Cancel",
+  "deleteRecord": "Delete record",
+  "deleteLuaRecord2": "Delete Lua record",
+  "unfavorite": "Unfavorite",
+  "favorite": "Favorite",
+  "manage": "Manage",
+  "manageSaves": "Manage saves",
+  "manageAchievements": "Manage achievements",
+  "trainers": "Trainers",
+  "onlineFixes": "Online fixes",
+  "dlcAnalysis": "DLC management",
+  "keySubscriptionsOfflineLua": "Key subscriptions & offline Lua",
+  "gameToolsAndVersionManagement": "Game tools and version management",
+  "installOrRestorePatches": "Install or restore patches",
+  "extractAccountGameData": "Extract account game data",
+  "running": "Running",
+  "installed": "Installed",
+  "luaConfigured": "Lua configured",
+  "luaDisabled": "Lua disabled",
+  "accountOwnsThisGame": "Account owns this game",
+  "notOwnedByAccount": "Not owned by account",
+  "ownershipUnknown": "Ownership unknown",
+  "stopGame": "Stop game",
+  "play": "Play",
+  "installWithSteam": "Install with Steam",
+  "getLuaManifests": "Get Lua / manifests",
+  "addToLibrary": "Add to library",
+  "openGameFolder": "Open game folder",
+  "playtime": "Playtime",
+  "minutes": "{playtimeMinutes} minutes",
+  "@minutes": {
+    "placeholders": {
+      "playtimeMinutes": {
+        "type": "String"
+      }
+    }
+  },
+  "lastPlayed": "Last played",
+  "notRecorded": "Not recorded",
+  "diskSpace": "Disk space",
+  "storePrice": "Store price",
+  "achievements": "Achievements",
+  "viewAndManageGameAchievements": "View and manage game achievements",
+  "cloudSaves": "Cloud saves",
+  "backUpSyncAndRestoreProgress": "Back up, sync and restore progress",
+  "gameManagement": "Game management",
+  "trainersMultiplayerAndMore": "Trainers, multiplayer and more",
+  "luaRecord": "Lua record",
+  "enabledTakesEffectAfterRestartingSteam": "Enabled; takes effect after restarting Steam",
+  "disabledFileIsPreserved": "Disabled; file is preserved",
+  "changeLuaState": "Change Lua state",
+  "aboutThisGame": "About this game",
+  "steamStore": "Steam store",
+  "storeDetailsAreUnavailableLocalGameActionsRemainAvailable": "Store details are unavailable. Local game actions remain available.",
+  "retry": "Retry",
+  "developer": "Developer",
+  "released": "Released",
+  "selectDlcManifestsToRetrieveThisDoesNotPurchaseOrInstallDlc": "Select DLC manifests to retrieve. This does not purchase or install DLC.",
+  "loadDlcNames": "Load DLC names",
+  "clearSelection": "Clear selection",
+  "getSelected": "Get selected ({selectedDlcCount})",
+  "@getSelected": {
+    "placeholders": {
+      "selectedDlcCount": {
+        "type": "String"
+      }
+    }
+  },
+  "importLuaAndManifests": "Import Lua and manifests",
+  "importResults": "Import results",
+  "completedSkippedFailed": "Completed {writtenCount} · Skipped {skippedCount} · Failed {errorsCount}",
+  "@completedSkippedFailed": {
+    "placeholders": {
+      "writtenCount": {
+        "type": "String"
+      },
+      "skippedCount": {
+        "type": "String"
+      },
+      "errorsCount": {
+        "type": "String"
+      }
+    }
+  },
+  "completed": "Completed",
+  "existingFilesLeftUnchanged": "Existing files, left unchanged",
+  "errors": "Errors",
+  "close": "Close",
+  "backUpAndReimportWithOverwrite": "Back up and reimport with overwrite",
+  "fetchGameNamesAndCovers": "Fetch game names and covers",
+  "chooseALuaAndManifestFolder": "Choose a Lua and manifest folder",
+  "exportLuaToFolder": "Export Lua to folder",
+  "exportLua": "Export Lua",
+  "exportResults": "Export results",
+  "enableSelectedLua": "Enable selected Lua",
+  "disableSelectedLua": "Disable selected Lua",
+  "deleteLua": "Delete Lua",
+  "deleteLuaFiles": "Delete {targetsCount} Lua files?",
+  "@deleteLuaFiles": {
+    "placeholders": {
+      "targetsCount": {
+        "type": "String"
+      }
+    }
+  },
+  "luaFilesAreBackedUpBeforeDeletionSteamGamesAndSavesAreKept": "Lua files are backed up before deletion. Steam games and saves are kept.\n\n{value1}",
+  "@luaFilesAreBackedUpBeforeDeletionSteamGamesAndSavesAreKept": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "backUpAndDelete": "Back up and delete",
+  "gameDetails": "Game details",
+  "editLua": "Edit Lua",
+  "disableLua": "Disable Lua",
+  "enableLua": "Enable Lua",
+  "openLuaFolder": "Open Lua folder",
+  "pinLatestPublicVersion": "Pin latest public version",
+  "pinInstalledVersion": "Pin installed version",
+  "unpinVersion": "Unpin version",
+  "dlcManagementAndAnalysis": "DLC management and analysis",
+  "manageGameSaves": "Manage game saves",
+  "editAchievements": "Edit achievements",
+  "manageGamePatches": "Manage game patches",
+  "copyAppid": "Copy AppID",
+  "updateManifestPins": "Update manifest pins",
+  "launchGame": "Launch game",
+  "manage2": "Manage {value1}",
+  "@manage2": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "min": "{playtimeMinutes} min",
+  "@min": {
+    "placeholders": {
+      "playtimeMinutes": {
+        "type": "String"
+      }
+    }
+  },
+  "luaEnabled": "Lua enabled",
+  "luaDisabled2": "Lua disabled",
+  "game": "Game",
+  "status": "Status",
+  "luaFile": "Lua file",
+  "selected": "Selected {selectedCount} / {gamesCount}",
+  "@selected": {
+    "placeholders": {
+      "selectedCount": {
+        "type": "String"
+      },
+      "gamesCount": {
+        "type": "String"
+      }
+    }
+  },
+  "selectAllFiltered": "Select all filtered",
+  "clearSelection2": "Clear selection",
+  "enableSelected": "Enable selected",
+  "disableSelected": "Disable selected",
+  "export": "Export",
+  "library": "Library",
+  "manageLuaConfigurationsAndInstalledGames": "Manage Lua configurations and installed games.",
+  "import": "Import",
+  "importFilesOrArchives": "Import files or archives",
+  "importFolder": "Import folder",
+  "luaLibrary": "Lua library",
+  "steamGames": "Steam games",
+  "searchGameNamesOrAppid": "Search game names or AppID",
+  "rescan": "Rescan",
+  "view": "View",
+  "gridView": "Grid view",
+  "listView": "List view",
+  "tableView": "Table view",
+  "sort": "Sort",
+  "filter": "Filter",
+  "nameAscending": "Name ascending",
+  "nameDescending": "Name descending",
+  "recentlyPlayed": "Recently played",
+  "libraryActions": "Library actions",
+  "refreshGameInformation": "Refresh game information",
+  "disableSteamOfflineMode": "Disable Steam offline mode",
+  "enableSteamOfflineMode": "Enable Steam offline mode",
+  "all": "All",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "favorites": "Favorites",
+  "done": "Done",
+  "select": "Select",
+  "informationCouldNotBeLoadedForGamesLocalRecordsAreKept": "Information could not be loaded for {metadataErrorsCount} games. Local records are kept.",
+  "@informationCouldNotBeLoadedForGamesLocalRecordsAreKept": {
+    "placeholders": {
+      "metadataErrorsCount": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryDetails": "Library details",
+  "details": "Details",
+  "descriptionLabel": "Description",
+  "connectYourSteamLibrary": "Connect your Steam library",
+  "chooseYourSteamInstallationToReadLuaConfigurationsAndInstalledGames": "Choose your Steam installation to read Lua configurations and installed games.",
+  "chooseSteamFolder": "Choose Steam folder",
+  "noMatchingLuaConfigurations": "No matching Lua configurations",
+  "noMatchingInstalledGames": "No matching installed games",
+  "noSearchResults": "No matching results",
+  "dropLuaFilesManifestsOrArchivesHereOrChangeTheFilter": "Drop Lua files, manifests or archives here, or change the filter.",
+  "installedGamesAreReadFromSteamAppmanifestFilesLuaConfigurationsAreInTheFirstTab": "Installed games are read from Steam appmanifest files. Lua configurations are in the first tab.",
+  "importLua": "Import Lua",
+  "chooseASteamFolderFirst": "Choose a Steam folder first",
+  "dropToImportLuaManifestsOrArchives": "Drop to import Lua, manifests or archives",
+  "owned": "Owned",
+  "tasks": "Tasks",
+  "clearCompleted": "Clear completed",
+  "allClear": "All clear",
+  "downloadsImportsAndBackupsWillAppearHere": "Downloads, imports and backups will appear here.",
+  "cancelling": "Cancelling…",
+  "showLogs": "Show logs",
+  "start": "Start",
+  "stop2": "Stop",
+  "linkedTrainer": "{Stop} linked trainer · {appId}",
+  "@linkedTrainer": {
+    "placeholders": {
+      "Stop": {
+        "type": "String"
+      },
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "discardPendingChanges": "Discard pending changes?",
+  "reloadingOrSwitchingGamesDiscardsUnsavedAchievementAndStatisticChanges": "Reloading or switching games discards unsaved achievement and statistic changes.",
+  "keepEditing": "Keep editing",
+  "discardAndContinue": "Discard and continue",
+  "chooseAGameToManageAchievementsAndStatisticsGames": "Choose a game to manage achievements and statistics. {allGamesCount} games",
+  "@chooseAGameToManageAchievementsAndStatisticsGames": {
+    "placeholders": {
+      "allGamesCount": {
+        "type": "String"
+      }
+    }
+  },
+  "searchGamesOrAppid": "Search games or AppID",
+  "appidAscending": "AppID ascending",
+  "appidDescending": "AppID descending",
+  "continueEditing": "Continue editing {value1}",
+  "@continueEditing": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "pendingChanges": "pending changes",
+  "yourLibraryHasNoGamesYet": "Your library has no games yet",
+  "noMatchingGames": "No matching games",
+  "saveChanges": "Save {count} changes",
+  "@saveChanges": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "unlock": "Unlock",
+  "lock": "Lock",
+  "saveToSteam": "Save to Steam",
+  "savedAndConfirmedByReadingBackFromSteam": "Saved and confirmed by reading back from Steam.",
+  "integerValue": "Integer value",
+  "value": "Value",
+  "enterAValidValueInRange": "Enter a valid value in range",
+  "stageChange": "Stage change",
+  "chooseAGame": "Choose a game",
+  "reload": "Reload",
+  "unlocked": "unlocked",
+  "couldNotLoadAchievements": "Could not load achievements",
+  "startSteamSignInThenSelectReload": "Start Steam, sign in, then select Reload.",
+  "statistics": "Statistics",
+  "searchAchievements": "Search achievements",
+  "unlocked2": "Unlocked",
+  "locked": "Locked",
+  "pending": "Pending",
+  "unlockAll": "Unlock all",
+  "lockAll": "Lock all",
+  "invert": "Invert",
+  "noMatchingAchievements": "No matching achievements",
+  "thisAchievementIsManagedByTheGameServer": "This achievement is managed by the game server",
+  "hiddenAchievement": "Hidden achievement",
+  "searchStatisticNameOrId": "Search statistic name or ID",
+  "noReadableLocalStatisticsForThisGame": "No readable local statistics for this game",
+  "noMatchingStatistics": "No matching statistics",
+  "editStatistic": "Edit statistic",
+  "changesPending": "{value1} changes pending",
+  "@changesPending": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "changesAreSubmittedToSteamWhenSaved": "Changes are submitted to Steam when saved",
+  "discard": "Discard",
+  "saveChanges2": "Save changes",
+  "loadCloudSaves": "Load cloud saves",
+  "completed2": "Completed",
+  "localFolder": "Local folder",
+  "configureLocalRedirectionAndRemoteStorageSeparately": "Configure local redirection and remote storage separately.",
+  "refresh": "Refresh",
+  "refreshCloudSaves": "Refresh cloud saves",
+  "localSaveRedirection": "Local save redirection",
+  "enabledRestartSteamAfterChanges": "Enabled; restart Steam after changes",
+  "disabledEnablingDownloadsAndVerifiesTheCloudredirectDll": "Disabled; enabling downloads and verifies the CloudRedirect DLL",
+  "enableSaveRedirection": "Enable save redirection",
+  "downloadCloudredirectAndUpdateSteamFilesAndKernelConfigurationRestartSteamAfterwards": "Download CloudRedirect and update Steam files and kernel configuration. Restart Steam afterwards.",
+  "configureRedirection": "Configure redirection",
+  "localSaveFolder": "Local save folder",
+  "remoteStorage": "Remote storage",
+  "configured": "Configured",
+  "remoteSyncIsNotConfigured": "Remote sync is not configured",
+  "configure": "Configure",
+  "testCloudConnection": "Test cloud connection",
+  "testConnection": "Test connection",
+  "connectCloudAccount": "Connect cloud account",
+  "authorize": "Authorize",
+  "disconnectAccount": "Disconnect account",
+  "removeLocalCredentialsRemoteSavesRemain": "Remove local credentials. Remote saves remain.",
+  "disconnectAccount2": "Disconnect account",
+  "disconnect": "Disconnect",
+  "gameSaves": "Game saves",
+  "backups": "Backups",
+  "dataManagement": "Data management",
+  "storageUsage": "Storage usage",
+  "storageLocations": "Storage locations",
+  "storageLocationsDescription": "Cache, backups, downloads, and logs can use separate folders. Lua stays managed by Steam and game files.",
+  "appCache": "Cache",
+  "logs": "Logs",
+  "appData": "App data",
+  "lanTransferCache": "LAN transfer cache",
+  "cleanup": "Cleanup",
+  "clearCache": "Clear cache",
+  "clearCacheDescription": "Remove covers, cached metadata, key caches, and LAN transfer chunks.",
+  "clearCacheConfirmation": "Clear all cached files? Backups, downloads, settings, and save data are not removed.",
+  "clearingCache": "Clearing cached files",
+  "cacheCleared": "Cache cleared",
+  "scanningStorage": "Calculating storage usage",
+  "changeStorageFolder": "Change folder",
+  "chooseStorageFolder": "Choose storage folder",
+  "storageChangeBlockedByTasks": "Wait for running tasks to finish before changing storage folders.",
+  "chooseSeparateStorageFolder": "Choose a folder that is not inside the current storage folder.",
+  "chooseEmptyStorageFolder": "Choose an empty destination folder.",
+  "moveStorageData": "Move {name} data",
+  "@moveStorageData": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "moveStorageDataDescription": "Existing files will be copied to the new folder, then removed from the old folder.",
+  "preparingStorageFolder": "Preparing storage folder",
+  "storageFolderUpdated": "Storage folder updated",
+  "restoreDefault": "Use default folder",
+  "noRedirectedSavesFound": "No redirected saves found",
+  "chooseAFolderOrConnectRemoteStoragePlayAGameWithRedirectionEnabledToCreateSaves": "Choose a folder or connect remote storage. Play a game with redirection enabled to create saves.",
+  "remote": "Remote",
+  "local": "Local",
+  "files": "files",
+  "openFolder": "Open folder",
+  "backUpThisGame": "Back up this game",
+  "downloadToFolder": "Download to folder",
+  "uploadToRemote": "Upload to remote",
+  "previewDeletion": "Preview deletion",
+  "confirm": "Confirm",
+  "chooseSaveFolder": "Choose save folder",
+  "changeSaveFolder": "Change save folder",
+  "closeSteamAndAllGamesThenChooseAnEmptyFolderCurrentSavesWillBeCopiedToTheNewFolderAnd": "Close Steam and all games, then choose an empty folder. Current saves will be copied to the new folder and the originals retained. Existing destination files will not be overwritten. Restart Steam when finished.",
+  "setSaveFolder": "Set save folder",
+  "backUpSaves": "Back up saves",
+  "downloadSaves": "Download saves",
+  "uploadSaves": "Upload saves",
+  "remoteFilesWithTheSameNamesWillBeReplacedCloseTheGameFirst": "Remote files with the same names will be replaced. Close the game first.",
+  "prepareDeletionPreview": "Prepare deletion preview",
+  "deleteThisGameSSaves": "Delete this game’s saves",
+  "aCompleteBackupIsCreatedBeforeDeleting": "A complete backup is created before deleting:",
+  "backupLocation": "Backup location",
+  "saveBackups": "Save backups",
+  "noBackupsYet": "No backups yet",
+  "restoreBackup": "Restore backup",
+  "restoreToTheCurrentConfiguredLocationsExistingLocalSavesArePreservedInAPreRestoreBack": "Restore to the current configured locations. Existing local saves are preserved in a pre-restore backup; remote files with the same names are replaced. Close the game first.",
+  "restoreSaves": "Restore saves",
+  "restore": "Restore",
+  "configureStorage": "Configure storage",
+  "provider": "Provider",
+  "saveThenChooseAuthorizeToSignInUsingYourBrowser": "Save, then choose Authorize to sign in using your browser.",
+  "authentication": "Authentication",
+  "usesTheWindowsCredentialsEnteredBelowDomainUsernameOrUsernameDomain": "Uses the Windows credentials entered below: DOMAIN\\username or username@domain.",
+  "allowHttpCredentialsAndSavesAreSentWithoutEncryption": "Allow HTTP (credentials and saves are sent without encryption)",
+  "skipTlsCertificateValidationUnsafeTrustedSelfHostedServersOnly": "Skip TLS certificate validation (unsafe; trusted self-hosted servers only)",
+  "signRequestPayload": "Sign request payload",
+  "save": "Save",
+  "saveCloudConfiguration": "Save cloud configuration",
+  "operationCompleted": "Operation completed",
+  "operationCancelled": "Operation cancelled",
+  "continueLabel": "Continue",
+  "importKernelPackage": "Import kernel package",
+  "switchKernel": "Switch kernel",
+  "currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst": "Current kernel files will be backed up before installing {displayName}. Close Steam first.",
+  "@currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "noInstalledKernelFilesFound": "No installed kernel files found.",
+  "uninstallKernel": "Uninstall kernel",
+  "onlyTheseFilesWillBeRemovedAfterSavingABackupCloseSteamFirst": "Only these files will be removed, after saving a backup. Close Steam first.",
+  "noOtherKernelFilesFound": "No other kernel files found.",
+  "cleanOtherKernels": "Clean other kernels",
+  "selectFilesToRemoveTheyWillBeBackedUpLuaFoldersAndSteamCfgArePreserved": "Select files to remove. They will be backed up; Lua folders and steam.cfg are preserved.",
+  "backUpAndRemove": "Back up and remove",
+  "kernelManagement": "Kernel management",
+  "coreAndPlugins": "Core and plugins",
+  "downloadsAndNetwork": "Downloads and network",
+  "cloudRedirectPlugin": "CloudRedirect save plugin",
+  "pluginManagement": "Plugin management",
+  "installOrUpdatePlugin": "Install or update plugin",
+  "cloudRedirectPluginDescription": "Loaded by OpenSteamTool inside Steam to redirect cloud saves for added games.",
+  "kernelIntegration": "Kernel integration",
+  "openSteamtoolCore": "OpenSteamTool core",
+  "actions": "Actions",
+  "path": "Path",
+  "removeCloudRedirectPlugin": "Remove CloudRedirect plugin",
+  "removeCloudRedirectPluginDescription": "Disable kernel integration, back up and remove the CloudRedirect DLL from the Steam folder.",
+  "officialAndLocalKernelPackagesAreCachedForOfflineSwitchingCloseSteamBeforeChangingIts": "Official and local kernel packages are cached for offline switching. Close Steam before changing its files.",
+  "currentKernel": "Current kernel",
+  "unknownVersion": "Unknown version",
+  "noKernelInstalled": "No kernel installed",
+  "disabled2": "Disabled",
+  "selectYourSteamFolderInSettingsFirst": "Select your Steam folder in settings first.",
+  "bothInjectionEntriesAreActiveSelectOneEntry": "Both injection entries are active. Select one entry.",
+  "enableKernel": "Enable kernel",
+  "disableKernel": "Disable kernel",
+  "kernelFilesWillBeRenamedAfterSavingABackupCloseSteamFirst": "Kernel files will be renamed after saving a backup. Close Steam first.",
+  "disable": "Disable",
+  "enable": "Enable",
+  "entryDwmapi": "Entry: dwmapi",
+  "entryVersion": "Entry: version",
+  "changeInjectionEntry": "Change injection entry",
+  "onlyTheSelectedEntryWillRemainActiveCloseSteamFirst": "Only the selected entry will remain active. Close Steam first.",
+  "fetchSteamSignatures": "Fetch Steam signatures",
+  "uninstall": "Uninstall",
+  "availablePackages": "Available packages",
+  "importZip": "Import ZIP",
+  "refreshKernelReleases": "Refresh kernel releases",
+  "refreshToLoadOfficialReleasesOrImportALocalKernelZip": "Refresh to load official releases, or import a local kernel ZIP.",
+  "active": "Active",
+  "local2": "Local",
+  "official": "Official",
+  "cached": "Cached",
+  "notDownloaded": "Not downloaded",
+  "downloadOnly": "Download only",
+  "downloadKernel": "Download kernel",
+  "switchLabel": "Switch",
+  "deleteCache": "Delete cache",
+  "deleteTheCachedPackageBackupsArePreserved": "Delete the cached {displayName} package? Backups are preserved.",
+  "@deleteTheCachedPackageBackupsArePreserved": {
+    "placeholders": {
+      "displayName": {
+        "type": "String"
+      }
+    }
+  },
+  "switchAndRecoveryBackups": "Switch and recovery backups",
+  "aRecoverableSnapshotIsSavedBeforeSwitchingOrUninstalling": "A recoverable snapshot is saved before switching or uninstalling.",
+  "restoreKernelBackup": "Restore kernel backup",
+  "restoreTheseFilesAndRemoveKernelFilesAbsentFromThisSnapshotCloseSteamFirst": "Restore these files and remove kernel files absent from this snapshot. Close Steam first.",
+  "repository": "Repository",
+  "luaSavedTheOriginalWasBackedUp": "Lua saved. The original was backed up.",
+  "discardUnsavedChanges": "Discard unsaved changes?",
+  "theseChangesHaveNotBeenSavedToTheLuaFile": "These changes have not been saved to the Lua file.",
+  "enabled2": "enabled",
+  "commented": "commented",
+  "manifestPinsSaveToApply": "{changed} manifest pins {commented}. Save to apply.",
+  "@manifestPinsSaveToApply": {
+    "placeholders": {
+      "changed": {
+        "type": "String"
+      },
+      "commented": {
+        "type": "String"
+      }
+    }
+  },
+  "enablePins": "Enable pins",
+  "disablePins": "Disable pins",
+  "ctrlSToSaveOriginalBackedUpBeforeSavingLines": "Ctrl+S to save · Original backed up before saving · {value1} lines",
+  "@ctrlSToSaveOriginalBackedUpBeforeSavingLines": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "directGithub": "Direct GitHub",
+  "testCoverSources": "Test cover sources",
+  "testGithubDownloadSources": "Test GitHub download sources",
+  "testCancelled": "Test cancelled",
+  "networkAndDownloadSources": "Network and download sources",
+  "chooseCoverAndPublicDownloadSourcesForYourConnectionTestsShowCurrentResultsWithoutCha": "Choose cover and public download sources for your connection. Tests show current results without changing your preferences.",
+  "gameCovers": "Game covers",
+  "preferredSource": "Preferred source",
+  "byDefaultUseTheOfficialImageUrlFromGameDetailsThisPreferenceAffectsArtworkOnlyNotStea": "By default, use the official image URL from game details. This preference affects artwork only, not Steam sign-in, Store APIs or content downloads.",
+  "githubDownloads": "GitHub downloads",
+  "preferredPublicDownloadSource": "Preferred public download source",
+  "customGithubMirror": "Custom GitHub mirror",
+  "githubMirrorHint": "https://mirror.example.com",
+  "directDefault": "Direct (default)",
+  "mirrorsApplyOnlyToAnonymousPublicGithubFileDownloadsSignInApiTokenAndCredentialBearin": "Mirrors apply only to anonymous public GitHub file downloads. Sign-in, API, token and credential-bearing requests always stay direct. The selected mirror processes those public download requests.",
+  "testPublicDownloadSources": "Test public download sources",
+  "testingSourcesViewOrCancelTheOperationInGlobalTasksNavigationKeepsItRunning": "Testing sources. View or cancel the operation in global tasks; navigation keeps it running.",
+  "failed": "Failed",
+  "gameManagement2": "Game management",
+  "patchSettings": "Patch settings",
+  "patchSettingsDescription": "Verify game files, manage Goldberg and download network patches.",
+  "patchTools": "Patch tools",
+  "patchToolsDescription": "Patch archives are not installed generically. Inspect game files against Steam manifests or use the network patch downloader.",
+  "gameFileVerification": "Game file verification",
+  "gameFileVerificationDescription": "Compare installed files with the manifests recorded by Steam.",
+  "gamePatchDownload": "Game patch download",
+  "gamePatchDownloadDescription": "Download and extract a network patch package without installing it.",
+  "goldbergEmulator": "Goldberg emulator",
+  "goldbergSettings": "Goldberg settings",
+  "goldbergDescription": "Download, deploy and configure the Goldberg emulator for this game.",
+  "goldbergSettingsFooter": "Only the standardized Goldberg deployment is automated. Generic patch archives remain manual.",
+  "authorizationTicketDescription": "Import tickets.txt, validate its AppID and payload lengths, then apply the ticket only when explicitly requested.",
+  "matchingLua": "Matching Lua",
+  "matchingLuaFound": "A matching Lua file was found for this game.",
+  "matchingLuaMissing": "No matching Lua file was found. The ticket can still be applied.",
+  "ticketActions": "Ticket actions",
+  "networkSource": "Network source",
+  "selectedPatch": "Selected",
+  "loadPatches": "Load patches",
+  "patchSourceLoaded": "Loaded {count} patch options.",
+  "@patchSourceLoaded": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "choosePatchType": "Choose a patch type first.",
+  "patchType": "Patch type",
+  "noPatchesAvailable": "No patches available",
+  "noPatchesAvailableDescription": "This game has no entry in the configured network patch table.",
+  "gamePatchDownloadFooter": "The downloaded archive is extracted to the application downloads folder. Nothing is copied into the game.",
+  "downloadingPatch": "Downloading {label}",
+  "@downloadingPatch": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadPatch": "Download patch",
+  "patchDownloadComplete": "Downloaded {files} files ({size}) to {path}.",
+  "@patchDownloadComplete": {
+    "placeholders": {
+      "files": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "patchDownloadFailed": "Patch download failed: {error}",
+  "@patchDownloadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "patchExtracted": "Patch extracted",
+  "virtualMachinePatch": "Virtual machine (BuildID: {buildId})",
+  "@virtualMachinePatch": {
+    "placeholders": {
+      "buildId": {
+        "type": "String"
+      }
+    }
+  },
+  "v38Patch": "V38 patch",
+  "onlinePatch": "Online patch (fix)",
+  "offlinePatch": "Offline patch (crack)",
+  "vbsPatch": "VBS patch",
+  "searchFiles": "Search files",
+  "verifyGameFiles": "Verify game files",
+  "verificationTarget": "Verification target",
+  "gameDirectoryUnavailable": "The game directory is unavailable.",
+  "verificationEmptyDescription": "The verification uses appmanifest and local depotcache manifests. Unexpected files are suggestions and are never deleted automatically.",
+  "startVerification": "Start verification",
+  "filesMatchManifests": "Files match the installed manifests",
+  "filesNeedAttention": "{count} files need attention",
+  "@filesNeedAttention": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "verifiedCount": "Verified {count}",
+  "@verifiedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "missingCount": "Missing {count}",
+  "@missingCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "changedCount": "Changed {count}",
+  "@changedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "unexpectedCount": "Unexpected {count}",
+  "@unexpectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "unverifiedCount": "Unverified {count}",
+  "@unverifiedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "manifestSummary": "{depots} depots · {manifests} manifests parsed",
+  "@manifestSummary": {
+    "placeholders": {
+      "depots": {
+        "type": "String"
+      },
+      "manifests": {
+        "type": "String"
+      }
+    }
+  },
+  "manifestNotes": "Manifest notes",
+  "manifestVerificationWarning": "Encrypted manifests need the depot key from the game Lua file. Files that cannot be compared are reported here.",
+  "manifestInventoryOnly": "Manifest data is unavailable; showing a file inventory only",
+  "manifestPartialSummary": "Some depots were checked; unmatched files require manual review",
+  "allFiles": "All files",
+  "issuesOnly": "Issues",
+  "unexpectedFiles": "Unexpected files",
+  "noMatchingFiles": "No matching files",
+  "verificationResults": "Verification results",
+  "unexpectedFilesHint": "Unexpected files are suggestions only. Review them before changing anything.",
+  "unverifiedFilesHint": "Files from depots without readable manifests cannot be classified as unexpected.",
+  "verified": "Verified",
+  "changed": "Changed",
+  "unexpected": "Unexpected",
+  "unverified": "Unverified",
+  "expectedSize": "Expected {size} bytes",
+  "@expectedSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "actualSize": "Actual {size} bytes",
+  "@actualSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "emulatorNotDownloaded": "No Goldberg release is cached.",
+  "currentEmulatorVersion": "Cached version: {version}",
+  "@currentEmulatorVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "goldbergDeployDescription": "Replace the Steam API DLLs found in this game with the cached Goldberg build.",
+  "connectionAndIdentity": "Connection and identity",
+  "steamId": "SteamID",
+  "dlcIds": "DLC IDs",
+  "depotIds": "Depot IDs",
+  "steamInterfaces": "Steam interfaces",
+  "steamInput": "Steam Input",
+  "contentConfiguration": "Content configuration",
+  "behavior": "Behavior",
+  "configurationActions": "Configuration actions",
+  "jsonDefinitions": "JSON definitions",
+  "luaExtraction": "Lua extraction",
+  "luaExtractionDescription": "Query the selected Steam app, fetch its authorized depot keys and write a Lua file plus optional manifests. The account must own the game.",
+  "denuvoTicketExtraction": "Denuvo ticket extraction",
+  "denuvoTicketExtractionDescription": "Extract AppTicket and ETicket from the signed-in local Steam user. The account must own the game.",
+  "steamLoginRequired": "Sign in to Steam before extracting Lua content.",
+  "useLocalSteamLogin": "Use local Steam login",
+  "useLocalSteamLoginDescription": "Read the signed-in Steam account from local.vdf without entering a password.",
+  "localSteamLoginUnavailable": "No usable local Steam login was found. Start Steam and sign in, or use the manual login below.",
+  "realOwnershipRequiredNotice": "Real ownership is required: only use extraction for games you personally own. This app does not verify purchases.",
+  "notSignedIn": "Not signed in",
+  "luaLoginDescription": "Open the Steam account page to sign in or change account.",
+  "appIdForExtraction": "Game AppID",
+  "outputDirectory": "Output directory",
+  "useDefaultOutputDirectory": "Use the application downloads directory",
+  "extractionTarget": "Extraction target",
+  "extractionOptions": "Extraction options",
+  "copyAchievements": "Copy achievements data",
+  "extractionResult": "Extraction result",
+  "extractingLua": "Extracting Lua for AppID {appId}",
+  "@extractingLua": {
+    "placeholders": {
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "extractLua": "Extract Lua",
+  "luaExtractionComplete": "Lua extraction complete · {keys} depot keys · {manifests} manifests",
+  "@luaExtractionComplete": {
+    "placeholders": {
+      "keys": {
+        "type": "String"
+      },
+      "manifests": {
+        "type": "String"
+      }
+    }
+  },
+  "ownershipRequired": "This Steam account does not truly own this game.",
+  "steamMustBeRunningAndSignedIn": "Start Steam and sign in to the account that owns this game first.",
+  "outputDirectoryDoesNotExist": "The output directory does not exist.",
+  "ticketExtractionFileHeader": "Extracted by FlSteamLua. Use the ticket before it expires.",
+  "ticketExtractionComplete": "Ticket written to {path}",
+  "@ticketExtractionComplete": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketExtractionOptions": "Ticket options",
+  "extractDenuvoTicket": "Extract ticket",
+  "openAuthorizationPage": "Open authorization page",
+  "patchesRestore": "Patches & restore",
+  "tickets": "Tickets",
+  "gameDirectory": "Game directory",
+  "selectGameDirectory": "Select game directory",
+  "choose": "Choose",
+  "patchInstallation": "Patch installation",
+  "previewFilesBeforeInstallationOriginalsAreBackedUpAndLaterChangesAreCheckedBeforeRest": "Preview files before installation. Originals are backed up, and later changes are checked before restoration.",
+  "choosePatchArchive": "Choose patch archive",
+  "inspectExecutable": "Inspect executable",
+  "downloadTheUpstreamWindowsReleaseOnDemandDeploymentReplacesExistingSteamApiDllsAndCre": "Download the upstream Windows release on demand. Deployment replaces existing Steam API DLLs and creates a restorable backup; edit configuration in the next tab.",
+  "downloadUpdateEmulator": "Download/update emulator",
+  "deployGoldberg": "Deploy Goldberg",
+  "replaceSteamApiDllsInThisGameDirectoryOriginalFilesWillBeSavedInApplicationBackups": "Replace Steam API DLLs in this game directory? Original files will be saved in application backups.",
+  "deployToThisGame": "Deploy to this game",
+  "patchBackups": "Patch backups",
+  "noPatchBackupsForThisGame": "No patch backups for this game.",
+  "restored": "Restored",
+  "available": "Available",
+  "restore2": "Restore",
+  "inspectPatchArchive": "Inspect patch archive",
+  "thisArchiveContainsManifestsOnlyImportItFromTheLibrary": "This archive contains manifests only. Import it from the library.",
+  "installPatch": "Install patch",
+  "restorePatchBackup": "Restore patch backup",
+  "restorePatch": "Restore patch",
+  "fileHasChanged": "File has changed",
+  "theseFilesWereModifiedAfterPatchInstallationReplaceThemWithTheOriginalBackupsAnyway": "These files were modified after patch installation. Replace them with the original backups anyway?",
+  "inspectPeExecutable": "Inspect PE executable",
+  "aBindSectionWasFoundAutomaticUnpackingIsNotIncludedTheOriginalSteamlessCodeDeclaresCc": "A .bind section was found. Automatic unpacking is not included: the original Steamless code declares CC BY-NC-ND 4.0 and cannot be ported into this GPL distribution. This file was not modified.",
+  "noBindSectionFoundThisDoesNotIdentifyOtherProtectionTypes": "No .bind section found; this does not identify other protection types.",
+  "downloadGoldberg": "Download Goldberg",
+  "downloadEmulator": "Download emulator",
+  "emulatorConfiguration": "Emulator configuration",
+  "unknownIniKeysArePreservedInputIsValidatedAndConfigurationFilesAreBackedUpBeforeSavin": "Unknown INI keys are preserved. Input is validated and configuration files are backed up before saving.",
+  "accountName": "Account name",
+  "applicationTicketBase64": "Application ticket (Base64)",
+  "languageCode": "Language code",
+  "listenPort": "Listen port",
+  "localSavePath": "Local save path",
+  "supportedLanguages": "Supported languages",
+  "customBroadcasts": "Custom broadcasts",
+  "disableNetworking": "Disable networking",
+  "offlineMode": "Offline mode",
+  "allDlc": "All DLC",
+  "emulatedCloudSaves": "Emulated cloud saves",
+  "createCloudDirectory": "Create cloud directory",
+  "experimentalOverlay": "Experimental overlay",
+  "saveGoldbergConfiguration": "Save Goldberg configuration",
+  "saveConfiguration": "Save configuration",
+  "achievementsStatsItemsJson": "Achievements/stats/items JSON",
+  "exportZip": "Export ZIP",
+  "importConfigurationZip": "Import configuration ZIP",
+  "reload2": "Reload",
+  "editJsonDefinitions": "Edit JSON definitions",
+  "applyToDraft": "Apply to draft",
+  "exportConfiguration": "Export configuration",
+  "exportGoldbergConfiguration": "Export Goldberg configuration",
+  "importConfiguration": "Import configuration",
+  "existingConfigurationWillBeBackedUpBeforeReplacementContinue": "Existing configuration will be backed up before replacement. Continue?",
+  "importGoldbergConfiguration": "Import Goldberg configuration",
+  "authorizationTickets": "Authorization tickets",
+  "authorization": "Authorization",
+  "denuvoAuthorization": "Denuvo authorization",
+  "denuvoAuthorizationDescription": "Extract, validate, back up and apply AppTicket and ETicket data for your locally signed-in Steam account.",
+  "importedTicketsTxtFilesAreCheckedForAppidAndPayloadLengthsLocalBackupsUseCurrentUserW": "Imported tickets.txt files are checked for AppID and payload lengths. Local backups use current-user Windows DPAPI; the Steam registry changes only when you apply a ticket.",
+  "importTicketsTxt": "Import tickets.txt",
+  "importOneTicketFileAtATime": "Import one tickets.txt file at a time.",
+  "applyToSteam": "Apply to Steam",
+  "saveTicketBackup": "Save ticket backup",
+  "encryptedBackup": "Encrypted backup",
+  "exportPlaintextFile": "Export plaintext file",
+  "encryptedBackups": "Encrypted backups",
+  "noSavedTickets": "No saved tickets.",
+  "loadTicket": "Load ticket",
+  "load": "Load",
+  "deleteEncryptedBackup": "Delete encrypted backup",
+  "deleteTicketBackup": "Delete ticket backup",
+  "validateTicketFile": "Validate ticket file",
+  "applySteamTicket": "Apply Steam ticket",
+  "thisReplacesExistingAppticketAndEticketValuesForThisGame": "This replaces existing AppTicket and ETicket values for this game.",
+  "applyTicket": "Apply ticket",
+  "exportPlaintextTicket": "Export plaintext ticket",
+  "exportTicket": "Export ticket",
+  "configureTheReleaseRepositoryForThisFlutterApplicationFirst": "Configure the release repository for this Flutter application first.",
+  "checkApplicationUpdates": "Check application updates",
+  "setStartupRegistration": "Set startup registration",
+  "setSteamOfflineMode": "Set Steam offline mode",
+  "selectTheSteamFolderFirst": "Select the Steam folder first.",
+  "setFriendPresence": "Set friend presence",
+  "backgroundAndSteamPreferences": "Background and Steam preferences",
+  "readSteamAndStartupState": "Read Steam and startup state",
+  "automaticTasks": "Automatic tasks",
+  "refreshTheLibraryAutomatically": "Refresh the library automatically",
+  "watchManifestsAndLuaFilesAndScanAtTheSelectedIntervalRefreshManuallyFromTheLibraryWhe": "Watch manifests and Lua files and scan at the selected interval. Refresh manually from the library when disabled.",
+  "refreshInterval": "Refresh interval",
+  "seconds": "{seconds} seconds",
+  "@seconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "checkForApplicationUpdatesAutomatically": "Check for application updates automatically",
+  "checkAtStartupAndEvery24HoursUsingTheConfiguredFlutterApplicationReleaseRepository": "Check at startup and every 24 hours using the configured Flutter application release repository.",
+  "updateKeySubscriptionsAutomatically": "Update key subscriptions automatically",
+  "whenEnabledCheckEnabledSubscriptionsHourlyAndDownloadUpdatesWhenTheirSourceIntervalIs": "When enabled, check enabled subscriptions hourly and download updates when their source interval is due.",
+  "newVersion": "New version {version}",
+  "@newVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "viewReleaseNotesAndDownloadsInSettings": "View release notes and downloads in Settings.",
+  "startupAndSteam": "Startup and Steam",
+  "launchFlsteamluaAtSignIn": "Launch FlSteamLua at sign-in",
+  "readTheCurrentStateWithTheRefreshButton": "Read the current state with the refresh button.",
+  "startWhenTheCurrentUserSignsInToWindows": "Start when the current user signs in to Windows.",
+  "broadcastPlayStatusToFriends": "Broadcast play status to friends",
+  "allowTheKernelToShowPlayStatusToSteamFriendsThroughSpacewarDisableToHideTheseBroadcas": "Allow the kernel to show play status to Steam friends through Spacewar. Disable to hide these broadcasts.",
+  "broadcastStateHasNotBeenReadYet": "Broadcast state has not been read yet.",
+  "steamOfflineMode": "Steam offline mode",
+  "setOfflineOptionsForTheMostRecentAccountAppliesOnTheNextSteamLaunchWithoutRestartingS": "Set offline options for the most recent account. Applies on the next Steam launch without restarting Steam automatically.",
+  "noRecentSteamAccountWasReadSignInToSteamThenRefreshTheState": "No recent Steam account was read. Sign in to Steam, then refresh the state.",
+  "lastBackgroundTaskFailure": "Last background task failure: {backgroundError}",
+  "@lastBackgroundTaskFailure": {
+    "placeholders": {
+      "backgroundError": {
+        "type": "String"
+      }
+    }
+  },
+  "steamGuardVerification": "Steam Guard verification",
+  "enterTheCodeFromYourEmail": "Enter the code from your email.",
+  "enterYourSteamMobileAuthenticatorCode": "Enter your Steam mobile authenticator code.",
+  "approveThisSignInInTheSteamMobileAppThenContinue": "Approve this sign-in in the Steam mobile app, then continue.",
+  "code": "Code",
+  "signInToSteam": "Sign in to Steam",
+  "enterAValidAppid": "Enter a valid AppID",
+  "selectTheExportFolder": "Select the export folder",
+  "extractGame": "Extract game {id}",
+  "@extractGame": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "depotKeys": "Depot keys",
+  "savedManifests": "Saved manifests",
+  "itemsNotCompleted": "Items not completed",
+  "filesSaved": "Files saved",
+  "steamAccountExtraction": "Steam account & extraction",
+  "connectToSteamToExportManifestsAccessibleToThisAccountYourPasswordIsUsedOnlyForSignIn": "Connect to Steam to export manifests accessible to this account. Your password is used only for sign-in.",
+  "connectedToSteam": "Connected to Steam",
+  "signOut": "Sign out",
+  "signOutAndForgetSession": "Sign out and forget session",
+  "accountName2": "Account name",
+  "password": "Password",
+  "signIn": "Sign in",
+  "restoreSteamSession": "Restore Steam session",
+  "useSavedSession": "Use saved session",
+  "exportLuaManifests": "Export Lua & manifests",
+  "includeAccessibleDlc": "Include accessible DLC",
+  "downloadManifestFiles": "Download manifest files",
+  "pinCurrentPublicManifestVersions": "Pin current public manifest versions",
+  "chooseFolderExport": "Choose folder & export",
+  "store": "Store",
+  "discoverGamesPurchaseAndInstallThroughSteam": "Discover games. Purchase and install through Steam.",
+  "searchGameTitles": "Search game titles",
+  "showAdultContent": "Show adult content",
+  "hideAdultContent": "Hide adult content",
+  "storeRegion": "Store region",
+  "regionChinaMainland": "Mainland China",
+  "regionHongKong": "Hong Kong, China",
+  "regionTaiwan": "Taiwan, China",
+  "regionUnitedStates": "United States",
+  "regionJapan": "Japan",
+  "regionSouthKorea": "South Korea",
+  "regionSingapore": "Singapore",
+  "regionUnitedKingdom": "United Kingdom",
+  "regionGermany": "Germany",
+  "regionFrance": "France",
+  "regionCanada": "Canada",
+  "regionAustralia": "Australia",
+  "regionBrazil": "Brazil",
+  "regionRussia": "Russia",
+  "regionArgentina": "Argentina",
+  "search": "Search",
+  "popular": "Popular",
+  "newReleases": "New releases",
+  "specials": "Specials",
+  "comingSoon": "Coming soon",
+  "noMatchingGames2": "No matching games",
+  "storeUnavailable": "Store unavailable",
+  "reload3": "Reload",
+  "ofGames": "{itemsCount} of {total} games",
+  "@ofGames": {
+    "placeholders": {
+      "itemsCount": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "loadMore": "Load more",
+  "allResultsLoaded": "All results loaded",
+  "viewStorePrice": "View store price",
+  "viewFixFiles": "View fix files",
+  "fixFiles": "Fix files",
+  "downloadOnlineFix": "Download online fix",
+  "downloaded": "Downloaded",
+  "archivePasswordOnlineFixMe": "Archive password: online-fix.me",
+  "copyPassword": "Copy password",
+  "instructionsOriginalText": "Instructions (original text)",
+  "showMore": "Show more",
+  "showLess": "Show less",
+  "filesAndInstructionsAreSavedInASeparateFolderForEachGame": "Files and instructions are saved in a separate folder for each game.",
+  "sourcePage": "Source page",
+  "parentFolder": "Parent folder",
+  "cancelDownload": "Cancel download",
+  "download": "Download",
+  "noFixFilesAreAvailableInThisDirectory": "No fix files are available in this directory.",
+  "noMatchingOnlineFixes": "No matching online fixes",
+  "noOnlineFixesAvailable": "No online fixes are available right now",
+  "searchAGameForFixFilesAndInstructions": "Search a game for fix files and instructions",
+  "sourceOnlineFixMe": "Source: online-fix.me",
+  "fixActions": "Fix actions",
+  "backToResults": "Back to results",
+  "searchOnlineFixes": "Search online fixes",
+  "spacewar480Multiplayer": "Spacewar (480) multiplayer",
+  "withAKernelThatSupportsOst480MultiplayerLaunchOptionsMapTheGameToSpacewarBothPlayersM": "With a kernel that supports OST 480 multiplayer, launch options map the game to Spacewar. Both players must use the same multiplayer method.",
+  "setup": "Setup",
+  "message1RightClickTheGameInSteamAndOpenProperties2AddTheOptionBelowToLaunchOptions3St": "1. Right-click the game in Steam and open Properties.\n2. Add the option below to Launch Options.\n3. Start the game. Remove the option to restore the default.",
+  "copyLaunchOption": "Copy launch option",
+  "requiresACompatibleKernelAndLobbyBasedGameOnlyOneSuchGameCanRunAtATime": "Requires a compatible kernel and lobby-based game; only one such game can run at a time.",
+  "downloads": "Downloads",
+  "spacewar480": "Spacewar (480)",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "goToPage": "Go to page",
+  "pageNumber": "Page",
+  "pageOutOfRange": "Enter a page between 1 and {totalPages}",
+  "@pageOutOfRange": {
+    "placeholders": {
+      "totalPages": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadTrainer": "Download trainer",
+  "thisArchiveIsAvailableForDirectDownload": "This archive is available for direct download.",
+  "addGameBinding": "Add game binding",
+  "editGameBinding": "Edit game binding",
+  "chooseFromLibrary": "Choose from library",
+  "enterAValidAppid2": "Enter a valid AppID",
+  "gameName": "Game name",
+  "enterTheGameName": "Enter the game name",
+  "gameExecutable": "Game executable",
+  "chooseGameExecutable": "Choose game executable",
+  "trainerExecutable": "Trainer executable",
+  "chooseTrainerExecutable": "Choose trainer executable",
+  "useADownloadedTrainer": "Use a downloaded trainer",
+  "startAndStopWithTheGame": "Start and stop with the game",
+  "deleteTrainer": "Delete trainer",
+  "associatedGameBindingsWillAlsoBeRemoved": "Associated game bindings will also be removed.",
+  "delete": "Delete",
+  "searchGameNames": "Search game names",
+  "clear": "Clear",
+  "recentUpdates": "Recent updates",
+  "allTrainers": "All trainers",
+  "archive": "Archive",
+  "trainers2": "trainers",
+  "loadingFling": "Loading FLiNG…",
+  "noMatchingTrainers": "No matching trainers",
+  "downloadAgain": "Download again",
+  "myTrainers": "My trainers",
+  "downloadFolder": "Download folder",
+  "noDownloadedTrainers": "No downloaded trainers",
+  "downloadFromBrowseThenOpenArchivesToExtractAndBindAnExecutable": "Download from Browse, then open archives to extract and bind an executable.",
+  "stop3": "Stop",
+  "open": "Open",
+  "manageTrainer": "Manage trainer",
+  "bindToGame": "Bind to game",
+  "openContainingFolder": "Open containing folder",
+  "createDesktopShortcut": "Create desktop shortcut",
+  "gameAndTrainerBindings": "Game and trainer bindings",
+  "addBinding": "Add binding",
+  "bindALocalTrainerToAGame": "Bind a local trainer to a game",
+  "enabledTrainersStartAndStopWithTheDetectedGameProcess": "Enabled trainers start and stop with the detected game process.",
+  "launch2": "Launch",
+  "editBinding": "Edit binding",
+  "removeBinding": "Remove binding",
+  "browse": "Browse",
+  "gameBindings": "Game bindings",
+  "operationFailed": "Operation failed",
+  "chooseOutputFolder": "Choose output folder",
+  "luaVdfConversion": "Lua / VDF conversion",
+  "writesNewFilesWithoutOverwritingLuaToVdfRequiresAnAppid": "Writes new files without overwriting. Lua to VDF requires an AppID.",
+  "appidOptional": "AppID (optional)",
+  "includeManifestPinsWhenConvertingVdf": "Include manifest pins when converting VDF",
+  "convert": "Convert",
+  "convertFiles": "Convert files",
+  "chooseSourceFolder": "Choose source folder",
+  "batchConversion": "Batch conversion",
+  "pinGameVersion": "Pin game version",
+  "pinCurrentlyInstalledManifests": "Pin currently installed manifests",
+  "pinLatestPublicManifests": "Pin latest public manifests",
+  "unpinKeepCommentedRecords": "Unpin (keep commented records)",
+  "updateManifestPins2": "Update manifest pins",
+  "addDlcAppids": "Add DLC AppIDs",
+  "dlcAppidsSeparatedBySpacesCommasOrNewlines": "DLC AppIDs separated by spaces, commas or newlines",
+  "addToLua": "Add to Lua",
+  "addDlc": "Add DLC",
+  "environmentDiagnostics": "Environment diagnostics",
+  "manifestMonitorAndDownloadRepair": "Manifest monitor and download repair",
+  "watchNewSteamContentLogRequestsAndDownloadManifestsFromCodeProvidersAndSteamCdnIntoDe": "Watch new Steam content_log requests and download manifests from code providers and Steam CDN into depotcache. Tasks continue across pages.",
+  "noLogEntriesYet": "No log entries yet",
+  "stopMonitoring": "Stop monitoring",
+  "startMonitoring": "Start monitoring",
+  "tools": "Tools",
+  "openToolsAsNeededOrStartFromAGameSDetailPage": "Open tools as needed, or start from a game’s detail page.",
+  "filesAndManifests": "Files and manifests",
+  "convertLuaVdfAndAcfFilesToASeparateOutputFolder": "Convert Lua, VDF and ACF files to a separate output folder",
+  "convertAFolder": "Convert a folder",
+  "processAllSupportedFilesInAFolder": "Process all supported files in a folder",
+  "manifestMonitoring": "Manifest monitoring",
+  "fetchMissingManifestsRequestedBySteam": "Fetch missing manifests requested by Steam",
+  "manifestVersionPins": "Manifest version pins",
+  "installedManifestsLatestPublicManifestsOrUnpin": "Installed manifests, latest public manifests or unpin",
+  "appendDlcEntriesWithoutDuplicatingExistingRecords": "Append DLC entries without duplicating existing records",
+  "downloadCover": "Download cover",
+  "saveToTheApplicationCoverCache": "Save to the application cover cache",
+  "gameTools": "Game tools",
+  "searchDownloadAndBindTrainers": "Search, download and bind trainers",
+  "findOnlineFixesAndDownloadFiles": "Find online fixes and download files",
+  "openTool": "Open tool",
+  "maintenance": "Maintenance",
+  "diagnostics": "Diagnostics",
+  "steamPathClientAndDataDirectories": "Steam path, client and data directories",
+  "openLogFolder": "Open log folder",
+  "logFolder": "Log folder",
+  "openBackupFolder": "Open backup folder",
+  "backupFolder": "Backup folder",
+  "openFlsteamlua": "Open FlSteamLua",
+  "quit": "Quit",
+  "collapseSidebar": "Collapse sidebar",
+  "expandSidebar": "Expand sidebar",
+  "contentSources": "Content sources",
+  "allSources": "All",
+  "luaSources": "Lua",
+  "manifestSources": "Manifests",
+  "enabledSources": "Enabled",
+  "failedSources": "Needs attention",
+  "subscriptionSource": "Subscription",
+  "scriptSource": "JS script",
+  "localSource": "Local",
+  "manifestIds": "Manifest IDs",
+  "manifestFiles": "Manifest files",
+  "addContentSource": "Add content source",
+  "addSubscriptionSource": "Add subscription source",
+  "importScriptSource": "Import JS content source",
+  "importLocalContent": "Import local content",
+  "editSource": "Edit",
+  "editScript": "Edit script",
+  "configureSource": "Configure source",
+  "validateScript": "Validate script",
+  "restoreBuiltInScript": "Restore built-in script",
+  "openScriptFolder": "Open script folder",
+  "scriptSaved": "Script saved",
+  "scriptIsValid": "Script syntax and metadata are valid",
+  "theseScriptChangesHaveNotBeenSaved": "These script changes have not been saved.",
+  "testSource": "Test",
+  "updateSource": "Update",
+  "enableSource": "Enable",
+  "disableSource": "Disable",
+  "deleteSource": "Delete",
+  "deleteSourceConfirm": "Delete this content source and its local configuration?",
+  "sourceConfigurationRequired": "Setup required",
+  "sourceConfigured": "Configured",
+  "sourceNotTested": "Not tested",
+  "sourceNeverUpdated": "Not updated",
+  "noContentSources": "No matching content sources",
+  "contentImport": "Add to Lua library",
+  "luaContentSource": "Lua content source",
+  "manifestContentSource": "Manifest source (optional)",
+  "noManifestSource": "None; let Steam or the kernel retrieve manifests",
+  "previewContent": "Preview content",
+  "importContent": "Import",
+  "contentImportComplete": "Import complete",
+  "contentImportReplace": "Replace existing files and back up",
+  "configureContentSources": "Manage content sources",
+  "sourceName": "Name",
+  "depotKeysUrl": "Depot keys JSON URL",
+  "appTokensUrl": "App tokens JSON URL",
+  "sourceUpdateInterval": "Update interval (hours)",
+  "sourceEnabled": "Enable this content source",
+  "requiredField": "Required",
+  "invalidUrl": "Enter an HTTP or HTTPS URL",
+  "invalidUpdateInterval": "Enter a non-negative integer",
+  "sourceTestSucceeded": "Test succeeded",
+  "sourceUpdateComplete": "Update complete",
+  "includeDlc": "Include DLC",
+  "pinManifestVersions": "Pin manifest versions",
+  "refreshContentMetadata": "Refresh depot metadata online",
+  "contentImportNoLuaSource": "Add or enable a content source that provides Lua first",
+  "originalCoverUrl": "Original cover URL",
+  "steamStoreApi": "Steam Store API",
+  "heyboxApi": "Heybox API",
+  "akamaiMain": "Akamai main",
+  "akamaiBackup": "Akamai backup",
+  "cloudflareCdn": "Cloudflare CDN",
+  "akamaiPortrait": "Akamai portrait",
+  "contentImportNoLocalLua": "No Lua configuration with a valid addappid was found. Manifest files alone cannot add a game.",
+  "contentImportPerGame": "Each game is imported independently. Failed games are listed without undoing successfully imported games.",
+  "settings": "Settings",
+  "tools2": "Tools",
+  "downloadManageTrainers": "Download & manage trainers",
+  "addLuaFromAContentSource": "Add Lua from a content source",
+  "accountExtraction": "Account & extraction",
+  "patchesLicenses": "Patches & licenses",
+  "manageAchievements2": "Manage achievements",
+  "dashboard": "Dashboard",
+  "showPanel": "Show panel",
+  "hidePanel": "Hide panel",
+  "accountExtraction2": "Account & extraction",
+  "steamAccount": "Steam account",
+  "accountManagement": "Account management",
+  "steamAccounts": "Steam accounts",
+  "addSteamAccount": "Add Steam account",
+  "addSteamAccountDescription": "Open Steam's own sign-in flow. FlSteamLua never asks for your Steam password.",
+  "currentSteamAccount": "Current",
+  "switchSteamAccount": "Switch account",
+  "steamWillRestartToSwitchAccount": "Steam will restart and switch to this account.",
+  "steamWillOpenItsOwnLogin": "Steam will open its own sign-in flow. Sign in there, then return and refresh the account list.",
+  "noSteamAccounts": "No Steam accounts found",
+  "noSteamAccountsDescription": "Start Steam and sign in, then refresh this page.",
+  "accountManagerHint": "Switching accounts restarts Steam. Account credentials stay inside Steam.",
+  "chooseAFolder": "Choose a folder",
+  "chooseTheSteamInstallationFolderContainingSteamExe": "Choose the Steam installation folder containing steam.exe.",
+  "theLuaFolderDoesNotExistChooseAnExistingFolder": "The Lua folder does not exist. Choose an existing folder.",
+  "refreshGameLibrary": "Refresh game library",
+  "pathsSavedAndGameLibraryRefreshed": "Paths saved and game library refreshed.",
+  "useOwnerRepositoryForExampleYournameFlsteamlua": "Use owner/repository, for example yourname/FlSteamLua.",
+  "theFlsteamluaReleaseRepositoryIsNotConfigured": "The FlSteamLua release repository is not configured.",
+  "youAreUsingTheLatestPublishedVersion": "You are using the latest published version.",
+  "noReleaseNotesWereProvided": "No release notes were provided.",
+  "later": "Later",
+  "releasePage": "Release page",
+  "downloadUpdate": "Download update",
+  "downloadApplicationUpdate": "Download application update",
+  "updateDownloaded": "Update downloaded: {path}",
+  "@updateDownloaded": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "updateReadyTitle": "Update ready",
+  "updateReadyDescription": "The download was verified. Close FlSteamLua on the next step and run the installer now?",
+  "installUpdateNow": "Install now",
+  "openFolder2": "Open folder",
+  "makeYourGameCompanionFeelAtHome": "Make your game companion feel at home.",
+  "steamAndGameFiles": "Steam and game files",
+  "steamInstallationFolder": "Steam installation folder",
+  "theFolderContainingSteamExe": "The folder containing steam.exe",
+  "luaFolder": "Lua folder",
+  "leaveEmptyToUseTheKernelConfigurationOrConfigLua": "Leave empty to use the kernel configuration or config/stplug-in",
+  "saveAndRefreshLibrary": "Save and refresh library",
+  "appearanceAndInteraction": "Appearance and interaction",
+  "theme": "Theme",
+  "followTheSystemOrChooseALightOrDarkAppearance": "Follow the system or choose a light or dark appearance.",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "displayLanguage": "Display language",
+  "appliesImmediatelyWithoutRestarting": "Applies immediately without restarting.",
+  "expandedSidebar": "Expanded sidebar",
+  "showDestinationLabelsAlongsideIcons": "Show destination labels alongside icons.",
+  "keepRunningInTheTray": "Keep running in the tray",
+  "keepBackgroundTasksRunningQuitFromTheTrayMenu": "Keep background tasks running; quit from the tray menu.",
+  "closeSteamToContinue": "Close Steam to continue",
+  "closeSteamToContinueDescription": "This change updates Steam files. Steam and its game processes must be closed before the change can continue.",
+  "closeAndContinue": "Close and continue",
+  "steamClient": "Steam client",
+  "steamClientRunning": "Running",
+  "steamClientNotRunning": "Not running",
+  "steamClientChecking": "Checking...",
+  "steamUpdateControl": "Steam update control",
+  "steamUpdateControlDescription": "Manage Steam client update behavior globally.",
+  "disableSteamUpdateCheck": "Disable Steam update checks",
+  "disableSteamForcedUpdate": "Disable forced Steam updates",
+  "notEnabled": "Not enabled",
+  "startSteam": "Start Steam",
+  "stopSteam": "Close Steam",
+  "restartSteam": "Restart Steam",
+  "automaticRefreshUpdateChecksFriendPresenceStartupAndOfflineMode": "Automatic refresh, update checks, friend presence, startup and offline mode.",
+  "downloadsKernelAndAccount": "Downloads, kernel and account",
+  "manageSubscriptionsScriptsAndTheirLuaManifestIdAndManifestFileCapabilities": "Manage subscriptions, scripts and their Lua, manifest ID and manifest file capabilities.",
+  "kernelManager": "Kernel manager",
+  "downloadImportOrSwitchKernelsAndRestoreBackups": "Download, import or switch kernels and restore backups.",
+  "steamAccountAndExtraction": "Steam account and extraction",
+  "signInVerifySteamGuardAndExtractLicensedContent": "Sign in, verify Steam Guard and extract licensed content.",
+  "chooseCoverAndGithubDownloadSourcesAndTestTheirLatency": "Choose cover and GitHub download sources and test their latency.",
+  "applicationUpdates": "Application updates",
+  "flsteamluaReleaseRepository": "FlSteamLua release repository",
+  "useTheReleaseRepositoryForThisFlutterApplication": "Use the release repository for this Flutter application.",
+  "saveRepository": "Save repository",
+  "checkForUpdates": "Check for updates",
+  "viewNewVersion": "View new version {value1}",
+  "@viewNewVersion": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutFlsteamlua": "About FlSteamLua",
+  "anOpenSourceDesktopCompanionForYourLibraryAchievementsAndSaves": "An open-source desktop companion for your library, achievements and saves.",
+  "uiComponentsAndMotionAreAdaptedFromFlclashFeaturesAreBasedOnFluentSteamLuaAndReimplem": "UI components and motion are adapted from FlClash. Features are based on Fluent-Steam-Lua and reimplemented in Flutter and Dart.",
+  "openSourceLicenses": "Open-source licenses",
+  "browseFolders": "Browse folders",
+  "stopGame2": "Stop game",
+  "updateSubscriptionCaches": "Update subscription caches",
+  "refreshLibrary": "Refresh library",
+  "enabled3": "{enabledLua} enabled",
+  "@enabled3": {
+    "placeholders": {
+      "enabledLua": {
+        "type": "String"
+      }
+    }
+  },
+  "manageLua": "Manage Lua",
+  "steamLibrary": "Steam library",
+  "running2": "{runningCount} running",
+  "@running2": {
+    "placeholders": {
+      "runningCount": {
+        "type": "String"
+      }
+    }
+  },
+  "steamIsNotConnected": "Steam is not connected",
+  "openLibrary": "Open library",
+  "kernel": "Kernel",
+  "couldNotReadKernel": "Could not read kernel",
+  "detectingKernel": "Detecting kernel",
+  "notInstalled": "Not installed",
+  "manageKernel": "Manage kernel",
+  "enabled4": "{enabledSources} enabled",
+  "@enabled4": {
+    "placeholders": {
+      "enabledSources": {
+        "type": "String"
+      }
+    }
+  },
+  "someSourcesNeedConfigurationOrTesting": "Some sources need configuration or testing",
+  "manageSources": "Manage sources",
+  "updateCaches": "Update caches",
+  "running3": "Running",
+  "viewTasks": "View tasks",
+  "activeTasks": "Active tasks",
+  "continuePlaying": "Continue playing",
+  "allGames": "All games",
+  "cancelling2": "Cancelling",
+  "cancelTask": "Cancel task",
+  "enterAValidAppid3": "Enter a valid AppID.",
+  "dlcAnalysis2": "DLC management: {appId}",
+  "dlcDepotStructure": "DLC depot structure",
+  "allDlcStructures": "All structures",
+  "@dlcAnalysis2": {
+    "placeholders": {
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmDlcAdditions": "Confirm DLC additions",
+  "theExistingLuaWillBeBackedUpOnlyTheSelectedLinesBelowAreAppendedExistingScriptsKeysAn": "The existing Lua will be backed up. Only the selected lines below are appended; existing scripts, keys and manifest pins are preserved. This does not establish Steam account ownership.",
+  "backUpAndAppend": "Back up and append",
+  "saveDlcSuggestions": "Save DLC suggestions: {appId}",
+  "@saveDlcSuggestions": {
+    "placeholders": {
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "appendedLinesAnalyzeAgainToVerifyTheCurrentConfiguration": "Appended {count} lines. Analyze again to verify the current configuration.",
+  "@appendedLinesAnalyzeAgainToVerifyTheCurrentConfiguration": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "queryFailedUnknown": "Query failed / unknown",
+  "noIndependentDepot": "No independent depot",
+  "singleDepot": "Single depot",
+  "multipleDepots": "Multiple depots",
+  "inTheMainGame": "In the main game",
+  "compareSteamDepotMetadataWithTheCurrentLuaAndTheContentSourceSelectedForThisAnalysisP": "Compare Steam depot metadata with the current Lua and the content source selected for this analysis. Preview the DLC configuration before appending.",
+  "contentSourceOptional": "Content source (optional)",
+  "doNotUseAContentSourceCache": "Do not use a content source cache",
+  "contentSourceSubscriptionOptional": "Content-source subscription (optional)",
+  "doNotUseASubscriptionCache": "Do not use a subscription cache",
+  "existingLuaFile": "Existing Lua file",
+  "leaveEmptyToSearchTheConfiguredLuaFolderOrSelectADisabledLuaFile": "Leave empty to search the configured Lua folder, or select a disabled Lua file.",
+  "chooseLua": "Choose Lua",
+  "analyzeDlc": "Refresh DLC",
+  "previewDlcChanges": "Preview Lua changes",
+  "mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership": "{mainDepotCount} main depots · {value2} DLC referenced by Lua. Lua configuration is not account ownership.",
+  "@mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership": {
+    "placeholders": {
+      "mainDepotCount": {
+        "type": "String"
+      },
+      "value2": {
+        "type": "String"
+      }
+    }
+  },
+  "allLayouts": "All layouts",
+  "steamReturnedNoDlcForThisGame": "Steam returned no DLC for this game.",
+  "referenced": "referenced",
+  "notConfigured": "not configured",
+  "luaSuggestedLines": "Lua {value1} · {suggestionsCount} suggested lines",
+  "@luaSuggestedLines": {
+    "placeholders": {
+      "value1": {
+        "type": "String"
+      },
+      "suggestionsCount": {
+        "type": "String"
+      }
+    }
+  },
+  "missingKeysSkipped": "Missing keys, skipped: {join}",
+  "@missingKeysSkipped": {
+    "placeholders": {
+      "join": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedAdditions": "Selected additions",
+  "noLinesSelected": "No lines selected.",
+  "copySuggestions": "Copy suggestions",
+  "previewAndAppendToLua": "Preview and append to Lua",
+  "free": "Free",
+  "pinWindow": "Pin window",
+  "unpinWindow": "Unpin window",
+  "minimizeWindow": "Minimize",
+  "maximizeWindow": "Maximize",
+  "restoreWindow": "Restore",
+  "closeWindow": "Close",
+  "layout": "Layout",
+  "comfortable": "Comfortable",
+  "standard": "Standard",
+  "compact": "Compact",
+  "themeMode": "Theme mode",
+  "themeColor": "Theme color",
+  "pureBlackMode": "Pure black mode",
+  "pureBlack": "Pure black",
+  "colorStyle": "Palette style",
+  "vivid": "Vivid",
+  "tinted": "Tinted",
+  "soft": "Soft",
+  "monochrome": "Monochrome",
+  "navigationBarStyle": "Sidebar style",
+  "floating": "Floating",
+  "docked": "Docked",
+  "tabAnimation": "Page transition",
+  "slide": "Slide",
+  "fade": "Fade",
+  "liquidGlass": "Liquid glass",
+  "none": "None",
+  "ultra": "Ultra",
+  "sidebar": "Sidebar",
+  "backgroundBlur": "Background blur",
+  "sidebarBlurDesc": "Blur the desktop behind a floating sidebar.",
+  "fontFamily": "Font",
+  "defaultText": "Default",
+  "textScale": "Text scale",
+  "followSystem": "Follow system",
+  "custom": "Custom",
+  "textScalePreview": "Text in the app will use this size.",
+  "customColor": "Custom color",
+  "reset": "Reset",
+  "resetTip": "Restore the default FlClash-style appearance?",
+  "backgroundStyle": "Background style",
+  "grid": "Grid",
+  "spectrum": "Spectrum",
+  "sliders": "Sliders",
+  "hue": "Hue",
+  "saturation": "Saturation",
+  "brightness": "Brightness",
+  "hex": "Hex",
+  "color": "Color",
+  "edit": "Edit",
+  "installedFonts": "Installed fonts",
+  "deleteColorTip": "Delete this custom color?",
+  "general": "General",
+  "other": "Other",
+  "add": "Add",
+  "auto": "Auto",
+  "tip": "Tip",
+  "basicInfo": "Basic information",
+  "cloudConnection": "Connection",
+  "credentials": "Credentials",
+  "advanced": "Advanced",
+  "url": "URL",
+  "endpoint": "Endpoint",
+  "region": "Region",
+  "bucket": "Bucket",
+  "accountId": "Account ID",
+  "accessKeyId": "Access key ID",
+  "secretAccessKey": "Secret access key",
+  "keyPrefix": "Key prefix",
+  "extraHeaders": "Extra headers",
+  "timeoutSeconds": "Timeout (seconds)",
+  "optional": "Optional",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "sourceDefinitionNotFound": "Source definition not found: {sourceId}",
+  "kernelOverview": "Kernel overview",
+  "kernelStateHealthy": "Ready",
+  "kernelStateDisabled": "Disabled",
+  "kernelStateMissingEntry": "Injection entry missing",
+  "kernelStateConflict": "Injection entry conflict",
+  "kernelStateNotInstalled": "Not installed",
+  "kernelVersion": "Version",
+  "kernelUpdateAvailable": "Version {version} is available",
+  "kernelUpToDate": "Up to date",
+  "checkKernelUpdate": "Check for kernel updates",
+  "installOrUpdateKernel": "Install or update kernel",
+  "installAndRuntime": "Install and runtime",
+  "repositorySubscription": "Repository subscription",
+  "localKernelPackage": "Local kernel package",
+  "kernelRepository": "Kernel repository",
+  "kernelRepositoryHint": "owner/repository or a GitHub repository URL",
+  "repositoryMainline": "Mainline repository",
+  "repositoryFork": "Fork",
+  "defaultBranch": "Default branch",
+  "lastPush": "Last push",
+  "kernelLocalNoUpdates": "Local kernel packages do not check for updates",
+  "releaseAnnouncement": "Release notes",
+  "manifestSettings": "Manifest settings",
+  "manifestProvider": "Manifest provider",
+  "manifestModeBuiltIn": "Built-in provider",
+  "manifestModeCustom": "Custom server",
+  "manifestModeLocalProxy": "Local proxy",
+  "manifestUrlTemplate": "Manifest URL template",
+  "manifestHeader": "Request header",
+  "manifestFormat": "Response format",
+  "manifestFailover": "Fail over between providers",
+  "manifestRequestCodes": "Manifest request codes",
+  "noManifestCodeSources": "No enabled content source can provide manifest request codes",
+  "selectAtLeastOneManifestCodeSource": "Select at least one manifest request-code source",
+  "manifestLocalProxyDescription": "Run a loopback server that resolves the selected content sources and returns a plain manifest request code to the kernel.",
+  "manifestCustomHint": "Use depotId and gid placeholders in the URL",
+  "steamClientDataChannel": "Steam client data channel",
+  "channelRepository": "Data repository",
+  "channelName": "Channel",
+  "channelFormat": "Repository format",
+  "channelFormatBranch": "Branch format",
+  "channelFormatDirectory": "Directory format",
+  "defaultRepository": "Default",
+  "customRepository": "Custom repository",
+  "localTemporaryBuild": "Local emergency build",
+  "localTemporaryBuildDescription": "Use only after a Steam update when every online data channel is unavailable. The generated files apply only to the current Steam client build.",
+  "localBuildTitle": "Local emergency build",
+  "localBuildIdleDescription": "Read the installed Steam DLLs and generate temporary signature files for this exact Steam build.",
+  "localBuildSteamDlls": "Steam DLLs",
+  "localBuildDllLocated": "{name} · {size} · {path}",
+  "@localBuildDllLocated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildHashComputed": "{name} SHA256 · {sha}",
+  "@localBuildHashComputed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "sha": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildPatternScan": "Resolving {component} hooks",
+  "@localBuildPatternScan": {
+    "placeholders": {
+      "component": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildHookResolved": "{name} → {rva} · {bytes} byte signature",
+  "@localBuildHookResolved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "rva": {
+        "type": "String"
+      },
+      "bytes": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildHookMissing": "{name} · no unique match",
+  "@localBuildHookMissing": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildComponentWritten": "{component} · {resolved}/{total} written",
+  "@localBuildComponentWritten": {
+    "placeholders": {
+      "component": {
+        "type": "String"
+      },
+      "resolved": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildComponentRejected": "{component} · {resolved}/{total}; existing file was not overwritten",
+  "@localBuildComponentRejected": {
+    "placeholders": {
+      "component": {
+        "type": "String"
+      },
+      "resolved": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildIpcWrapper": "{name} · wrapper {rva}",
+  "@localBuildIpcWrapper": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "rva": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildIpcVtable": "{name} · vtable {rva}",
+  "@localBuildIpcVtable": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "rva": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildCompleted": "{written}/{total} files written",
+  "@localBuildCompleted": {
+    "placeholders": {
+      "written": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "localBuildStart": "Start build",
+  "localBuildRestart": "Build again",
+  "localBuildLog": "Build log",
+  "localBuildCloseSteam": "Close Steam before starting the local build.",
+  "kernelEntryDwmapiDescription": "Best compatibility and the recommended daily entry",
+  "kernelEntryVersionDescription": "Useful when a first-load isolation entry is required",
+  "kernelActions": "Kernel actions",
+  "kernelResidualScan": "Scan kernel residuals",
+  "kernelResidualScanDescription": "Read-only scan of known kernel files and folders; clean only after confirmation",
+  "kernelUpdateCheckOnStartup": "Check for kernel updates at startup",
+  "kernelUpdateCheckOnStartupDescription": "Show when the installed kernel has a newer official release",
+  "kernelLatest": "Latest",
+  "kernelScanTitle": "Kernel residuals",
+  "kernelScanSummary": "{count} items found, {cleanable} cleanable, {size}",
+  "kernelResidualOpenSteamTool": "OpenSteamTool",
+  "kernelResidualOpenSteamToolDescription": "OpenSteamTool core files, configuration, or cached data",
+  "kernelResidualSteamTools": "SteamTools",
+  "kernelResidualSteamToolsDescription": "SteamTools injection DLLs or plugin data",
+  "kernelResidualTbBiao": "TB / BIAO",
+  "kernelResidualTbBiaoDescription": "TB/BIAO or GreenLuma injection files",
+  "kernelResidualSteamConfig": "Steam configuration",
+  "kernelResidualSteamConfigDescription": "Steam settings that may disable updates or change startup behavior",
+  "kernelResidualInfo": "Info",
+  "kernelResidualWarning": "Warning",
+  "kernelResidualHigh": "High risk",
+  "kernelResidualCanClean": "Cleanable",
+  "kernelResidualReportOnly": "Report only",
+  "kernelResidualDirectory": "Folder",
+  "kernelResidualFile": "File",
+  "kernelResidualBackupAndClean": "Back up and clean",
+  "kernelResidualRescan": "Rescan",
+  "kernelResidualNoResults": "No known kernel residuals were found",
+  "kernelResidualSelectCleanable": "Select cleanable items",
+  "kernelResidualCleanupCompleted": "Backed up and removed {count} residual items",
+  "kernelResidualCleanupPartial": "Removed {deleted}; {failed} failed",
+  "kernelTomlPreviewTitle": "Fetch Steam signatures",
+  "kernelBuildId": "Build ID",
+  "kernelClientSha": "steamclient64 SHA256",
+  "kernelUiSha": "steamui SHA256",
+  "kernelTomlFiles": "Signatures to fetch",
+  "kernelStartFetch": "Start fetching",
+  "kernelTomlResults": "Signature results",
+  "kernelTomlReady": "Fetched",
+  "kernelTomlNoUpstream": "Not published upstream",
+  "kernelTomlFailed": "Failed",
+  "kernelNoUpdate": "No update is available",
+  "injectionEntry": "Injection entry",
+  "selectAnOutputFolder": "Choose an output folder.",
+  "chooseFilesToConvert": "Choose at least one file to convert.",
+  "noSupportedFilesFound": "No supported Lua, VDF or ACF files were found.",
+  "convertedFileCount": "Converted {count} files.",
+  "@convertedFileCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "conversionOptions": "Conversion options",
+  "fileCount": "{count} files selected",
+  "@fileCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilesSelected": "No files selected",
+  "chooseLuaVdfOrAcfFiles": "Choose Lua, VDF or ACF files. Existing output files are never overwritten.",
+  "chooseFiles": "Choose files",
+  "notSelected": "Not selected",
+  "monitorRunning": "Monitoring Steam content requests",
+  "monitorStopped": "Manifest monitor is stopped",
+  "activityLog": "Activity log",
+  "depotEntryCount": "{count} depot entries",
+  "@depotEntryCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pinInstalledDescription": "Use the manifest IDs already recorded by the installed Steam app.",
+  "latestPublicDescription": "Read the latest public manifest IDs from SteamCMD metadata.",
+  "unpinDescription": "Comment out manifest pins while retaining them for later recovery.",
+  "depotEntries": "Depot entries",
+  "pinned": "Pinned",
+  "notPinned": "Not pinned",
+  "noDepotEntries": "No depot entries were found in this Lua file.",
+  "manifestPinFooter": "Changes are written to the game's Lua file after creating a backup.",
+  "enterValidDlcAppIds": "Enter one or more valid DLC AppIDs.",
+  "addedDlcCount": "Added {count} DLC entries.",
+  "@addedDlcCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "removeDlc": "Remove DLC entry",
+  "removedDlcEntry": "Removed AppID {appId}.",
+  "@removedDlcEntry": {
+    "placeholders": {
+      "appId": {
+        "type": "String"
+      }
+    }
+  },
+  "luaEntries": "Lua entries",
+  "diagnosticsSummary": "{passed} of {total} checks passed",
+  "@diagnosticsSummary": {
+    "placeholders": {
+      "passed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "missing": "Missing",
+  "noDiagnosticsFound": "No diagnostic checks are available.",
+  "diagnosticsFooter": "Diagnostics only read the configured paths and do not modify Steam files.",
+  "applicationFolders": "Application folders",
+  "applicationFoldersFooter": "Logs and backups stay inside the application data directory. Opening a folder does not modify its contents.",
+  "openLogsAndBackups": "Open log and backup folders",
+  "dlcAnalysisDescription": "Manage DLC records, compare Steam depot metadata with Lua, and preview additions.",
+  "managePatchesAndLicenses": "Apply patches and manage license configuration.",
+  "setLuaDirectory": "Set Lua library folder",
+  "luaDirectoryUpdated": "Lua library folder updated and the library was refreshed.",
+  "kernelDownloadsAndNetwork": "Kernel, downloads and network",
+  "conversionResults": "Conversion results",
+  "noMatchingManifestsFound": "No matching manifests were found.",
+  "versionLabel": "Version",
+  "platformLabel": "Platform",
+  "updatedLabel": "Updated",
+  "fileSizeLabel": "Size",
+  "sourceLabel": "Source",
+  "destinationLabel": "Destination",
+  "actionsLabel": "Actions",
+  "selectAGameToShowGameTools": "Select a game to show its specific tools.",
+  "lanTransfer": "LAN transfer",
+  "lanTransferDescription": "Send an installed game, its Lua and the related manifests directly to another FlSteamLua PC on this network.",
+  "allowLanTransfers": "Allow transfers to this device",
+  "allowLanTransfersDescription": "Run the encrypted receiver while FlSteamLua stays open or in the tray.",
+  "lanTransferTask": "Transfer {game}",
+  "@lanTransferTask": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "lanNearbyDevices": "Nearby devices",
+  "lanNearbyDevicesDescription": "Devices appear automatically on the same private network. Unknown devices still need approval before sending files.",
+  "lanNoDevices": "No receiving device found",
+  "lanNoDevicesDescription": "Enable receiving on the other PC, or add its IP address manually.",
+  "lanAddDevice": "Add device",
+  "lanDeviceAddress": "Device address",
+  "lanDeviceAddressHint": "192.168.1.20",
+  "lanConnectDevice": "Connect",
+  "lanManualDevice": "Manual address",
+  "lanTrusted": "Trusted",
+  "lanUntrusted": "Needs approval",
+  "lanSendGame": "Send game",
+  "lanChooseDevice": "Receiver",
+  "lanSendToLan": "Send over LAN",
+  "lanReceiveTransfer": "Receive transfer",
+  "lanIncomingTransferTitle": "Receive {game}",
+  "@lanIncomingTransferTitle": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "lanTransferFromDevice": "From {device}",
+  "@lanTransferFromDevice": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "lanAccept": "Accept",
+  "lanReject": "Reject",
+  "lanRememberDevice": "Remember this device",
+  "lanAcceptAndRemember": "Accept and remember",
+  "lanContentToTransfer": "Content to transfer",
+  "lanOfficialFiles": "Official game files",
+  "lanModifiedFiles": "Modified game files",
+  "lanExtraFiles": "Additional files and mods",
+  "lanLuaAndManifests": "Lua and manifests",
+  "lanDepotManifests": "Depot manifests",
+  "lanExtrasWarning": "Additional files may include mods, patches or saves stored inside the game folder. Select only what the receiver needs.",
+  "lanNoManifestWarning": "No local depot manifest was found. Official files cannot be identified automatically, so every game file requires manual selection.",
+  "lanNetworkSpeed": "Network",
+  "lanPeakSpeed": "Peak",
+  "lanProgress": "Transferring game data",
+  "lanRemainingTime": "Time remaining",
+  "lanPause": "Pause transfer",
+  "lanPaused": "Paused",
+  "lanResume": "Resume transfer",
+  "lanCancelTransfer": "Cancel transfer",
+  "lanWaitingApproval": "Waiting for the receiver to approve",
+  "lanWaitingSteam": "Downloaded. Close Steam on the receiving PC to finish installation.",
+  "lanCompleted": "Completed",
+  "lanFailed": "Failed",
+  "lanActiveTransfer": "Active transfer",
+  "lanRecentTransfers": "Recent transfers",
+  "lanHistoryEmpty": "Completed transfers will appear here.",
+  "lanDestinationLibrary": "Destination Steam library",
+  "lanSteamRestartNotice": "FlSteamLua sees the game immediately. Restart Steam after installation to refresh its installed-game list.",
+  "lanForgetDevice": "Forget device",
+  "lanDeviceFingerprint": "Device fingerprint",
+  "lanReceiveDisabled": "Receiving is off",
+  "lanReceiveEnabled": "Ready to receive",
+  "lanTransferSettings": "This PC",
+  "lanNoLibrary": "No writable Steam library was found.",
+  "lanDiskUsage": "Disk activity",
+  "lanGameFiles": "Game files",
+  "lanPreparing": "Preparing files",
+  "lanVerifying": "Verifying files",
+  "lanCommitting": "Installing game",
+  "lanCancelled": "Cancelled",
+  "lanSelectDestinationDescription": "Choose a registered Steam library with enough free space.",
+  "lanNoSelectedFiles": "No files selected",
+  "lanRefreshDevices": "Refresh devices",
+  "lanChunkProgress": "Chunk progress",
+  "lanCachedChunks": "Cached chunks",
+  "lanChunkCache": "Chunk cache",
+  "lanClearChunkCache": "Clear chunk cache",
+  "lanChunkCacheCleared": "Chunk cache cleared.",
+  "lanManualAddressInvalid": "Enter a valid IPv4 address or host name.",
+  "more": "More",
+  "screenshots": "Screenshots",
+  "previewImage": "Preview image",
+  "previousImage": "Previous image",
+  "nextImage": "Next image",
+  "selectAll": "Select all",
+  "contentPreview": "Content preview"
+}
