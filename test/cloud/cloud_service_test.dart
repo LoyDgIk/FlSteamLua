@@ -62,7 +62,10 @@ void main() {
       await Directory(p.join(service.syncPath, '123', '440', 'empty')).create();
       final destination = p.join(temp.path, 'new-saves');
       await service.setSyncPath(destination);
-      expect(service.syncPath, destination);
+      final resolvedDestination = await Directory(
+        destination,
+      ).resolveSymbolicLinks();
+      expect(p.equals(service.syncPath, resolvedDestination), isTrue);
       expect(await source.readAsString(), 'current progress');
       expect(
         await File(
@@ -82,7 +85,7 @@ void main() {
                 ).readAsString(),
               )
               as Map<String, dynamic>;
-      expect(config['sync_path'], destination);
+      expect(p.equals(config['sync_path'] as String, service.syncPath), isTrue);
     },
   );
 

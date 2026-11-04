@@ -240,9 +240,12 @@ class TrainerService extends ChangeNotifier {
     if (!p.isWithin(root, actual)) {
       throw ArgumentError('The file is outside the trainer download directory');
     }
-    await stopTrainer(actual);
+    await stopTrainer(item.path);
+    if (!p.equals(item.path, actual)) await stopTrainer(actual);
     _bindings.removeWhere(
-      (binding) => _pathKey(binding.trainerPath) == _pathKey(actual),
+      (binding) =>
+          _pathKey(binding.trainerPath) == _pathKey(item.path) ||
+          _pathKey(binding.trainerPath) == _pathKey(actual),
     );
     await _saveBindings();
     await file.delete();

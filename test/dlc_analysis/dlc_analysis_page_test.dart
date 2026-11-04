@@ -157,6 +157,10 @@ void main() {
         expect(find.text('DLC 管理'), findsWidgets);
         expect(find.text('440'), findsOneWidget);
         expect(find.text(r'C:\fixture\440.lua'), findsOneWidget);
+        expect(
+          find.text('对照 Steam 仓库信息、当前 Lua 和本次选择的内容源。先预览，再决定追加哪些 DLC 配置。'),
+          findsNothing,
+        );
         await tester.enterText(
           find.descendant(
             of: find.byKey(const ValueKey('dlc-analysis-app-id')),

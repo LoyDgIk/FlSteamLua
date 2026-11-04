@@ -563,7 +563,6 @@ class _UpdateSettingsPage extends StatefulWidget {
 }
 
 class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
-  String? _updateStatus;
   bool _checking = false;
 
   PreferencesController get preferences => widget.services.preferences;
@@ -586,28 +585,21 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
   }
 
   Future<void> _checkUpdate() async {
-    setState(() {
-      _checking = true;
-      _updateStatus = null;
-    });
+    setState(() => _checking = true);
     try {
       final release = await preferences.checkUpdates();
       if (!mounted) return;
       if (release == null) {
-        setState(
-          () =>
-              _updateStatus = context.l10n.youAreUsingTheLatestPublishedVersion,
+        ui.showAppFeedback(
+          context,
+          context.l10n.youAreUsingTheLatestPublishedVersion,
+          level: ui.MessageLevel.success,
         );
       } else {
-        setState(
-          () => _updateStatus = context.l10n.newVersion(
-            (release.version).toString(),
-          ),
-        );
         await _showRelease(release);
       }
     } catch (error) {
-      if (mounted) setState(() => _updateStatus = '$error');
+      if (mounted) ui.showAppError(context, error);
     } finally {
       if (mounted) setState(() => _checking = false);
     }
@@ -732,13 +724,6 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
           title: context.l10n.applicationUpdates,
           items: [
             ui.ListItem<void>(
-              key: const ValueKey('release-repository-field'),
-              leading: const ui.GlyphIcon(ui.AppGlyphs.code),
-              title: Text(context.l10n.flsteamluaReleaseRepository),
-              subtitle: const Text(appRepository),
-              trailing: const ui.GlyphIcon(ui.AppGlyphs.lock, size: 18),
-            ),
-            ui.ListItem<void>(
               key: const ValueKey('check-update'),
               leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
               title: Text(context.l10n.checkForUpdates),
@@ -753,11 +738,6 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
                     )
                   : const ui.GlyphIcon(ui.AppGlyphs.refresh, size: 18),
             ),
-            if (_updateStatus != null)
-              ui.ListItem<void>(
-                leading: const ui.GlyphIcon(ui.AppGlyphs.info),
-                title: SelectableText(_updateStatus!),
-              ),
             if (preferences.updateRelease != null)
               ui.ListItem<void>(
                 key: const ValueKey('view-available-update'),

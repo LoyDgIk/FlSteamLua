@@ -10,6 +10,7 @@ void _echoServer(List<Object> args) {
   WindowsNamedPipe? pipe;
   try {
     pipe = WindowsNamedPipe.accept(name);
+    result.send('ready');
     final request = pipe.readJson();
     pipe.writeJson({'ok': true, 'payload': request!['payload']});
     result.send('closed');
@@ -31,13 +32,10 @@ void main() {
       WindowsNamedPipe? pipe;
       try {
         pipe = WindowsNamedPipe.connect(name);
+        expect(await result.first.timeout(const Duration(seconds: 3)), 'ready');
         pipe.writeJson({'payload': '成就\nfixture'});
         final response = pipe.readJson(timeout: const Duration(seconds: 3));
         expect(response, {'ok': true, 'payload': '成就\nfixture'});
-        expect(
-          await result.first.timeout(const Duration(seconds: 3)),
-          'closed',
-        );
       } finally {
         pipe?.close();
         result.close();

@@ -379,8 +379,6 @@ class _DlcAnalysisPageState extends State<DlcAnalysisPage> {
               padding: const EdgeInsets.only(top: 24),
               child: ui.NullStatus(
                 label: texts.dlcAnalysis,
-                description: texts
-                    .compareSteamDepotMetadataWithTheCurrentLuaAndTheContentSourceSelectedForThisAnalysisP,
                 illustration: ui.NullStatusIllustration.lua,
               ),
             ),
@@ -456,8 +454,6 @@ class _DlcAnalysisPageState extends State<DlcAnalysisPage> {
         ),
       ),
     ],
-    footer: texts
-        .compareSteamDepotMetadataWithTheCurrentLuaAndTheContentSourceSelectedForThisAnalysisP,
   );
 
   Widget _resultSummary(DlcAnalysisResult result) {

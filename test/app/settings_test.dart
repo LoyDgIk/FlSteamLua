@@ -397,21 +397,28 @@ void main() {
     await popFrom(tester, find.byType(CloudRedirectPluginPage));
   });
 
-  testWidgets('update source is fixed to the official repository', (
-    tester,
-  ) async {
-    await render(tester);
-    await tester.tap(find.byKey(const ValueKey('application-update-settings')));
-    await tester.pumpAndSettle();
-    await reveal(
-      tester,
-      find.byKey(const ValueKey('release-repository-field')),
-    );
-    expect(find.text(appRepository), findsOneWidget);
-    expect(find.byKey(const ValueKey('save-release-repository')), findsNothing);
-    expect(find.byKey(const ValueKey('check-update')), findsOneWidget);
-    expect(services.settings.releaseRepository, appRepository);
-  });
+  testWidgets(
+    'update uses the fixed official repository without a source row',
+    (tester) async {
+      await render(tester);
+      await tester.tap(
+        find.byKey(const ValueKey('application-update-settings')),
+      );
+      await tester.pumpAndSettle();
+      await reveal(tester, find.byKey(const ValueKey('check-update')));
+      expect(find.text(appRepository), findsNothing);
+      expect(
+        find.byKey(const ValueKey('release-repository-field')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('save-release-repository')),
+        findsNothing,
+      );
+      expect(find.byKey(const ValueKey('check-update')), findsOneWidget);
+      expect(services.settings.releaseRepository, appRepository);
+    },
+  );
 
   testWidgets('open-source licenses are reachable from About', (tester) async {
     await render(tester);
