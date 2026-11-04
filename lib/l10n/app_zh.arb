@@ -1612,5 +1612,10 @@
   "nextImage": "下一张",
   "selectAll": "全选",
   "contentPreview": "内容预览",
-  "updateChangelog": "更新日志"
+  "updateChangelog": "更新日志",
+  "versionPinned": "版本已固定",
+  "clearDownloadedManifests": "清除已下载清单",
+  "clearDownloadedManifestsDescription": "清除本应用为“{game}”下载的本地清单缓存？Steam depotcache 和 Lua 不会被修改。",
+  "downloadedManifestsCleared": "已清除 {count} 组本地清单。",
+  "noDownloadedManifests": "没有找到此游戏的本地下载清单。"
 }

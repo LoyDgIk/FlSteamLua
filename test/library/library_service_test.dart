@@ -135,6 +135,26 @@ void main() {
     },
   );
 
+  test('detects active manifest pins and ignores commented pins', () async {
+    await write(
+      p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+      'addappid(10)\nsetManifestid(11,"123456789",0)',
+    );
+    await write(
+      p.join(steam.path, 'config', 'stplug-in', '20.lua'),
+      'addappid(20)\n-- setManifestid(21,"987654321",0)',
+    );
+    await library.scan();
+    expect(
+      library.games.firstWhere((game) => game.appId == 10).versionPinned,
+      isTrue,
+    );
+    expect(
+      library.games.firstWhere((game) => game.appId == 20).versionPinned,
+      isFalse,
+    );
+  });
+
   test(
     'handles broken individual manifests and rejects install traversal',
     () async {

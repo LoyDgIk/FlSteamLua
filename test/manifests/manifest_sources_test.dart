@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:http/testing.dart';
+import 'package:path/path.dart' as p;
 
 class _LoopbackHttpOverrides extends HttpOverrides {}
 
@@ -425,6 +426,34 @@ void main() {
         throwsA(
           isA<ManifestSourceException>().having((e) => e.kind, 'kind', 'quota'),
         ),
+      );
+    },
+  );
+
+  test(
+    'clears downloaded manifest packages only for the selected AppID',
+    () async {
+      final directory = await Directory.systemTemp.createTemp(
+        'flsteam-manifest-clear-',
+      );
+      addTearDown(() => directory.delete(recursive: true));
+      final paths = AppPaths(directory.path);
+      final service = ManifestSourceService(
+        paths: paths,
+        assetLoader: _loadScript,
+      );
+      addTearDown(service.dispose);
+      final root = paths.directory('downloads/manifests');
+      for (final name in ['1-440', '2-440', '3-441']) {
+        final folder = Directory(p.join(root.path, name));
+        await folder.create(recursive: true);
+        await File(p.join(folder.path, '440.lua')).writeAsString('payload');
+      }
+
+      expect(await service.clearDownloadedManifests(440), 2);
+      expect(
+        await root.list().map((entity) => p.basename(entity.path)).toList(),
+        ['3-441'],
       );
     },
   );

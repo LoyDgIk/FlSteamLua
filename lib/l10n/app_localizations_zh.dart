@@ -4338,4 +4338,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get updateChangelog => '更新日志';
+
+  @override
+  String get versionPinned => '版本已固定';
+
+  @override
+  String get clearDownloadedManifests => '清除已下载清单';
+
+  @override
+  String clearDownloadedManifestsDescription(String game) {
+    return '清除本应用为“$game”下载的本地清单缓存？Steam depotcache 和 Lua 不会被修改。';
+  }
+
+  @override
+  String downloadedManifestsCleared(String count) {
+    return '已清除 $count 组本地清单。';
+  }
+
+  @override
+  String get noDownloadedManifests => '没有找到此游戏的本地下载清单。';
 }

@@ -1936,5 +1936,24 @@
   "nextImage": "Next image",
   "selectAll": "Select all",
   "contentPreview": "Content preview",
-  "updateChangelog": "Changelog"
+  "updateChangelog": "Changelog",
+  "versionPinned": "Version pinned",
+  "clearDownloadedManifests": "Clear downloaded manifests",
+  "clearDownloadedManifestsDescription": "Clear local manifest downloads made by this app for \"{game}\"? Steam depotcache and Lua files are not changed.",
+  "@clearDownloadedManifestsDescription": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadedManifestsCleared": "Cleared {count} local manifest package(s).",
+  "@downloadedManifestsCleared": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "noDownloadedManifests": "No downloaded manifest packages were found for this game."
 }

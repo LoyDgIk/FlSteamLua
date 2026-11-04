@@ -555,6 +555,12 @@ class _LibraryPageState extends State<LibraryPage> {
         ),
     ];
     final managementActions = [
+      _menuItem(
+        'clear-manifests',
+        game,
+        context.l10n.clearDownloadedManifests,
+        ui.AppGlyphs.delete,
+      ),
       if (widget.onDestination != null) ...[
         if (game.hasLua)
           _menuItem(
@@ -675,6 +681,7 @@ class _LibraryPageState extends State<LibraryPage> {
           builder: (_) => LuaEditorPage(library: _library, game: game),
         ),
       );
+      if (mounted) await _library.scan();
     } else if (action == 'toggle') {
       await showAction(
         context,
@@ -713,6 +720,42 @@ class _LibraryPageState extends State<LibraryPage> {
       );
     } else if (action == 'copy-id') {
       await Clipboard.setData(ClipboardData(text: '${game.appId}'));
+    } else if (action == 'clear-manifests') {
+      final accepted = await ui.showFlDialog<bool>(
+        context: context,
+        builder: (context) => ui.CommonDialog(
+          title: localeText.clearDownloadedManifests,
+          destructive: true,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(localeText.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(localeText.clear),
+            ),
+          ],
+          child: Text(
+            localeText.clearDownloadedManifestsDescription(game.name),
+          ),
+        ),
+      );
+      if (accepted != true || !mounted) return;
+      await showAction(context, () async {
+        final count = await widget.services.manifests.clearDownloadedManifests(
+          game.appId,
+        );
+        if (!mounted) return;
+        if (count == 0) {
+          ui.showAppFeedback(context, localeText.noDownloadedManifests);
+        } else {
+          ui.showAppSuccess(
+            context,
+            localeText.downloadedManifestsCleared('$count'),
+          );
+        }
+      });
     } else if (action.startsWith('pin-') || action == 'unpin') {
       await showAction(
         context,
@@ -1557,6 +1600,11 @@ class GameCard extends StatelessWidget {
                             tone: game.luaEnabled
                                 ? ui.DashboardChipTone.ok
                                 : ui.DashboardChipTone.idle,
+                          ),
+                        if (game.versionPinned)
+                          ui.DashboardChip(
+                            label: context.l10n.versionPinned,
+                            tone: ui.DashboardChipTone.ok,
                           ),
                         if (game.ownership == GameOwnership.owned)
                           ui.DashboardChip(

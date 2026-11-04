@@ -364,16 +364,6 @@ class _GameDetailPageState extends State<GameDetailPage> {
                                     ? ui.DashboardChipTone.ok
                                     : ui.DashboardChipTone.idle,
                               ),
-                            ui.DashboardChip(
-                              label: switch (current.ownership) {
-                                GameOwnership.owned =>
-                                  context.l10n.accountOwnsThisGame,
-                                GameOwnership.notOwned =>
-                                  context.l10n.notOwnedByAccount,
-                                GameOwnership.unknown =>
-                                  context.l10n.ownershipUnknown,
-                              },
-                            ),
                           ],
                         ),
                         const SizedBox(height: 18),

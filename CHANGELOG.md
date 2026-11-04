@@ -5,6 +5,18 @@ generated from the matching version section.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-11-04
+
+### Added
+
+- Lua library cards show when a manifest version is pinned.
+- Game management can clear downloaded manifest packages for the selected
+  AppID without changing Steam depotcache or Lua configuration.
+
+### Changed
+
+- Game detail pages no longer show account ownership status.
+
 ## [0.1.2] - 2026-11-04
 
 ### Changed

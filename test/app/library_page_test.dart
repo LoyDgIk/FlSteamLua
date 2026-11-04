@@ -50,7 +50,10 @@ void main() {
     await services.settings.set('steamPath', steam);
     await services.settings.set('language', 'en');
     await services.settings.set('coverCdn', 'direct');
-    await write(p.join(steam, 'config', 'stplug-in', '10.lua'), 'addappid(10)');
+    await write(
+      p.join(steam, 'config', 'stplug-in', '10.lua'),
+      'addappid(10)\nsetManifestid(11,"123456789",0)',
+    );
     await write(
       p.join(steam, 'config', 'stplug-in', 'Disable', '20.lua'),
       'addappid(20)',
@@ -164,6 +167,7 @@ void main() {
           .firstWhere((image) => image.appId == 10);
       expect(luaCover.url, 'https://example.test/10.jpg');
       expect(find.text('Lua Adventure'), findsOneWidget);
+      expect(find.text('Version pinned'), findsOneWidget);
       await selectScope(tester, 'Steam games');
       expect(visibleIds(tester), {20, 30});
       expect(find.text('Lua Adventure'), findsNothing);
@@ -242,6 +246,10 @@ void main() {
     );
     final contextManagement = contextItems.singleWhere(
       (item) => item.label == 'Game management',
+    );
+    expect(
+      contextManagement.subItems.map((item) => item.label),
+      contains('Clear downloaded manifests'),
     );
     final saveAction = contextManagement.subItems.singleWhere(
       (item) => item.label == 'Manage game saves',

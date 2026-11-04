@@ -9,6 +9,7 @@ class GameEntry {
     this.libraryPath,
     this.luaPath,
     this.luaEnabled = true,
+    this.versionPinned = false,
     this.isInstalled = false,
     this.isRunning = false,
     this.isFavorite = false,
@@ -26,6 +27,7 @@ class GameEntry {
   final String? libraryPath;
   final String? luaPath;
   final bool luaEnabled;
+  final bool versionPinned;
   final bool isInstalled;
   final bool isRunning;
   final bool isFavorite;
@@ -47,6 +49,7 @@ class GameEntry {
     String? libraryPath,
     String? luaPath,
     bool? luaEnabled,
+    bool? versionPinned,
     bool? isInstalled,
     bool? isRunning,
     bool? isFavorite,
@@ -63,6 +66,7 @@ class GameEntry {
     libraryPath: libraryPath ?? this.libraryPath,
     luaPath: luaPath ?? this.luaPath,
     luaEnabled: luaEnabled ?? this.luaEnabled,
+    versionPinned: versionPinned ?? this.versionPinned,
     isInstalled: isInstalled ?? this.isInstalled,
     isRunning: isRunning ?? this.isRunning,
     isFavorite: isFavorite ?? this.isFavorite,

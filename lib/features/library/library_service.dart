@@ -115,6 +115,11 @@ class LibraryService extends ChangeNotifier {
   String? _processWarning;
   Future<void> _recordWrite = Future.value();
   bool _disposed = false;
+  static final _manifestPin = RegExp(
+    r'^\s*setManifestid\s*\(',
+    caseSensitive: false,
+    multiLine: true,
+  );
 
   late final SteamProcessActions processActions = SteamProcessActions(
     isRunning: isSteamRunning,
@@ -497,19 +502,37 @@ class LibraryService extends ChangeNotifier {
           final enabled = !p
               .split(relative)
               .any((part) => part.toLowerCase() == 'disable');
+          var versionPinned = false;
+          try {
+            versionPinned = _manifestPin.hasMatch(file.readAsStringSync());
+          } on FileSystemException catch (error) {
+            warnings.add('${file.path}: ${error.message}');
+          } on FormatException catch (error) {
+            warnings.add('${file.path}: $error');
+          }
           final existing = games[appId];
-          if (existing?.hasLua == true && existing!.luaEnabled) continue;
+          if (existing?.hasLua == true && existing!.luaEnabled) {
+            if (versionPinned && !existing.versionPinned) {
+              games[appId] = existing.copyWith(versionPinned: true);
+            }
+            continue;
+          }
           final local = records['$appId'] is Map
               ? records['$appId'] as Map
               : const {};
           games[appId] =
-              existing?.copyWith(luaPath: file.path, luaEnabled: enabled) ??
+              existing?.copyWith(
+                luaPath: file.path,
+                luaEnabled: enabled,
+                versionPinned: versionPinned,
+              ) ??
               GameEntry(
                 appId: appId,
                 name: local['name']?.toString() ?? 'App $appId',
                 coverUrl: local['coverUrl']?.toString(),
                 luaPath: file.path,
                 luaEnabled: enabled,
+                versionPinned: versionPinned,
                 isFavorite: local['favorite'] == true,
                 playtimeMinutes: local['playtimeMinutes'] is int
                     ? local['playtimeMinutes'] as int

@@ -142,7 +142,7 @@ void main() {
   }
 
   testWidgets(
-    'Lua record is not shown as account ownership and local actions survive Store error',
+    'ownership status stays hidden and local actions survive Store error',
     (tester) async {
       largeView(tester);
       services.fakeStore.fail = true;
@@ -157,7 +157,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Lua configured'), findsOneWidget);
-      expect(find.text('Ownership unknown'), findsOneWidget);
+      expect(find.text('Ownership unknown'), findsNothing);
       expect(find.text('Account owns this game'), findsNothing);
       expect(find.text('Install with Steam'), findsOneWidget);
       expect(find.byType(ui.NullStatus), findsOneWidget);
@@ -400,7 +400,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('拥有状态未知'), findsOneWidget);
+    expect(find.text('拥有状态未知'), findsNothing);
     expect(find.text('在 Steam 中安装'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
