@@ -249,7 +249,7 @@ void main() {
     );
     expect(
       contextManagement.subItems.map((item) => item.label),
-      contains('Clear downloaded manifests'),
+      contains('Clear Steam manifest cache'),
     );
     final saveAction = contextManagement.subItems.singleWhere(
       (item) => item.label == 'Manage game saves',

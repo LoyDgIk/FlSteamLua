@@ -495,21 +495,6 @@ class ManifestSourceService extends ChangeNotifier {
     ).writeAsBytes(artifact.bytes, flush: true);
   }
 
-  Future<int> clearDownloadedManifests(int appId) async {
-    if (appId <= 0) throw const FormatException('Invalid AppID');
-    final root = paths.directory('downloads/manifests');
-    if (!await root.exists()) return 0;
-    final suffix = '-$appId';
-    var removed = 0;
-    await for (final entity in root.list(followLinks: false)) {
-      if (entity is Directory && p.basename(entity.path).endsWith(suffix)) {
-        await entity.delete(recursive: true);
-        removed++;
-      }
-    }
-    return removed;
-  }
-
   Future<void> importScript(File file) async {
     final script = await file.readAsString();
     final definition = ManifestScriptParser.parse(script);

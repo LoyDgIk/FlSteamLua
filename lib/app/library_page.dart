@@ -743,9 +743,8 @@ class _LibraryPageState extends State<LibraryPage> {
       );
       if (accepted != true || !mounted) return;
       await showAction(context, () async {
-        final count = await widget.services.manifests.clearDownloadedManifests(
-          game.appId,
-        );
+        final count = await widget.services.tools.service
+            .clearDepotcacheManifests(game);
         if (!mounted) return;
         if (count == 0) {
           ui.showAppFeedback(context, localeText.noDownloadedManifests);

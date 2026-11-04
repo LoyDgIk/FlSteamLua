@@ -5,6 +5,13 @@ generated from the matching version section.
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-11-04
+
+### Fixed
+
+- Game management now clears all manifest files for the selected game's depots
+  from every Steam library's `depotcache` and `steamapps\depotcache`.
+
 ## [0.1.3] - 2026-11-04
 
 ### Added

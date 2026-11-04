@@ -62,6 +62,12 @@ class ToolsService {
       if (match != null) {
         final id = int.parse(match[1]!);
         records[id] = LuaDepot(id, match[2], null, false);
+        continue;
+      }
+      final bare = _bare.firstMatch(line);
+      if (bare != null) {
+        final id = int.parse(bare[1]!);
+        records.putIfAbsent(id, () => LuaDepot(id, null, null, false));
       }
     }
     for (final line in const LineSplitter().convert(text)) {
@@ -150,6 +156,73 @@ class ToolsService {
       }
     }
     return results;
+  }
+
+  Future<int> clearDepotcacheManifests(GameEntry game) async {
+    final depotIds = <int>{};
+    final readErrors = <Object>[];
+    if (game.hasLua) {
+      try {
+        depotIds.addAll((await depots(game)).map((depot) => depot.id));
+      } catch (error) {
+        readErrors.add(error);
+      }
+    }
+    if (game.isInstalled) {
+      try {
+        depotIds.addAll((await installedManifests(game)).keys);
+      } catch (error) {
+        readErrors.add(error);
+      }
+    }
+    if (depotIds.isEmpty) {
+      if (readErrors.isNotEmpty) throw readErrors.first;
+      throw StateError('No depot information is available for this game');
+    }
+
+    final roots = <String>{};
+    void addRoot(String value) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return;
+      roots.add(p.normalize(p.absolute(trimmed)));
+    }
+
+    addRoot(settings.steamPath);
+    if (game.libraryPath case final library?) addRoot(library);
+    final primary = settings.steamPath.trim();
+    if (primary.isNotEmpty) {
+      final folders = File(p.join(primary, 'steamapps', 'libraryfolders.vdf'));
+      if (await folders.exists()) {
+        final parsed = Kv1.parse(await folders.readAsString());
+        final listing = parsed['libraryfolders'] as Map? ?? parsed;
+        for (final value in listing.values) {
+          final path = value is Map ? '${value['path'] ?? ''}' : '$value';
+          addRoot(path);
+        }
+      }
+    }
+
+    final directories = {
+      for (final root in roots) ...[
+        p.join(root, 'depotcache'),
+        p.join(root, 'steamapps', 'depotcache'),
+      ],
+    };
+    final manifestName = RegExp(r'^(\d+)_.*\.manifest$', caseSensitive: false);
+    var removed = 0;
+    for (final path in directories) {
+      final directory = Directory(path);
+      if (!await directory.exists()) continue;
+      await for (final entity in directory.list(followLinks: false)) {
+        if (entity is! File) continue;
+        final match = manifestName.firstMatch(p.basename(entity.path));
+        final depotId = match == null ? null : int.tryParse(match[1]!);
+        if (depotId == null || !depotIds.contains(depotId)) continue;
+        await entity.delete();
+        removed++;
+      }
+    }
+    return removed;
   }
 
   Future<Map<int, String>> latestManifests(

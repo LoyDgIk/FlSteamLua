@@ -112,6 +112,56 @@ void main() {
     expect(result, {71: '99900011122233344', 72: '777888999'});
   });
 
+  test('clears every Steam depotcache manifest for the game depots', () async {
+    final primary = Directory(p.join(temp.path, 'steam'));
+    final secondary = Directory(p.join(temp.path, 'secondary'));
+    await Directory(p.join(primary.path, 'steamapps')).create(recursive: true);
+    await Directory(
+      p.join(secondary.path, 'steamapps'),
+    ).create(recursive: true);
+    await settings.set('steamPath', primary.path);
+    await File(
+      p.join(primary.path, 'steamapps', 'libraryfolders.vdf'),
+    ).writeAsString(
+      Kv1.stringify({
+        'libraryfolders': {
+          '0': {'path': primary.path},
+          '1': {'path': secondary.path},
+        },
+      }),
+    );
+    final lua = File(p.join(temp.path, '50.lua'));
+    await lua.writeAsString(
+      'addappid(50)\naddappid(71,1,"KEY")\nsetManifestid(72,"123",0)\n',
+    );
+    for (final path in [
+      p.join(primary.path, 'depotcache', '50_1.manifest'),
+      p.join(primary.path, 'depotcache', '71_2.manifest'),
+      p.join(primary.path, 'depotcache', '72_3.manifest'),
+      p.join(primary.path, 'depotcache', '99_4.manifest'),
+      p.join(primary.path, 'steamapps', 'depotcache', '71_5.manifest'),
+      p.join(secondary.path, 'depotcache', '72_6.manifest'),
+      p.join(secondary.path, 'steamapps', 'depotcache', '71_7.manifest'),
+    ]) {
+      final file = File(path);
+      await file.parent.create(recursive: true);
+      await file.writeAsString('manifest');
+    }
+
+    final service = ToolsService(paths: paths, settings: settings);
+    addTearDown(service.dispose);
+    expect(
+      await service.clearDepotcacheManifests(
+        GameEntry(appId: 50, name: 'Fixture', luaPath: lua.path),
+      ),
+      6,
+    );
+    expect(
+      await File(p.join(primary.path, 'depotcache', '99_4.manifest')).exists(),
+      isTrue,
+    );
+  });
+
   test(
     'latest manifests checks endpoint response and keeps large GIDs as text',
     () async {

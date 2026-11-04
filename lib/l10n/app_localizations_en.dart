@@ -4461,19 +4461,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get versionPinned => 'Version pinned';
 
   @override
-  String get clearDownloadedManifests => 'Clear downloaded manifests';
+  String get clearDownloadedManifests => 'Clear Steam manifest cache';
 
   @override
   String clearDownloadedManifestsDescription(String game) {
-    return 'Clear local manifest downloads made by this app for \"$game\"? Steam depotcache and Lua files are not changed.';
+    return 'Clear every manifest file for \"$game\" from all Steam depotcache locations? Lua files are not changed.';
   }
 
   @override
   String downloadedManifestsCleared(String count) {
-    return 'Cleared $count local manifest package(s).';
+    return 'Cleared $count Steam manifest file(s).';
   }
 
   @override
   String get noDownloadedManifests =>
-      'No downloaded manifest packages were found for this game.';
+      'No manifest files were found for this game in Steam depotcache.';
 }

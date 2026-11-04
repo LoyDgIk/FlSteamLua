@@ -8168,25 +8168,25 @@ abstract class AppLocalizations {
   /// No description provided for @clearDownloadedManifests.
   ///
   /// In en, this message translates to:
-  /// **'Clear downloaded manifests'**
+  /// **'Clear Steam manifest cache'**
   String get clearDownloadedManifests;
 
   /// No description provided for @clearDownloadedManifestsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Clear local manifest downloads made by this app for \"{game}\"? Steam depotcache and Lua files are not changed.'**
+  /// **'Clear every manifest file for \"{game}\" from all Steam depotcache locations? Lua files are not changed.'**
   String clearDownloadedManifestsDescription(String game);
 
   /// No description provided for @downloadedManifestsCleared.
   ///
   /// In en, this message translates to:
-  /// **'Cleared {count} local manifest package(s).'**
+  /// **'Cleared {count} Steam manifest file(s).'**
   String downloadedManifestsCleared(String count);
 
   /// No description provided for @noDownloadedManifests.
   ///
   /// In en, this message translates to:
-  /// **'No downloaded manifest packages were found for this game.'**
+  /// **'No manifest files were found for this game in Steam depotcache.'**
   String get noDownloadedManifests;
 }
 
