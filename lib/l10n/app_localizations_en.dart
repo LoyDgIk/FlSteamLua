@@ -3389,11 +3389,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previewDlcChanges => 'Preview Lua changes';
 
   @override
-  String mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership(
-    String mainDepotCount,
-    String value2,
-  ) {
-    return '$mainDepotCount main depots · $value2 DLC referenced by Lua. Lua configuration is not account ownership.';
+  String mainDepotsDlcReferencedByLua(String mainDepotCount, String value2) {
+    return '$mainDepotCount main depots · $value2 DLC referenced by Lua.';
   }
 
   @override
@@ -4456,4 +4453,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contentPreview => 'Content preview';
+
+  @override
+  String get updateChangelog => 'Changelog';
 }

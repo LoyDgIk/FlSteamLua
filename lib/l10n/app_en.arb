@@ -1416,8 +1416,8 @@
   "chooseLua": "Choose Lua",
   "analyzeDlc": "Refresh DLC",
   "previewDlcChanges": "Preview Lua changes",
-  "mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership": "{mainDepotCount} main depots · {value2} DLC referenced by Lua. Lua configuration is not account ownership.",
-  "@mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership": {
+  "mainDepotsDlcReferencedByLua": "{mainDepotCount} main depots · {value2} DLC referenced by Lua.",
+  "@mainDepotsDlcReferencedByLua": {
     "placeholders": {
       "mainDepotCount": {
         "type": "String"
@@ -1935,5 +1935,6 @@
   "previousImage": "Previous image",
   "nextImage": "Next image",
   "selectAll": "Select all",
-  "contentPreview": "Content preview"
+  "contentPreview": "Content preview",
+  "updateChangelog": "Changelog"
 }

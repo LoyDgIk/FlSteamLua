@@ -22,6 +22,11 @@ to `LoyDgIk/FlSteamLua`; no user-configured repository is supported.
 `dist` receives the installer, portable ZIP, corresponding source ZIP and
 SHA-256 sidecars.
 
+Release builds run the high-signal file list in `scripts/release-tests.txt`
+instead of the complete UI-heavy suite. Presentation-only tests are kept out of
+the release path; run `./scripts/build-release.ps1 -FullTests` when a complete
+local regression run is required.
+
 ## Tag and publish
 
 Commit the version and changelog changes first, then run:

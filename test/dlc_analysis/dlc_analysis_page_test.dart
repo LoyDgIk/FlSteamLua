@@ -99,6 +99,19 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('dlc-analysis-empty-refresh')),
+      findsOneWidget,
+    );
+    final emptyRefresh = find.byKey(
+      const ValueKey('dlc-analysis-empty-refresh'),
+    );
+    await tester.ensureVisible(emptyRefresh);
+    await tester.pumpAndSettle();
+    await tester.tap(emptyRefresh);
+    await tester.pumpAndSettle();
+    expect(service.sourceIds, [null]);
+    service.sourceIds.clear();
     final selector = find.byKey(const ValueKey('dlc-analysis-content-source'));
     expect(find.text('不使用订阅缓存'), findsOneWidget);
     await tester.tap(selector);
@@ -157,6 +170,7 @@ void main() {
         expect(find.text('DLC 管理'), findsWidgets);
         expect(find.text('440'), findsOneWidget);
         expect(find.text(r'C:\fixture\440.lua'), findsOneWidget);
+        expect(find.textContaining('不等于账号拥有'), findsNothing);
         expect(
           find.text('对照 Steam 仓库信息、当前 Lua 和本次选择的内容源。先预览，再决定追加哪些 DLC 配置。'),
           findsNothing,

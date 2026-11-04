@@ -1164,7 +1164,7 @@
   "chooseLua": "选择 Lua",
   "analyzeDlc": "刷新 DLC",
   "previewDlcChanges": "预览 Lua 变更",
-  "mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership": "主游戏仓库 {mainDepotCount} · Lua 中涉及 {value2} 个 DLC。Lua 状态不等于账号拥有。",
+  "mainDepotsDlcReferencedByLua": "主游戏仓库 {mainDepotCount} · Lua 中涉及 {value2} 个 DLC。",
   "allLayouts": "全部类型",
   "steamReturnedNoDlcForThisGame": "Steam 未返回该游戏的 DLC。",
   "referenced": "已涉及",
@@ -1611,5 +1611,6 @@
   "previousImage": "上一张",
   "nextImage": "下一张",
   "selectAll": "全选",
-  "contentPreview": "内容预览"
+  "contentPreview": "内容预览",
+  "updateChangelog": "更新日志"
 }

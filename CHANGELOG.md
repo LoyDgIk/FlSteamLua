@@ -5,6 +5,27 @@ generated from the matching version section.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-04
+
+### Added
+
+- The application update page now displays the current release changelog.
+
+### Changed
+
+- DLC refresh is available from the top toolbar and the empty state; the
+  redundant full-width action area has been removed.
+- Release validation now runs a focused high-value test set. Use
+  `build-release.ps1 -FullTests` when the complete suite is required.
+
+### Fixed
+
+- Removed the redundant Lua ownership caption from DLC analysis results.
+- Windows short-path aliases no longer prevent a running trainer from stopping
+  or its binding from being removed.
+- The update source remains fixed to `LoyDgIk/FlSteamLua` without exposing a
+  redundant repository row.
+
 ## [0.1.0] - 2026-11-04
 
 ### Added

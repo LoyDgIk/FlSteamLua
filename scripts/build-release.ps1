@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$SkipChecks,
+    [switch]$FullTests,
     [string]$InnoCompiler,
     [string]$CMake,
     [string]$Version
@@ -64,7 +65,7 @@ try {
     $cmakeCommand = Find-Compiler -Explicit $CMake -Command 'cmake.exe' -Candidates $cmakeCandidates
     Invoke-Checked -Program 'flutter' -Arguments @('--suppress-analytics', 'pub', 'get')
     if (!$SkipChecks) {
-        Invoke-Checked -Program 'flutter' -Arguments @('--suppress-analytics', 'analyze')
+        Invoke-Checked -Program 'dart' -Arguments @('analyze', '--fatal-infos')
     }
     $buildArguments = @(
         '--suppress-analytics',
@@ -78,7 +79,29 @@ try {
         $previousQuickJs = $env:FLUTTER_QJS_NEXT_LIBRARY
         try {
             $env:FLUTTER_QJS_NEXT_LIBRARY = Join-Path $releaseDirectory 'flutter_qjs_next_plugin.dll'
-            Invoke-Checked -Program 'flutter' -Arguments @('--suppress-analytics', 'test', '--no-pub', '--concurrency=1', '--reporter=expanded', '--timeout=60s')
+            $testArguments = @(
+                '--suppress-analytics',
+                'test',
+                '--no-pub',
+                '--concurrency=1',
+                '--reporter=compact',
+                '--timeout=60s'
+            )
+            if (!$FullTests) {
+                $testManifest = Join-Path $projectRoot 'scripts\release-tests.txt'
+                $testFiles = @(
+                    Get-Content -LiteralPath $testManifest -Encoding utf8 |
+                        ForEach-Object { $_.Trim() } |
+                        Where-Object { $_ -and !$_.StartsWith('#') }
+                )
+                foreach ($file in $testFiles) {
+                    if (!(Test-Path -LiteralPath $file -PathType Leaf)) {
+                        throw "Release test file does not exist: $file"
+                    }
+                }
+                $testArguments += $testFiles
+            }
+            Invoke-Checked -Program 'flutter' -Arguments $testArguments
         } finally {
             $env:FLUTTER_QJS_NEXT_LIBRARY = $previousQuickJs
         }
@@ -127,6 +150,9 @@ try {
     )
     $sourceZip = Join-Path $outputDirectory "FlSteamLua-$version-source.zip"
     $sourceFiles = & git ls-files --cached --others --exclude-standard -- .github .gitignore .metadata AGENTS.md CHANGELOG.md LICENSE README.md THIRD-PARTY-NOTICES.md pubspec.yaml pubspec.lock analysis_options.yaml lib assets bin docs native packaging scripts test windows
+    $sourceFiles = @(
+        $sourceFiles | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf }
+    )
     if ($LASTEXITCODE -ne 0 -or !$sourceFiles) { throw 'Cannot enumerate corresponding source files.' }
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     if (Test-Path -LiteralPath $sourceZip) { Remove-Item -LiteralPath $sourceZip }

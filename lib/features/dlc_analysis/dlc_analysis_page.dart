@@ -295,6 +295,7 @@ class _DlcAnalysisPageState extends State<DlcAnalysisPage> {
       isLoading: _busy,
       actions: [
         ui.DashboardIconButton(
+          key: const ValueKey('dlc-analysis-start'),
           glyph: ui.AppGlyphs.refresh,
           tooltip: texts.analyzeDlc,
           onPressed: _busy ? null : _analyze,
@@ -380,6 +381,12 @@ class _DlcAnalysisPageState extends State<DlcAnalysisPage> {
               child: ui.NullStatus(
                 label: texts.dlcAnalysis,
                 illustration: ui.NullStatusIllustration.lua,
+                action: ui.TonalButton(
+                  key: const ValueKey('dlc-analysis-empty-refresh'),
+                  glyph: ui.AppGlyphs.refresh,
+                  label: texts.analyzeDlc,
+                  onPressed: _analyze,
+                ),
               ),
             ),
         ],
@@ -441,18 +448,6 @@ class _DlcAnalysisPageState extends State<DlcAnalysisPage> {
           icon: const ui.GlyphIcon(ui.AppGlyphs.importFile, size: 20),
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-        child: SizedBox(
-          width: double.infinity,
-          child: ui.TonalButton(
-            key: const ValueKey('dlc-analysis-start'),
-            glyph: ui.AppGlyphs.dataUsage,
-            label: texts.analyzeDlc,
-            onPressed: _busy ? null : _analyze,
-          ),
-        ),
-      ),
     ],
   );
 
@@ -489,11 +484,10 @@ class _DlcAnalysisPageState extends State<DlcAnalysisPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            context.l10n
-                .mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership(
-                  '${result.mainDepotCount}',
-                  '$configured',
-                ),
+            context.l10n.mainDepotsDlcReferencedByLua(
+              '${result.mainDepotCount}',
+              '$configured',
+            ),
             style: ui.AppTextStyle.caption1
                 .of(context)
                 .copyWith(color: context.colorScheme.onSurfaceVariant),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 
+import '../core/app_changelog.dart';
 import '../core/app_release.dart';
 import '../core/settings_store.dart';
 import '../features/cloud/cloud_redirect_plugin_page.dart';
@@ -564,6 +565,7 @@ class _UpdateSettingsPage extends StatefulWidget {
 
 class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
   bool _checking = false;
+  AppChangelog? _changelog;
 
   PreferencesController get preferences => widget.services.preferences;
   SettingsStore get settings => widget.services.settings;
@@ -572,10 +574,20 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
   void initState() {
     super.initState();
     preferences.addListener(_changed);
+    _loadChangelog();
   }
 
   void _changed() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _loadChangelog() async {
+    try {
+      final changelog = await loadLatestAppChangelog();
+      if (mounted) setState(() => _changelog = changelog);
+    } catch (error) {
+      debugPrint('Could not load CHANGELOG.md: $error');
+    }
   }
 
   @override
@@ -709,6 +721,72 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
     }
   }
 
+  Widget _changelogSection(BuildContext context, AppChangelog changelog) {
+    final colorScheme = context.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ui.ListHeader(
+          title: context.l10n.updateChangelog,
+          trailing: ui.MetaChip(label: 'v${changelog.version}'),
+        ),
+        ui.CommonCard(
+          key: const ValueKey('app-changelog'),
+          inert: true,
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (changelog.date case final date?)
+                Text(
+                  date,
+                  style: ui.AppTextStyle.footnote
+                      .of(context)
+                      .copyWith(color: colorScheme.onSurfaceVariant),
+                ),
+              for (final (index, section) in changelog.sections.indexed) ...[
+                if (index > 0 || changelog.date != null)
+                  const SizedBox(height: 16),
+                Text(
+                  section.title,
+                  style: ui.AppTextStyle.title2.of(context, emphasized: true),
+                ),
+                const SizedBox(height: 8),
+                for (final item in section.items)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 7),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Container(
+                            width: 5,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: SelectableText(
+                            item,
+                            style: ui.AppTextStyle.body.of(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) => ui.CommonScaffold(
     title: context.l10n.applicationUpdates,
@@ -763,6 +841,10 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
               ),
           ],
         ),
+        if (_changelog case final changelog?) ...[
+          const SizedBox(height: 18),
+          _changelogSection(context, changelog),
+        ],
       ],
     ),
   );

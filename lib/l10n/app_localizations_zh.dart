@@ -3304,11 +3304,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get previewDlcChanges => '预览 Lua 变更';
 
   @override
-  String mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership(
-    String mainDepotCount,
-    String value2,
-  ) {
-    return '主游戏仓库 $mainDepotCount · Lua 中涉及 $value2 个 DLC。Lua 状态不等于账号拥有。';
+  String mainDepotsDlcReferencedByLua(String mainDepotCount, String value2) {
+    return '主游戏仓库 $mainDepotCount · Lua 中涉及 $value2 个 DLC。';
   }
 
   @override
@@ -4338,4 +4335,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contentPreview => '内容预览';
+
+  @override
+  String get updateChangelog => '更新日志';
 }

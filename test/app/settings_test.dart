@@ -417,6 +417,8 @@ void main() {
       );
       expect(find.byKey(const ValueKey('check-update')), findsOneWidget);
       expect(services.settings.releaseRepository, appRepository);
+      await reveal(tester, find.byKey(const ValueKey('app-changelog')));
+      expect(find.text('更新日志'), findsOneWidget);
     },
   );
 

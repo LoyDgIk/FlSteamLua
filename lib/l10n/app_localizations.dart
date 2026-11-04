@@ -6219,14 +6219,11 @@ abstract class AppLocalizations {
   /// **'Preview Lua changes'**
   String get previewDlcChanges;
 
-  /// No description provided for @mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership.
+  /// No description provided for @mainDepotsDlcReferencedByLua.
   ///
   /// In en, this message translates to:
-  /// **'{mainDepotCount} main depots · {value2} DLC referenced by Lua. Lua configuration is not account ownership.'**
-  String mainDepotsDlcReferencedByLuaLuaConfigurationIsNotAccountOwnership(
-    String mainDepotCount,
-    String value2,
-  );
+  /// **'{mainDepotCount} main depots · {value2} DLC referenced by Lua.'**
+  String mainDepotsDlcReferencedByLua(String mainDepotCount, String value2);
 
   /// No description provided for @allLayouts.
   ///
@@ -8155,6 +8152,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Content preview'**
   String get contentPreview;
+
+  /// No description provided for @updateChangelog.
+  ///
+  /// In en, this message translates to:
+  /// **'Changelog'**
+  String get updateChangelog;
 }
 
 class _AppLocalizationsDelegate
