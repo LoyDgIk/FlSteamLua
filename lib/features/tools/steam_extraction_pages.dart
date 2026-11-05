@@ -174,6 +174,7 @@ class _LuaExtractionPageState extends State<LuaExtractionPage> {
     final texts = context.l10n;
     return ui.CommonScaffold(
       title: texts.luaExtraction,
+      isLoading: _busy,
       actions: [
         IconButton(
           tooltip: texts.extractLua,
@@ -327,6 +328,7 @@ class _LuaExtractionPageState extends State<LuaExtractionPage> {
                       _copyAchievements,
                       (value) => setState(() => _copyAchievements = value),
                     ),
+                    ui.ListFooter(text: texts.copyAchievementsHint),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -341,15 +343,6 @@ class _LuaExtractionPageState extends State<LuaExtractionPage> {
               ],
             ),
           ),
-          if (_busy)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: ui.CommonCard(
-                inert: true,
-                padding: const EdgeInsets.all(14),
-                child: const ui.CommonProgressBar(value: null),
-              ),
-            ),
           if (_result case final result?) ...[
             const SizedBox(height: 12),
             ui.CommonCard(
@@ -462,6 +455,7 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
   late final TicketAuthorizationStore _tickets;
   final List<_ExtractionLog> _logs = [];
   String? _resultFile;
+  AuthorizationTicket? _resultTicket;
   bool _busy = false;
   bool _saveEncrypted = true;
 
@@ -499,6 +493,7 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
     setState(() {
       _busy = true;
       _resultFile = null;
+      _resultTicket = null;
       _logs.clear();
     });
     try {
@@ -522,14 +517,23 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
         await file.parent.create(recursive: true);
         await file.writeAsString(ticket.exportText(), flush: true);
         if (_saveEncrypted) await _tickets.save(ticket);
-        return file.path;
+        return (path: file.path, ticket: ticket);
       }, appId: id);
       if (!mounted) return;
       setState(() {
-        _resultFile = result;
-        _log('success', texts.ticketExtractionComplete(result));
+        _resultFile = result.path;
+        _resultTicket = result.ticket;
+        _log('success', texts.ticketExtractionComplete(result.path));
       });
-      ui.showAppSuccess(context, texts.ticketExtractionComplete(result));
+      ui.showAppFeedback(
+        context,
+        texts.ticketExtractionComplete(result.path),
+        level: ui.MessageLevel.success,
+        actionState: ui.MessageActionState(
+          actionText: texts.reviewExtractedTickets,
+          action: _openTicketPage,
+        ),
+      );
     } catch (error) {
       if (!mounted) return;
       final message = _friendlyError(error, texts);
@@ -551,13 +555,13 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
   }
 
   Future<void> _openTicketPage() async {
-    final id = int.tryParse(_appId.text.trim());
+    final id = _resultTicket?.appId ?? int.tryParse(_appId.text.trim());
     final games = [...widget.games];
     if (widget.game case final game?) {
       if (!games.any((entry) => entry.appId == game.appId)) games.add(game);
     }
     final game =
-        widget.game ??
+        (widget.game?.appId == id ? widget.game : null) ??
         (id == null || id <= 0
             ? null
             : games.where((entry) => entry.appId == id).firstOrNull ??
@@ -565,10 +569,12 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
     await Navigator.of(context).push(
       ui.buildAppPageRoute(
         builder: (_) => TicketPage(
+          settings: widget.settings,
           paths: widget.paths,
           tasks: widget.tasks,
           game: game,
           games: games,
+          initialTicket: _resultTicket,
         ),
         reduceMotion: MediaQuery.disableAnimationsOf(context),
       ),
@@ -590,7 +596,8 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
   Widget build(BuildContext context) {
     final texts = context.l10n;
     return ui.CommonScaffold(
-      title: texts.denuvoAuthorization,
+      title: texts.denuvoTicketExtraction,
+      isLoading: _busy,
       actions: [
         IconButton(
           tooltip: texts.openAuthorizationPage,
@@ -682,15 +689,6 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
               ],
             ),
           ),
-          if (_busy)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: ui.CommonCard(
-                inert: true,
-                padding: const EdgeInsets.all(14),
-                child: const ui.CommonProgressBar(value: null),
-              ),
-            ),
           if (_resultFile case final file?)
             Padding(
               padding: const EdgeInsets.only(top: 12),
@@ -721,6 +719,13 @@ class _DenuvoExtractionPageState extends State<DenuvoExtractionPage> {
                           onPressed: _openResult,
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+                    ui.TonalButton(
+                      key: const ValueKey('review-extracted-ticket'),
+                      glyph: ui.AppGlyphs.key,
+                      label: texts.reviewExtractedTickets,
+                      onPressed: _openTicketPage,
                     ),
                     const SizedBox(height: 8),
                     SelectableText(

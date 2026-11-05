@@ -450,7 +450,7 @@ class _GameDetailPageState extends State<GameDetailPage> {
                   context,
                   Icons.schedule,
                   context.l10n.playtime,
-                  context.l10n.minutes((current.playtimeMinutes).toString()),
+                  formatGamePlaytime(context.l10n, current.playtimeMinutes),
                 ),
                 _metric(
                   context,

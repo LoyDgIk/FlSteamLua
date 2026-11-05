@@ -199,6 +199,7 @@ class _NetworkSettingsPageState extends State<NetworkSettingsPage> {
             const SizedBox(height: 12),
             ui.CommonCard(
               isError: true,
+              inert: true,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: SelectableText(_error!),

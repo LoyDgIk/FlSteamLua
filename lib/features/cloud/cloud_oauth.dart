@@ -47,6 +47,16 @@ class CloudOAuth {
   }
 
   Future<void> authorize(String provider, {TaskContext? context}) async {
+    await credentials.write(
+      provider,
+      await authorizeDraft(provider, context: context),
+    );
+  }
+
+  Future<Map<String, dynamic>> authorizeDraft(
+    String provider, {
+    TaskContext? context,
+  }) async {
     final config = _config(provider);
     if (_server != null) {
       throw StateError('Another authorization is in progress');
@@ -122,7 +132,7 @@ class CloudOAuth {
             'Authorization did not return an offline refresh token',
           );
         }
-        await credentials.write(provider, tokens);
+        return tokens;
       } finally {
         timer.cancel();
         await subscription.cancel();
@@ -136,6 +146,18 @@ class CloudOAuth {
   Future<String> accessToken(String provider) async {
     final value = await credentials.read(provider);
     if (value == null) throw StateError('Connect $provider first');
+    return tokenFor(
+      provider,
+      value,
+      (tokens) => credentials.write(provider, tokens),
+    );
+  }
+
+  Future<String> tokenFor(
+    String provider,
+    Map<String, dynamic> value,
+    Future<void> Function(Map<String, dynamic>) persist,
+  ) async {
     final expiry = (value['expires_at'] as num?)?.toInt() ?? 0;
     final token = value['access_token'] as String? ?? '';
     if (token.isNotEmpty &&
@@ -151,7 +173,8 @@ class CloudOAuth {
       'refresh_token': refresh,
     });
     tokens['refresh_token'] ??= refresh;
-    await credentials.write(provider, tokens);
+    value.addAll(tokens);
+    await persist(value);
     return tokens['access_token'] as String;
   }
 

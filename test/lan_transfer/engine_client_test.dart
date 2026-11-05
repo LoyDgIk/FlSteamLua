@@ -24,10 +24,13 @@ void main() {
     try {
       final events = <LanTransferEngineEvent>[];
       final subscription = client.events.listen(events.add);
-      await client.start(directory.path);
+      final starting = client.start(directory.path);
+      final concurrent = client.start(directory.path);
+      expect(identical(starting, concurrent), isTrue);
+      await concurrent;
       final hello = await client.request('hello', const {});
       expect(hello, isA<Map>());
-      expect((hello as Map)['lanProtocol'], 'flsteamlua-lan/4');
+      expect((hello as Map)['lanProtocol'], 'flsteamlua-lan/5');
       expect((hello)['engineProtocol'], 'flsteamlua-engine/1');
       await subscription.cancel();
     } finally {

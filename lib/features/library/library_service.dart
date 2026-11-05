@@ -16,7 +16,11 @@ import '../../core/settings_store.dart';
 import '../../core/steam_process_actions.dart';
 import '../../core/task_center.dart';
 import 'kv1.dart';
+import 'lua_directories.dart';
 import 'process_observer.dart';
+import 'steam_update_config.dart';
+
+export 'steam_update_config.dart' show SteamUpdateControlSettings;
 
 typedef LibraryProcessRunner =
     Future<ProcessResult> Function(String executable, List<String> arguments);
@@ -53,28 +57,9 @@ class ImportResult {
   bool get succeeded => errors.isEmpty;
 }
 
-class SteamUpdateControlSettings {
-  const SteamUpdateControlSettings({
-    this.disableUpdateCheck = false,
-    this.disableForcedUpdate = false,
-  });
-
-  final bool disableUpdateCheck;
-  final bool disableForcedUpdate;
-
-  SteamUpdateControlSettings copyWith({
-    bool? disableUpdateCheck,
-    bool? disableForcedUpdate,
-  }) => SteamUpdateControlSettings(
-    disableUpdateCheck: disableUpdateCheck ?? this.disableUpdateCheck,
-    disableForcedUpdate: disableForcedUpdate ?? this.disableForcedUpdate,
-  );
-}
-
 class _GameSession {
-  _GameSession(this.process, this.startedAt, this.executablePath);
+  _GameSession(this.process, this.executablePath);
   final Process process;
-  final DateTime startedAt;
   final String executablePath;
 }
 
@@ -108,7 +93,6 @@ class LibraryService extends ChangeNotifier {
   final Map<int, _GameSession> _sessions = {};
   Map<int, List<RunningProcess>> _observedProcesses = {};
   Map<int, String> _monitoredExecutables = {};
-  final Map<int, DateTime> _runningSince = {};
   Timer? _processTimer;
   bool _processMonitoring = false;
   Future<void>? _processRefresh;
@@ -209,7 +193,7 @@ class LibraryService extends ChangeNotifier {
       }
       _observedProcesses = observed;
       _processWarning = null;
-      await _syncRunningState();
+      _syncRunningState();
     } catch (error) {
       // A failed snapshot must not make live games appear to have exited.
       if (!_disposed) _processWarning = 'Game process detection: $error';
@@ -220,42 +204,14 @@ class LibraryService extends ChangeNotifier {
   static String _executableKey(String path) =>
       p.normalize(p.absolute(path)).toLowerCase();
 
-  Future<void> _syncRunningState() async {
+  void _syncRunningState() {
     final running = runningExecutables.keys.toSet();
-    for (final game in List<GameEntry>.of(_games)) {
-      final active = running.contains(game.appId);
-      if (active) {
-        _runningSince.putIfAbsent(game.appId, DateTime.now);
-      }
-      if (game.isRunning == active) continue;
-      if (active) {
-        _replace(game.copyWith(isRunning: true));
-      } else {
-        final since = _runningSince.remove(game.appId);
-        final now = DateTime.now();
-        final minutes =
-            game.playtimeMinutes +
-            (since == null ? 0 : now.difference(since).inMinutes);
-        await _updateRecord(game.appId, {
-          'name': game.name,
-          'playtimeMinutes': minutes,
-          'lastPlayed': now.toIso8601String(),
-        });
-        if (_disposed) return;
-        final current = _games
-            .where((entry) => entry.appId == game.appId)
-            .firstOrNull;
-        if (current != null) {
-          _replace(
-            current.copyWith(
-              isRunning: false,
-              playtimeMinutes: minutes,
-              lastPlayed: now,
-            ),
-          );
-        }
-      }
-    }
+    _games = [
+      for (final game in _games)
+        game.isRunning == running.contains(game.appId)
+            ? game
+            : game.copyWith(isRunning: running.contains(game.appId)),
+    ];
   }
 
   static Future<ProcessResult> _runProcess(String command, List<String> args) =>
@@ -348,9 +304,9 @@ class LibraryService extends ChangeNotifier {
         return;
       }
       context?.report('Reading Steam libraries');
-      final customLuaPath = settings.get<String>('luaPath', '');
+      final luaRoots = LuaDirectories(root).loadOrder;
       final appRoot = paths.root;
-      final result = await _scanInIsolate(root, customLuaPath, appRoot);
+      final result = await _scanInIsolate(root, luaRoots, appRoot);
       context?.checkCancelled();
       _warnings = result.$2;
       _games = result.$1
@@ -371,17 +327,18 @@ class LibraryService extends ChangeNotifier {
 
   static Future<(List<GameEntry>, List<String>)> _scanInIsolate(
     String root,
-    String customLua,
+    List<String> luaRoots,
     String appRoot,
-  ) => Isolate.run(() => _scanLocal(root, customLua, appRoot));
+  ) => Isolate.run(() => _scanLocal(root, luaRoots, appRoot));
 
   static (List<GameEntry>, List<String>) _scanLocal(
     String root,
-    String customLua,
+    List<String> luaRoots,
     String appRoot,
   ) {
     final warnings = <String>[];
     final records = _readRecordsSync(p.join(appRoot, 'data', 'library.json'));
+    final steamPlaytime = _readSteamPlaytimeSync(root, warnings);
     final libraries = <String>[root];
     final folders = File(p.join(root, 'steamapps', 'libraryfolders.vdf'));
     if (folders.existsSync()) {
@@ -448,11 +405,7 @@ class LibraryService extends ChangeNotifier {
             final local = records['$id'] is Map
                 ? records['$id'] as Map
                 : const {};
-            final recordTime = DateTime.tryParse(
-              local['lastPlayed']?.toString() ?? '',
-            );
-            final timestamp =
-                int.tryParse(_stringValue(state, 'LastPlayed')) ?? 0;
+            final steam = steamPlaytime[id];
             final game = GameEntry(
               appId: id,
               name:
@@ -465,13 +418,9 @@ class LibraryService extends ChangeNotifier {
               isInstalled: exists && (flags == 0 || flags & 4 != 0),
               ownership: GameOwnership.unknown,
               isFavorite: local['favorite'] == true,
-              playtimeMinutes: local['playtimeMinutes'] is int
-                  ? local['playtimeMinutes'] as int
-                  : 0,
+              playtimeMinutes: steam?.minutes,
               sizeOnDisk: int.tryParse(_stringValue(state, 'SizeOnDisk')) ?? 0,
-              lastPlayed: timestamp > 0
-                  ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
-                  : recordTime,
+              lastPlayed: steam?.lastPlayed,
             );
             final existing = games[id];
             if (existing == null || !existing.isInstalled && game.isInstalled) {
@@ -487,14 +436,17 @@ class LibraryService extends ChangeNotifier {
         warnings.add('${steamapps.path}: ${error.message}');
       }
     }
-    for (final luaRoot in _luaDirectories(root, customLua)) {
+    for (final luaRoot in luaRoots.reversed) {
       final directory = Directory(luaRoot);
       if (!directory.existsSync()) continue;
       try {
-        for (final file
-            in directory
-                .listSync(recursive: true, followLinks: false)
-                .whereType<File>()) {
+        for (final file in [
+          ...directory.listSync(followLinks: false).whereType<File>(),
+          if (Directory(p.join(luaRoot, 'Disable')).existsSync())
+            ...Directory(
+              p.join(luaRoot, 'Disable'),
+            ).listSync(followLinks: false).whereType<File>(),
+        ]) {
           if (p.extension(file.path).toLowerCase() != '.lua') continue;
           final appId = int.tryParse(p.basenameWithoutExtension(file.path));
           if (appId == null || appId <= 0) continue;
@@ -512,7 +464,7 @@ class LibraryService extends ChangeNotifier {
           }
           final existing = games[appId];
           if (existing?.hasLua == true && existing!.luaEnabled) {
-            if (versionPinned && !existing.versionPinned) {
+            if (enabled && versionPinned && !existing.versionPinned) {
               games[appId] = existing.copyWith(versionPinned: true);
             }
             continue;
@@ -534,12 +486,8 @@ class LibraryService extends ChangeNotifier {
                 luaEnabled: enabled,
                 versionPinned: versionPinned,
                 isFavorite: local['favorite'] == true,
-                playtimeMinutes: local['playtimeMinutes'] is int
-                    ? local['playtimeMinutes'] as int
-                    : 0,
-                lastPlayed: DateTime.tryParse(
-                  local['lastPlayed']?.toString() ?? '',
-                ),
+                playtimeMinutes: steamPlaytime[appId]?.minutes,
+                lastPlayed: steamPlaytime[appId]?.lastPlayed,
               );
         }
       } on FileSystemException catch (error) {
@@ -584,10 +532,7 @@ class LibraryService extends ChangeNotifier {
 
   Future<void> openLuaDirectory({int? appId}) async {
     final directory = appId == null
-        ? _luaDirectories(
-            await _requireSteam(),
-            settings.get<String>('luaPath', ''),
-          ).first
+        ? LuaDirectories(await _requireSteam()).read().first
         : p.dirname(_luaFile(appId).path);
     await Directory(directory).create(recursive: true);
     if (!await _open(Uri.directory(directory, windows: Platform.isWindows))) {
@@ -635,10 +580,9 @@ class LibraryService extends ChangeNotifier {
     final source = game.luaPath;
     if (source == null) throw StateError('No Lua file for App ${game.appId}');
     if (game.luaEnabled == enabled) return;
-    final root = _luaDirectories(
+    final root = LuaDirectories(
       await _requireSteam(),
-      settings.get<String>('luaPath', ''),
-    ).firstWhere((root) => p.isWithin(root, source));
+    ).loadOrder.firstWhere((root) => p.isWithin(root, source));
     final relative = p.split(p.relative(source, from: root));
     if (enabled) {
       relative.removeAt(
@@ -713,8 +657,7 @@ class LibraryService extends ChangeNotifier {
     TaskContext? context,
   }) async {
     final root = await _requireSteam();
-    final customLua = settings.get<String>('luaPath', '');
-    final luaRoot = _luaDirectories(root, customLua).first;
+    final luaRoot = LuaDirectories(root).read().first;
     final written = <String>[];
     final skipped = <String>[];
     final errors = <String, String>{};
@@ -916,7 +859,12 @@ class LibraryService extends ChangeNotifier {
       '.bin' => parts.indexWhere((part) => part.toLowerCase() == 'stats'),
       _ => parts.indexWhere((part) => part.toLowerCase() == 'depotcache'),
     };
-    final destinationRelative = markerIndex >= 0
+    final destinationRelative = extension == '.lua'
+        ? p.joinAll([
+            if (parts.any((part) => part.toLowerCase() == 'disable')) 'Disable',
+            p.basename(normalized),
+          ])
+        : markerIndex >= 0
         ? p.joinAll(parts.skip(markerIndex + 1))
         : normalized;
     final target = File(_safeChild(targetRoot, destinationRelative));
@@ -963,9 +911,8 @@ class LibraryService extends ChangeNotifier {
     // Drain redirected streams so a verbose game cannot block on a full pipe.
     unawaited(process.stdout.drain<void>());
     unawaited(process.stderr.drain<void>());
-    final session = _GameSession(process, DateTime.now(), executable);
+    final session = _GameSession(process, executable);
     _sessions[appId] = session;
-    _runningSince.putIfAbsent(appId, () => session.startedAt);
     _replace(game.copyWith(isRunning: true));
     unawaited(process.exitCode.then((_) => _finishSession(appId, session)));
   }
@@ -1004,13 +951,13 @@ class LibraryService extends ChangeNotifier {
     await session.process.exitCode;
   }
 
-  Future<void> _finishSession(int appId, _GameSession session) async {
+  void _finishSession(int appId, _GameSession session) {
     if (!identical(_sessions[appId], session)) return;
     _sessions.remove(appId);
     _observedProcesses[appId]?.removeWhere(
       (process) => process.pid == session.process.pid,
     );
-    await _syncRunningState();
+    _syncRunningState();
     _emit();
   }
 
@@ -1042,6 +989,7 @@ class LibraryService extends ChangeNotifier {
     if (!await file.exists()) return [];
     final parsed = Kv1.parse(await file.readAsString());
     final users = _mapValue(parsed, 'users') ?? parsed;
+    final recentSteamId = _recentSteamId(users);
     final accounts = <SteamLocalAccount>[];
     for (final item in users.entries) {
       if (item.value is! Map) continue;
@@ -1054,7 +1002,7 @@ class LibraryService extends ChangeNotifier {
           steamId: item.key,
           accountName: account,
           personaName: persona.isEmpty ? account : persona,
-          mostRecent: _stringValue(data, 'MostRecent') == '1',
+          mostRecent: item.key == recentSteamId,
         ),
       );
     }
@@ -1075,24 +1023,7 @@ class LibraryService extends ChangeNotifier {
     final root = await _requireSteam();
     final file = File(p.join(root, 'Steam.cfg'));
     if (!await file.exists()) return const SteamUpdateControlSettings();
-    final lines = const LineSplitter().convert(await file.readAsString());
-    final values = <String, String>{};
-    for (final line in lines) {
-      final text = line.trim();
-      if (text.isEmpty || text.startsWith('#') || text.startsWith('//')) {
-        continue;
-      }
-      final separator = text.indexOf('=');
-      if (separator <= 0) continue;
-      values[text.substring(0, separator).trim().toLowerCase()] = text
-          .substring(separator + 1)
-          .trim()
-          .toLowerCase();
-    }
-    return SteamUpdateControlSettings(
-      disableUpdateCheck: values['bootstrapperinhibitall'] == 'enable',
-      disableForcedUpdate: values['bootstrapperforceselfupdate'] == 'disable',
-    );
+    return SteamUpdateConfig.parse(await file.readAsString());
   }
 
   Future<SteamUpdateControlSettings> setSteamUpdateControl(
@@ -1101,54 +1032,13 @@ class LibraryService extends ChangeNotifier {
     final root = await _requireSteam();
     final file = File(p.join(root, 'Steam.cfg'));
     final exists = await file.exists();
-    final lines = exists
-        ? const LineSplitter().convert(await file.readAsString())
-        : <String>[];
-    _setCfgValue(
-      lines,
-      'BootStrapperInhibitAll',
-      value.disableUpdateCheck ? 'enable' : null,
-    );
-    _setCfgValue(
-      lines,
-      'BootStrapperForceSelfUpdate',
-      value.disableForcedUpdate ? 'disable' : null,
-    );
+    final source = exists ? await file.readAsString() : '';
+    final updated = SteamUpdateConfig.rewrite(source, value);
     if (exists) await _backup(file);
-    if (exists || lines.any((line) => line.trim().isNotEmpty)) {
-      await _atomicWrite(file, utf8.encode('${lines.join('\n')}\n'));
+    if (exists || updated.trim().isNotEmpty) {
+      await _atomicWrite(file, utf8.encode(updated));
     }
     return readSteamUpdateControl();
-  }
-
-  static void _setCfgValue(List<String> lines, String key, String? value) {
-    final indices = <int>[];
-    for (var index = 0; index < lines.length; index++) {
-      final text = lines[index].trim();
-      if (text.isEmpty || text.startsWith('#') || text.startsWith('//')) {
-        continue;
-      }
-      final separator = text.indexOf('=');
-      if (separator > 0 &&
-          text.substring(0, separator).trim().toLowerCase() ==
-              key.toLowerCase()) {
-        indices.add(index);
-      }
-    }
-    if (value == null) {
-      for (final index in indices.reversed) {
-        lines.removeAt(index);
-      }
-      return;
-    }
-    if (indices.isEmpty) {
-      lines.add('$key=$value');
-      return;
-    }
-    lines[indices.first] = '$key=$value';
-    for (final index in indices.skip(1).toList().reversed) {
-      lines.removeAt(index);
-    }
   }
 
   String? avatarPath(SteamLocalAccount account) {
@@ -1360,10 +1250,7 @@ class LibraryService extends ChangeNotifier {
 
   Future<({String steam, String lua})> contentDirectories() async {
     final steam = await _requireSteam();
-    return (
-      steam: steam,
-      lua: _luaDirectories(steam, settings.get<String>('luaPath', '')).first,
-    );
+    return (steam: steam, lua: LuaDirectories(steam).read().first);
   }
 
   GameEntry _game(int appId) => _games.firstWhere(
@@ -1460,38 +1347,98 @@ class LibraryService extends ChangeNotifier {
     return decoded;
   }
 
-  static List<String> _luaDirectories(String root, String customLua) {
-    if (customLua.trim().isNotEmpty) {
-      return [
-        p.normalize(
-          p.isAbsolute(customLua) ? customLua : p.join(root, customLua),
-        ),
-      ];
+  static String? _recentSteamId(Map<dynamic, dynamic> users) {
+    final accounts = users.entries
+        .where((entry) => entry.value is Map)
+        .toList();
+    for (final flag in ['MostRecent', 'AutoLogin']) {
+      final selected = accounts
+          .where((entry) => _stringValue(entry.value as Map, flag) == '1')
+          .firstOrNull;
+      if (selected != null) return selected.key.toString();
     }
-    final toml = File(p.join(root, 'opensteamtool.toml'));
-    if (toml.existsSync()) {
-      final section = RegExp(
-        r'\[lua\]([\s\S]*?)(?=\n\s*\[|$)',
-      ).firstMatch(toml.readAsStringSync());
-      final list = section == null
-          ? null
-          : RegExp(r'paths\s*=\s*\[([\s\S]*?)\]').firstMatch(section.group(1)!);
-      if (list != null) {
-        final matches = RegExp(
-          r'''["']([^"']+)["']''',
-        ).allMatches(list.group(1)!);
-        final paths = matches
-            .map((match) => match.group(1)!.replaceAll(r'\\', r'\'))
-            .where((path) => path.trim().isNotEmpty)
-            .map(
-              (path) =>
-                  p.normalize(p.isAbsolute(path) ? path : p.join(root, path)),
-            )
-            .toList();
-        if (paths.isNotEmpty) return paths;
+    MapEntry<dynamic, dynamic>? latest;
+    var latestTimestamp = 0;
+    for (final entry in accounts) {
+      final timestamp =
+          int.tryParse(_stringValue(entry.value as Map, 'Timestamp')) ?? 0;
+      if (timestamp > latestTimestamp) {
+        latest = entry;
+        latestTimestamp = timestamp;
       }
     }
-    return [p.join(root, 'config', 'stplug-in')];
+    return latest?.key.toString() ??
+        (accounts.length == 1 ? accounts.single.key.toString() : null);
+  }
+
+  static Map<int, ({int? minutes, DateTime? lastPlayed})>
+  _readSteamPlaytimeSync(String root, List<String> warnings) {
+    final loginUsers = File(p.join(root, 'config', 'loginusers.vdf'));
+    if (!loginUsers.existsSync()) return {};
+    Map<dynamic, dynamic>? users;
+    try {
+      final parsed = Kv1.parse(loginUsers.readAsStringSync());
+      users = _mapValue(parsed, 'users');
+    } on FormatException catch (error) {
+      warnings.add('${loginUsers.path}: $error');
+      return {};
+    } on FileSystemException catch (error) {
+      warnings.add('${loginUsers.path}: ${error.message}');
+      return {};
+    }
+    if (users == null) return {};
+    final selected = _recentSteamId(users);
+    if (selected == null) return {};
+    final steamId = int.tryParse(selected);
+    if (steamId == null) return {};
+    final accountId = steamId - 76561197960265728;
+    if (accountId <= 0 || accountId > 0xffffffff) {
+      return {};
+    }
+    final localConfig = File(
+      p.join(
+        root,
+        'userdata',
+        accountId.toString(),
+        'config',
+        'localconfig.vdf',
+      ),
+    );
+    if (!localConfig.existsSync()) return {};
+
+    try {
+      final parsed = Kv1.parse(localConfig.readAsStringSync());
+      final steam = _mapValue(parsed, 'UserLocalConfigStore');
+      final software = steam == null ? null : _mapValue(steam, 'Software');
+      final valve = software == null ? null : _mapValue(software, 'Valve');
+      final client = valve == null ? null : _mapValue(valve, 'Steam');
+      final apps = client == null ? null : _mapValue(client, 'Apps');
+      if (apps == null) return {};
+      final result = <int, ({int? minutes, DateTime? lastPlayed})>{};
+      for (final entry in apps.entries) {
+        final appId = int.tryParse(entry.key.toString());
+        if (appId == null || appId <= 0 || entry.value is! Map) continue;
+        final app = entry.value as Map;
+        final minutes = int.tryParse(_stringValue(app, 'Playtime'));
+        final lastPlayedSeconds = int.tryParse(_stringValue(app, 'LastPlayed'));
+        result[appId] = (
+          minutes: minutes == null || minutes < 0 ? null : minutes,
+          lastPlayed:
+              lastPlayedSeconds == null ||
+                  lastPlayedSeconds <= 0 ||
+                  lastPlayedSeconds > 0xffffffff
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(lastPlayedSeconds * 1000),
+        );
+      }
+      return result;
+    } on FormatException catch (error) {
+      warnings.add('${localConfig.path}: $error');
+      return {};
+    } on FileSystemException catch (error) {
+      warnings.add('${localConfig.path}: ${error.message}');
+      return {};
+    }
   }
 
   static String _archiveRelative(String name) {

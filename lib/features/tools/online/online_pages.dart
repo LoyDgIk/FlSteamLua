@@ -391,6 +391,17 @@ class _OnlineFixToolsPageState extends State<OnlineFixToolsPage> {
               ),
             ),
           ),
+          ui.DecorationListItem(
+            title: const SelectableText('-onlinefix -realappid'),
+            subtitle: Text(context.l10n.onlineFixRealAppIdDescription),
+            trailing: IconButton(
+              tooltip: context.l10n.copyLaunchOption,
+              icon: const ui.GlyphIcon(ui.AppGlyphs.copy),
+              onPressed: () => Clipboard.setData(
+                const ClipboardData(text: '-onlinefix -realappid'),
+              ),
+            ),
+          ),
         ],
         footer: context
             .l10n

@@ -76,15 +76,157 @@ void main() {
   });
 
   test(
+    'reads current Steam account playtime for installed and Lua games',
+    () async {
+      await manifest(steam.path, 10, 'Installed Game');
+      await write(
+        p.join(steam.path, 'config', 'lua', '20.lua'),
+        'addappid(20)',
+      );
+      await write(
+        paths.file('data/library.json'),
+        jsonEncode({
+          '10': {'playtimeMinutes': 9000, 'lastPlayed': '2030-01-01'},
+        }),
+      );
+      await write(
+        p.join(steam.path, 'config', 'loginusers.vdf'),
+        Kv1.stringify({
+          'users': {
+            '76561197960265729': {'AccountName': 'current', 'AutoLogin': '1'},
+            '76561197960265730': {'AccountName': 'other', 'AutoLogin': '0'},
+          },
+        }),
+      );
+      Future<void> history(String account, int minutes) => write(
+        p.join(steam.path, 'userdata', account, 'config', 'localconfig.vdf'),
+        Kv1.stringify({
+          'UserLocalConfigStore': {
+            'Software': {
+              'Valve': {
+                'Steam': {
+                  'Apps': {
+                    '10': {'Playtime': '$minutes', 'LastPlayed': '1793637603'},
+                    '20': {'Playtime': '90', 'LastPlayed': '1793637000'},
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ).then((_) {});
+      await history('1', 1247);
+      await history('2', 9999);
+
+      await library.scan();
+      expect(
+        library.games.firstWhere((g) => g.appId == 10).playtimeMinutes,
+        1247,
+      );
+      expect(
+        library.games.firstWhere((g) => g.appId == 20).playtimeMinutes,
+        90,
+      );
+      expect(
+        library.games.firstWhere((g) => g.appId == 10).lastPlayed,
+        DateTime.fromMillisecondsSinceEpoch(1793637603000),
+      );
+
+      await history('1', 1250);
+      await library.scan();
+      expect(
+        library.games.firstWhere((g) => g.appId == 10).playtimeMinutes,
+        1250,
+      );
+      expect(library.accounts.first.accountName, 'current');
+      expect(library.accounts.first.mostRecent, isTrue);
+
+      await write(
+        p.join(steam.path, 'config', 'loginusers.vdf'),
+        Kv1.stringify({
+          'users': {
+            '76561197960265729': {'AccountName': 'current', 'MostRecent': '0'},
+            '76561197960265730': {'AccountName': 'other', 'MostRecent': '1'},
+          },
+        }),
+      );
+      await library.scan();
+      expect(
+        library.games.firstWhere((g) => g.appId == 10).playtimeMinutes,
+        9999,
+      );
+    },
+  );
+
+  test(
+    'missing Steam history does not use client time or another account',
+    () async {
+      await manifest(steam.path, 10, 'Installed Game');
+      await write(
+        p.join(steam.path, 'config', 'lua', '20.lua'),
+        'addappid(20)',
+      );
+      await write(
+        paths.file('data/library.json'),
+        jsonEncode({
+          '10': {'playtimeMinutes': 9000, 'lastPlayed': '2030-01-01'},
+          '20': {'playtimeMinutes': 8000, 'lastPlayed': '2030-01-01'},
+        }),
+      );
+      await library.scan();
+      for (final game in library.games) {
+        expect(game.playtimeMinutes, isNull);
+        expect(game.lastPlayed, isNull);
+      }
+
+      await write(
+        p.join(steam.path, 'config', 'loginusers.vdf'),
+        Kv1.stringify({
+          'users': {
+            '76561197960265729': {'AccountName': 'current', 'MostRecent': '1'},
+          },
+        }),
+      );
+      await write(
+        p.join(steam.path, 'userdata', '1', 'config', 'localconfig.vdf'),
+        Kv1.stringify({
+          'UserLocalConfigStore': {
+            'Software': {
+              'Valve': {
+                'Steam': {
+                  'apps': {
+                    '10': {'Playtime': '0'},
+                    '20': {'Playtime': '-1', 'LastPlayed': '1793637603'},
+                  },
+                },
+              },
+            },
+          },
+        }),
+      );
+      await library.scan();
+      expect(library.games.firstWhere((g) => g.appId == 10).playtimeMinutes, 0);
+      expect(
+        library.games.firstWhere((g) => g.appId == 20).playtimeMinutes,
+        isNull,
+      );
+      expect(
+        library.games.firstWhere((g) => g.appId == 20).lastPlayed,
+        isNotNull,
+      );
+    },
+  );
+
+  test(
     'unifies installed and Lua records without inventing ownership',
     () async {
       await manifest(steam.path, 10, 'Installed Game');
       await write(
-        p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+        p.join(steam.path, 'config', 'lua', '10.lua'),
         'addappid(10)',
       );
       await write(
-        p.join(steam.path, 'config', 'stplug-in', 'Disable', '20.lua'),
+        p.join(steam.path, 'config', 'lua', 'Disable', '20.lua'),
         'addappid(20)',
       );
       await library.scan();
@@ -120,11 +262,11 @@ void main() {
       await manifest(steam.path, 42, 'Missing copy', installed: false);
       await manifest(other.path, 42, 'Working copy');
       await write(
-        p.join(steam.path, 'config', 'stplug-in', '42.lua'),
+        p.join(steam.path, 'config', 'lua', '42.lua'),
         'addappid(42)',
       );
       await write(
-        p.join(steam.path, 'config', 'stplug-in', 'Disable', '42.lua'),
+        p.join(steam.path, 'config', 'lua', 'Disable', '42.lua'),
         'addappid(42)',
       );
       await library.scan();
@@ -137,11 +279,11 @@ void main() {
 
   test('detects active manifest pins and ignores commented pins', () async {
     await write(
-      p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+      p.join(steam.path, 'config', 'lua', '10.lua'),
       'addappid(10)\nsetManifestid(11,"123456789",0)',
     );
     await write(
-      p.join(steam.path, 'config', 'stplug-in', '20.lua'),
+      p.join(steam.path, 'config', 'lua', '20.lua'),
       'addappid(20)\n-- setManifestid(21,"987654321",0)',
     );
     await library.scan();
@@ -189,7 +331,7 @@ void main() {
 
   test('Lua enable and disable moves files without dropping content', () async {
     final source = await write(
-      p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+      p.join(steam.path, 'config', 'lua', '10.lua'),
       '-- keep\naddappid(10)',
     );
     await library.scan();
@@ -209,7 +351,7 @@ void main() {
     'favorites persist in new app data and Lua deletion retains a backup',
     () async {
       await write(
-        p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+        p.join(steam.path, 'config', 'lua', '10.lua'),
         'addappid(10)',
       );
       await library.scan();
@@ -249,9 +391,7 @@ void main() {
     expect(result.written, hasLength(3));
     expect(result.errors, isEmpty);
     expect(
-      await File(
-        p.join(steam.path, 'config', 'stplug-in', '10.lua'),
-      ).readAsString(),
+      await File(p.join(steam.path, 'config', 'lua', '10.lua')).readAsString(),
       'addappid(10)',
     );
     expect(
@@ -269,41 +409,46 @@ void main() {
     expect(repeated.skipped, hasLength(3));
   });
 
-  test('zip import preserves nested layout and rejects traversal', () async {
-    final archive = Archive()
-      ..addFile(
-        ArchiveFile(
-          'config/stplug-in/nested/10.lua',
-          12,
-          utf8.encode('addappid(10)'),
-        ),
-      )
-      ..addFile(
-        ArchiveFile('depotcache/11_1234.manifest', 8, utf8.encode('manifest')),
+  test(
+    'zip import flattens Lua into a core-loaded directory and rejects traversal',
+    () async {
+      final archive = Archive()
+        ..addFile(
+          ArchiveFile(
+            'config/lua/nested/10.lua',
+            12,
+            utf8.encode('addappid(10)'),
+          ),
+        )
+        ..addFile(
+          ArchiveFile(
+            'depotcache/11_1234.manifest',
+            8,
+            utf8.encode('manifest'),
+          ),
+        );
+      final zip = File(p.join(fixture.path, 'games.zip'));
+      await zip.writeAsBytes(ZipEncoder().encode(archive));
+      final result = await library.importFiles([zip.path]);
+      expect(result.errors, isEmpty);
+      expect(result.written, hasLength(2));
+      expect(
+        await File(p.join(steam.path, 'config', 'lua', '10.lua')).exists(),
+        isTrue,
       );
-    final zip = File(p.join(fixture.path, 'games.zip'));
-    await zip.writeAsBytes(ZipEncoder().encode(archive));
-    final result = await library.importFiles([zip.path]);
-    expect(result.errors, isEmpty);
-    expect(result.written, hasLength(2));
-    expect(
-      await File(
-        p.join(steam.path, 'config', 'stplug-in', 'nested', '10.lua'),
-      ).exists(),
-      isTrue,
-    );
-    expect(library.games.single.appId, 10);
-    final malicious = Archive()
-      ..addFile(ArchiveFile('../20.lua', 12, utf8.encode('addappid(20)')));
-    final badZip = File(p.join(fixture.path, 'bad.zip'));
-    await badZip.writeAsBytes(ZipEncoder().encode(malicious));
-    final rejected = await library.importFiles([badZip.path]);
-    expect(rejected.errors, hasLength(1));
-    expect(
-      await File(p.join(steam.path, 'config', '20.lua')).exists(),
-      isFalse,
-    );
-  });
+      expect(library.games.single.appId, 10);
+      final malicious = Archive()
+        ..addFile(ArchiveFile('../20.lua', 12, utf8.encode('addappid(20)')));
+      final badZip = File(p.join(fixture.path, 'bad.zip'));
+      await badZip.writeAsBytes(ZipEncoder().encode(malicious));
+      final rejected = await library.importFiles([badZip.path]);
+      expect(rejected.errors, hasLength(1));
+      expect(
+        await File(p.join(steam.path, 'config', '20.lua')).exists(),
+        isFalse,
+      );
+    },
+  );
 
   test(
     'lists local accounts and updates only most recent offline preference',
@@ -343,10 +488,7 @@ void main() {
   );
 
   test('launch and install URI fallback opens requested AppID', () async {
-    await write(
-      p.join(steam.path, 'config', 'stplug-in', '10.lua'),
-      'addappid(10)',
-    );
+    await write(p.join(steam.path, 'config', 'lua', '10.lua'), 'addappid(10)');
     await library.scan();
     await library.launch(10);
     await library.install(10);
@@ -361,7 +503,7 @@ void main() {
     'Lua game information persists across scans and service reloads',
     () async {
       await write(
-        p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+        p.join(steam.path, 'config', 'lua', '10.lua'),
         'addappid(10)',
       );
       await library.scan();
@@ -389,7 +531,7 @@ void main() {
     'Lua editor saves the disabled file and backs up its original text',
     () async {
       final file = await write(
-        p.join(steam.path, 'config', 'stplug-in', 'Disable', '10.lua'),
+        p.join(steam.path, 'config', 'lua', 'Disable', '10.lua'),
         '-- original\naddappid(10)',
       );
       await library.scan();
@@ -401,9 +543,7 @@ void main() {
       );
       expect(library.games.single.luaEnabled, isFalse);
       expect(
-        await File(
-          p.join(steam.path, 'config', 'stplug-in', '10.lua'),
-        ).exists(),
+        await File(p.join(steam.path, 'config', 'lua', '10.lua')).exists(),
         isFalse,
       );
       final backup = await paths
@@ -417,43 +557,33 @@ void main() {
     },
   );
 
-  test(
-    'Lua nested below Disable returns to the corresponding active folder',
-    () async {
-      final source = await write(
-        p.join(
-          steam.path,
-          'config',
-          'stplug-in',
-          'Disable',
-          'nested',
-          '10.lua',
-        ),
-        'addappid(10)',
-      );
-      await library.scan();
-      await library.toggleLua(10, true);
-      expect(await source.exists(), isFalse);
-      expect(
-        library.games.single.luaPath,
-        p.join(steam.path, 'config', 'stplug-in', 'nested', '10.lua'),
-      );
-      expect(library.games.single.luaEnabled, isTrue);
-      await library.toggleLua(10, false);
-      expect(await source.exists(), isTrue);
-      expect(library.games.single.luaEnabled, isFalse);
-    },
-  );
+  test('disabled Lua returns to its core-loaded directory', () async {
+    final source = await write(
+      p.join(steam.path, 'config', 'lua', 'Disable', '10.lua'),
+      'addappid(10)',
+    );
+    await library.scan();
+    await library.toggleLua(10, true);
+    expect(await source.exists(), isFalse);
+    expect(
+      library.games.single.luaPath,
+      p.join(steam.path, 'config', 'lua', '10.lua'),
+    );
+    expect(library.games.single.luaEnabled, isTrue);
+    await library.toggleLua(10, false);
+    expect(await source.exists(), isTrue);
+    expect(library.games.single.luaEnabled, isFalse);
+  });
 
   test(
     'batch Lua operations keep successes and report individual failures',
     () async {
       await write(
-        p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+        p.join(steam.path, 'config', 'lua', '10.lua'),
         'addappid(10)',
       );
       await write(
-        p.join(steam.path, 'config', 'stplug-in', '20.lua'),
+        p.join(steam.path, 'config', 'lua', '20.lua'),
         'addappid(20)',
       );
       await library.scan();
@@ -476,11 +606,11 @@ void main() {
     'exports enabled and disabled Lua without moving or overwriting files',
     () async {
       final enabled = await write(
-        p.join(steam.path, 'config', 'stplug-in', '10.lua'),
+        p.join(steam.path, 'config', 'lua', '10.lua'),
         '-- enabled',
       );
       final disabled = await write(
-        p.join(steam.path, 'config', 'stplug-in', 'Disable', '20.lua'),
+        p.join(steam.path, 'config', 'lua', 'Disable', '20.lua'),
         '-- disabled',
       );
       await library.scan();
@@ -507,7 +637,7 @@ void main() {
     'Lua directory action opens the actual disabled-file location',
     () async {
       final source = await write(
-        p.join(steam.path, 'config', 'stplug-in', 'Disable', '10.lua'),
+        p.join(steam.path, 'config', 'lua', 'Disable', '10.lua'),
         'addappid(10)',
       );
       await library.scan();
@@ -516,7 +646,7 @@ void main() {
       expect(opened, [
         Uri.directory(p.dirname(source.path), windows: Platform.isWindows),
         Uri.directory(
-          p.join(steam.path, 'config', 'stplug-in'),
+          p.join(steam.path, 'config', 'lua'),
           windows: Platform.isWindows,
         ),
       ]);

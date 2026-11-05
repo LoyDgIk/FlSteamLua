@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/settings_store.dart';
 import '../../core/task_center.dart';
 import '../../ui/localization.dart';
 import '../../ui/ui.dart' as ui;
@@ -19,10 +21,12 @@ class ContentSourcesPage extends StatefulWidget {
     required this.registry,
     required this.tasks,
     this.onImportLocal,
+    this.initialSourceId,
   });
   final ContentSourceRegistry registry;
   final TaskCenter tasks;
   final VoidCallback? onImportLocal;
+  final String? initialSourceId;
 
   @override
   State<ContentSourcesPage> createState() => _ContentSourcesPageState();
@@ -42,7 +46,12 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
     _searchState = ui.AppBarSearchState(
       onSearch: (value) => setState(() => _search = value),
     );
-    _run(() => widget.registry.initialize());
+    _run(() async {
+      await widget.registry.initialize();
+      if (mounted && widget.initialSourceId != null) {
+        await _edit(widget.registry.source(widget.initialSourceId!));
+      }
+    });
   }
 
   Future<void> _run(Future<void> Function() action) async {
@@ -53,7 +62,10 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
     try {
       await action();
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) {
+        setState(() => _error = ui.appErrorText(context, error));
+        ui.showAppError(context, error);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -78,7 +90,10 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
       }
       final result = await ui.showFormSheet<KeyCacheSubscription>(
         context: context,
-        builder: (_) => SubscriptionSourceEditor(source: existing),
+        builder: (_) => SubscriptionSourceEditor(
+          source: existing,
+          settings: widget.registry.settings,
+        ),
       );
       if (result != null) {
         await _run(() async {
@@ -232,18 +247,29 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
         label: context.l10n.editSource,
         onPressed: () => _edit(source),
       ),
-    ui.CommonPopupMenuItem(
-      label: context.l10n.testSource,
-      onPressed: () => _run(() async {
-        final result = await widget.tasks.run(
-          context.l10n.testSource,
-          (task) => widget.registry.testSource(source.id, task: task),
-        );
-        if (mounted) {
-          ui.showAppSuccess(context, result.message);
-        }
-      }),
-    ),
+    if (source.kind == ContentSourceKind.subscription ||
+        widget.registry.manifests.supportsTest(_scriptId(source)))
+      ui.CommonPopupMenuItem(
+        label: source.kind == ContentSourceKind.subscription
+            ? context.l10n.testAndUpdateSubscription
+            : context.l10n.testSource,
+        onPressed: () => _run(() async {
+          await widget.tasks.run(context.l10n.testSource, (task) async {
+            final result = await widget.registry.testSource(
+              source.id,
+              task: task,
+            );
+            if (!result.success) throw StateError(result.message);
+            return result;
+          });
+          if (mounted) {
+            ui.showAppSuccess(
+              context,
+              context.l10n.sourceTestPassed(source.name),
+            );
+          }
+        }),
+      ),
     if (source.kind == ContentSourceKind.subscription)
       ui.CommonPopupMenuItem(
         label: context.l10n.updateSource,
@@ -313,6 +339,18 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
             ui.AppGlyphs.error,
             context.colorScheme.error,
             source.lastTestMessage ?? context.l10n.failed,
+          )
+        : source.lastTestSucceeded == true
+        ? (
+            ui.AppGlyphs.checkCircle,
+            context.colorScheme.primary,
+            source.lastTestMessage ?? context.l10n.sourceConfigured,
+          )
+        : source.kind == ContentSourceKind.script
+        ? (
+            ui.AppGlyphs.info,
+            context.colorScheme.onSurfaceVariant,
+            context.l10n.sourceNotTested,
           )
         : source.lastUpdated == null
         ? (
@@ -470,11 +508,11 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
                     top: ui.pageContentTopInset,
                     bottom: 8,
                   ),
-                  child: SelectableText(
-                    _error!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                  child: ui.LogRecordCard(
+                    time: '',
+                    level: context.l10n.operationFailed,
+                    message: _error!,
+                    tone: ui.RecordTone.error,
                   ),
                 ),
               Expanded(
@@ -637,7 +675,8 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
 }
 
 class SubscriptionSourceEditor extends StatefulWidget {
-  const SubscriptionSourceEditor({super.key, this.source});
+  const SubscriptionSourceEditor({super.key, this.source, this.settings});
+  final SettingsStore? settings;
   final KeyCacheSubscription? source;
   @override
   State<SubscriptionSourceEditor> createState() =>
@@ -678,7 +717,7 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
             uri.host.isEmpty ||
             uri.userInfo.isNotEmpty ||
             uri.fragment.isNotEmpty
-        ? context.l10n.invalidUrl
+        ? context.l10n.httpsUrlRequired
         : null;
   }
 
@@ -791,12 +830,29 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
               }),
             ),
           ),
+          if (widget.settings case final settings?)
+            ListenableBuilder(
+              listenable: settings,
+              builder: (context, _) => ui.ListItem.toggle(
+                title: Text(context.l10n.updateKeySubscriptionsAutomatically),
+                subtitle: Text(context.l10n.subscriptionAutoUpdateScope),
+                value: settings.get<bool>('autoUpdateKeyCache', false),
+                onChanged: (value) async {
+                  try {
+                    await settings.set('autoUpdateKeyCache', value);
+                  } catch (error) {
+                    if (context.mounted) ui.showAppError(context, error);
+                  }
+                },
+              ),
+            ),
           ui.FormRowSwitch(
             title: context.l10n.sourceEnabled,
             value: _enabled,
             onChanged: (value) => setState(() => _enabled = value),
           ),
         ],
+        footer: context.l10n.subscriptionIntervalDescription,
       ),
     ],
   );
@@ -866,10 +922,58 @@ class _ScriptSourceEditorState extends State<ScriptSourceEditor> {
       });
       if (mounted) Navigator.pop(context);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) {
+        setState(() => _error = ui.appErrorText(context, error));
+        ui.showAppError(context, error);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  String _parameterLabel(ManifestParameter parameter) {
+    if (!widget.source.builtIn) return parameter.label;
+    return switch (parameter.key) {
+      'fileType' => context.l10n.sourceOutputType,
+      'source' => context.l10n.manifestContentSource,
+      'gameName' => context.l10n.gameName,
+      'depotid' => 'Depot ID',
+      'manifestid' => 'Manifest ID',
+      _ => parameter.label,
+    };
+  }
+
+  String _parameterDescription(ManifestParameter parameter) {
+    if (!widget.source.builtIn) return parameter.description;
+    return switch (parameter.key) {
+      'apiKey' ||
+      'apikey' ||
+      'authKey' ||
+      'token' => context.l10n.sourceCredentialHint,
+      'fileType' => context.l10n.sourceOutputHint,
+      'source' => context.l10n.sourceProviderHint,
+      'gameName' => context.l10n.sourceGameNameHint,
+      'depotid' || 'manifestid' => context.l10n.sourceDepotManifestHint,
+      _ => parameter.description,
+    };
+  }
+
+  List<(String, String)>? _options(ManifestParameter parameter) {
+    if (!widget.source.builtIn) return null;
+    return switch (parameter.key) {
+      'fileType' => [('lua', 'Lua'), ('zip', context.l10n.sourceArchiveOutput)],
+      'source' when widget.source.id == 'luatools' => [
+        for (final value in [
+          'Ryuu',
+          'Sushi',
+          'Skyflare',
+          'TwentyTwo Cloud',
+          'Sadie (Morrenus)',
+        ])
+          (value, value),
+      ],
+      _ => null,
+    };
   }
 
   @override
@@ -879,17 +983,46 @@ class _ScriptSourceEditorState extends State<ScriptSourceEditor> {
     error: _error,
     saving: _busy,
     children: [
+      if (widget.source.homepage.isNotEmpty)
+        ui.generateSection(
+          items: [
+            ui.DecorationListItem(
+              leading: const ui.GlyphIcon(ui.AppGlyphs.openExternal),
+              title: Text(context.l10n.openSourceWebsite),
+              subtitle: Text(widget.source.homepage),
+              onPressed: () async {
+                try {
+                  await launchUrl(
+                    Uri.parse(widget.source.homepage),
+                    mode: LaunchMode.externalApplication,
+                  );
+                } catch (error) {
+                  if (context.mounted) ui.showAppError(context, error);
+                }
+              },
+            ),
+          ],
+        ),
       if (widget.source.description.isNotEmpty)
         ui.ListFooter(text: widget.source.description),
-      ui.generateSection(
-        title: context.l10n.basicInfo,
-        items: [
-          for (final parameter in widget.source.parameters.where(
-            (parameter) => !parameter.isAppId,
-          ))
-            if (parameter.type == ManifestParameterType.boolean)
+      ui.ListHeader(title: context.l10n.basicInfo),
+      for (final parameter in widget.source.parameters.where(
+        (parameter) => !parameter.isAppId,
+      ))
+        ui.generateSection(
+          items: [
+            if (_options(parameter) case final options?)
+              ui.FormRowSelect<String>(
+                title: _parameterLabel(parameter),
+                value: _controllers[parameter.key]!.text,
+                options: options,
+                enabled: !_busy,
+                onChanged: (value) =>
+                    setState(() => _controllers[parameter.key]!.text = value!),
+              )
+            else if (parameter.type == ManifestParameterType.boolean)
               ui.FormRowSwitch(
-                title: parameter.label,
+                title: _parameterLabel(parameter),
                 value: _controllers[parameter.key]!.text == 'true',
                 onChanged: _busy
                     ? null
@@ -899,7 +1032,7 @@ class _ScriptSourceEditorState extends State<ScriptSourceEditor> {
               )
             else
               ui.FormRow(
-                title: parameter.label,
+                title: _parameterLabel(parameter),
                 invalid: _invalid.contains(parameter.key),
                 trailing: parameter.isSecret
                     ? ui.FormRowSecretTextField(
@@ -933,8 +1066,11 @@ class _ScriptSourceEditorState extends State<ScriptSourceEditor> {
                         }),
                       ),
               ),
-        ],
-      ),
+          ],
+          footer: _parameterDescription(parameter).isEmpty
+              ? null
+              : _parameterDescription(parameter),
+        ),
     ],
   );
 }

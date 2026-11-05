@@ -159,7 +159,9 @@ class _TaskCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    task.error?.toString() ??
+                    (task.error == null
+                            ? null
+                            : ui.appErrorText(context, task.error!)) ??
                         (task.cancellationRequested && running
                             ? context.l10n.cancelling
                             : task.message),
@@ -185,7 +187,7 @@ class _TaskCard extends StatelessWidget {
                 ],
               ],
             ),
-            if (task.logs.isNotEmpty)
+            if (task.logs.isNotEmpty || task.error != null)
               ui.CollapsibleSection(
                 label: context.l10n.showLogs,
                 itemCount: 1,
@@ -210,7 +212,10 @@ class _TaskCard extends StatelessWidget {
                         padding: const EdgeInsets.all(10),
                         child: SelectionArea(
                           child: Text(
-                            task.logs.join('\n'),
+                            [
+                              ...task.logs,
+                              if (task.error != null) '${task.error}',
+                            ].join('\n'),
                             style: ui.AppTextStyle.caption1
                                 .of(context)
                                 .copyWith(

@@ -208,7 +208,7 @@ void main() {
     },
   );
 
-  test('ticket registry write failure restores both prior values', () {
+  test('ticket registry write failure restores both prior values', () async {
     final registry = _FakeRegistry();
     final store = TicketAuthorizationStore(
       paths: paths,
@@ -220,8 +220,8 @@ void main() {
       (key, value) => MapEntry(key, Uint8List.fromList(value!)),
     );
     registry.failNextEncryptedWrite = true;
-    expect(
-      () => store.apply(
+    await expectLater(
+      store.apply(
         AuthorizationTicket(
           appId: 480,
           steamId: BigInt.one,
@@ -232,6 +232,21 @@ void main() {
       throwsStateError,
     );
     expect(registry.values, before);
+    expect(registry.steamId, '123');
+  });
+
+  test('ticket replacement preserves the cached identity by default', () async {
+    final registry = _FakeRegistry();
+    final store = TicketAuthorizationStore(paths: paths, registry: registry);
+    await store.apply(
+      AuthorizationTicket(
+        appId: 480,
+        steamId: BigInt.from(456),
+        appTicket: Uint8List.fromList([9]),
+        eTicket: Uint8List.fromList([8]),
+      ),
+    );
+    expect(registry.steamId, '123');
   });
 
   test('saved ticket backup roundtrips through injected codec', () async {
@@ -311,6 +326,14 @@ void main() {
 }
 
 class _FakeRegistry implements TicketRegistry {
+  String? steamId = '123';
+  @override
+  String? readSteamId(int appId) => steamId;
+  @override
+  void writeSteamId(int appId, String? value) {
+    steamId = value;
+  }
+
   final values = <String, Uint8List?>{
     'AppTicket': Uint8List.fromList([1]),
     'ETicket': Uint8List.fromList([2]),

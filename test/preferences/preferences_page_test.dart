@@ -182,4 +182,24 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'background update errors do not extend the automatic-task row group',
+    (tester) async {
+      controller.updateError = const HttpException('Update unavailable');
+      await render(tester, const Size(1100, 1000));
+      final lastRow = find.byKey(const ValueKey('auto-key-cache-update'));
+      expect(
+        ui.ItemPositionProvider.of(tester.element(lastRow))?.position,
+        ui.ItemPosition.end,
+      );
+      final card = find.ancestor(
+        of: find.textContaining('Update unavailable'),
+        matching: find.byType(ui.CommonCard),
+      );
+      expect(tester.getTopLeft(card).dy - tester.getBottomLeft(lastRow).dy, 12);
+      expect(tester.widget<ui.CommonCard>(card).inert, isTrue);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

@@ -13,6 +13,7 @@ class SettingsStore extends ChangeNotifier {
   Future<void> _writes = Future.value();
 
   String get steamPath => get<String>('steamPath', '');
+  bool get quickStartDismissed => get<bool>('quickStartDismissed', false);
   String get language => get<String>('language', 'zh');
   String get theme => get<String>('theme', 'system');
   bool get pureBlack => get<bool>('themePureBlack', false);

@@ -11,6 +11,7 @@ import '../core/app_release.dart';
 import '../core/settings_store.dart';
 import '../features/cloud/cloud_redirect_plugin_page.dart';
 import '../features/kernel/kernel_settings_page.dart';
+import '../features/library/lua_directories_page.dart';
 import '../features/library/library_service.dart';
 import '../features/network/network_preferences.dart';
 import '../features/network/network_settings_page.dart';
@@ -23,6 +24,7 @@ import '../ui/ui.dart' as ui;
 import '../ui/context.dart';
 import 'app_services.dart';
 import 'data_management_page.dart';
+import 'quick_start_page.dart';
 import 'theme_settings_page.dart';
 import 'widgets.dart';
 
@@ -65,6 +67,12 @@ class SettingsPage extends StatelessWidget {
           ui.generateSection(
             title: context.l10n.settings,
             items: [
+              _SettingsRow(
+                key: const ValueKey('quick-start-settings'),
+                glyph: ui.AppGlyphs.layers,
+                title: context.l10n.quickStart,
+                onPressed: () => onOpenPage(QuickStartPage(services: services)),
+              ),
               ui.ListItem<Locale>.options(
                 key: const ValueKey('language-selector'),
                 leading: const ui.GlyphIcon(ui.AppGlyphs.language, size: 20),
@@ -102,8 +110,7 @@ class SettingsPage extends StatelessWidget {
                       ? context.l10n.notConfigured
                       : settings.steamPath,
                 ),
-                onPressed: () =>
-                    onOpenPage(_SteamFilesPage(services: services)),
+                onPressed: () => onOpenPage(SteamFilesPage(services: services)),
               ),
               _SettingsRow(
                 key: const ValueKey('application-update-settings'),
@@ -283,18 +290,17 @@ class _GeneralSettingsPage extends StatelessWidget {
   );
 }
 
-class _SteamFilesPage extends StatefulWidget {
-  const _SteamFilesPage({required this.services});
+class SteamFilesPage extends StatefulWidget {
+  const SteamFilesPage({super.key, required this.services});
 
   final AppServices services;
 
   @override
-  State<_SteamFilesPage> createState() => _SteamFilesPageState();
+  State<SteamFilesPage> createState() => _SteamFilesPageState();
 }
 
-class _SteamFilesPageState extends State<_SteamFilesPage> {
+class _SteamFilesPageState extends State<SteamFilesPage> {
   late final TextEditingController _steamPath;
-  late final TextEditingController _luaPath;
   String? _pathError;
   bool _saving = false;
   SteamUpdateControlSettings _updateControl =
@@ -308,14 +314,12 @@ class _SteamFilesPageState extends State<_SteamFilesPage> {
   void initState() {
     super.initState();
     _steamPath = TextEditingController(text: settings.steamPath);
-    _luaPath = TextEditingController(text: settings.get<String>('luaPath', ''));
     unawaited(_loadUpdateControl());
   }
 
   @override
   void dispose() {
     _steamPath.dispose();
-    _luaPath.dispose();
     super.dispose();
   }
 
@@ -355,26 +359,18 @@ class _SteamFilesPageState extends State<_SteamFilesPage> {
     });
     try {
       final steam = _steamPath.text.trim();
-      final lua = _luaPath.text.trim();
       if (steam.isEmpty || !await File(p.join(steam, 'steam.exe')).exists()) {
         throw FormatException(
           localeText.chooseTheSteamInstallationFolderContainingSteamExe,
         );
       }
-      if (lua.isNotEmpty && !await Directory(lua).exists()) {
-        throw FormatException(
-          localeText.theLuaFolderDoesNotExistChooseAnExistingFolder,
-        );
-      }
       await settings.set('steamPath', p.normalize(p.absolute(steam)));
-      await settings.set(
-        'luaPath',
-        lua.isEmpty ? '' : p.normalize(p.absolute(lua)),
-      );
       await widget.services.tasks.run(
         localeText.refreshGameLibrary,
         (task) => widget.services.library.scan(context: task),
       );
+      await widget.services.kernel.syncManifestConfiguration();
+      await widget.services.lanTransfer.refreshDirectories();
       await widget.services.preferences.refreshPlatformState();
       await _loadUpdateControl();
       if (mounted) {
@@ -437,6 +433,7 @@ class _SteamFilesPageState extends State<_SteamFilesPage> {
   @override
   Widget build(BuildContext context) => ui.CommonScaffold(
     title: context.l10n.steamAndGameFiles,
+    isLoading: _saving || _updatesBusy,
     body: ListView(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -445,40 +442,6 @@ class _SteamFilesPageState extends State<_SteamFilesPage> {
         20 + MediaQuery.paddingOf(context).bottom,
       ),
       children: [
-        ui.generateSection(
-          title: context.l10n.steamUpdateControl,
-          items: [
-            ui.ListItem.toggle(
-              key: const ValueKey('disable-steam-update-check'),
-              leading: const ui.GlyphIcon(ui.AppGlyphs.refresh),
-              title: Text(context.l10n.disableSteamUpdateCheck),
-              subtitle: Text(
-                _updateControl.disableUpdateCheck
-                    ? context.l10n.enabled
-                    : context.l10n.notEnabled,
-              ),
-              value: _updateControl.disableUpdateCheck,
-              onChanged: _updatesBusy || !_updatesLoaded
-                  ? null
-                  : (value) => _setUpdateControl(disableUpdateCheck: value),
-            ),
-            ui.ListItem.toggle(
-              key: const ValueKey('disable-steam-forced-update'),
-              leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
-              title: Text(context.l10n.disableSteamForcedUpdate),
-              subtitle: Text(
-                _updateControl.disableForcedUpdate
-                    ? context.l10n.enabled
-                    : context.l10n.notEnabled,
-              ),
-              value: _updateControl.disableForcedUpdate,
-              onChanged: _updatesBusy || !_updatesLoaded
-                  ? null
-                  : (value) => _setUpdateControl(disableForcedUpdate: value),
-            ),
-          ],
-          footer: context.l10n.steamUpdateControlDescription,
-        ),
         ui.generateSection(
           title: context.l10n.steamInstallationFolder,
           items: [
@@ -505,27 +468,6 @@ class _SteamFilesPageState extends State<_SteamFilesPage> {
               ),
             ),
             ui.ListItem<void>(
-              key: const ValueKey('lua-path-row'),
-              leading: const ui.GlyphIcon(ui.AppGlyphs.code),
-              title: Text(context.l10n.luaFolder),
-              subtitle: Text(
-                _luaPath.text.isEmpty
-                    ? context.l10n.defaultText
-                    : _luaPath.text,
-              ),
-              onTap: () => showAction(context, () => _pickDirectory(_luaPath)),
-              trailing: IconButton(
-                key: const ValueKey('lua-path-field'),
-                tooltip: context.l10n.edit,
-                onPressed: () => _editPath(
-                  _luaPath,
-                  context.l10n.luaFolder,
-                  context.l10n.leaveEmptyToUseTheKernelConfigurationOrConfigLua,
-                ),
-                icon: const ui.GlyphIcon(ui.AppGlyphs.edit, size: 18),
-              ),
-            ),
-            ui.ListItem<void>(
               key: const ValueKey('save-paths'),
               leading: const ui.GlyphIcon(ui.AppGlyphs.checkCircle),
               title: Text(context.l10n.saveAndRefreshLibrary),
@@ -537,17 +479,77 @@ class _SteamFilesPageState extends State<_SteamFilesPage> {
                     )
                   : const ui.GlyphIcon(ui.AppGlyphs.chevronForward, size: 18),
             ),
-            if (_pathError != null)
-              ui.CommonCard(
-                isError: true,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SelectableText(_pathError!),
-                ),
-              ),
           ],
           footer:
               context.l10n.chooseTheSteamInstallationFolderContainingSteamExe,
+        ),
+        if (_pathError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: ui.CommonCard(
+              isError: true,
+              inert: true,
+              padding: const EdgeInsets.all(16),
+              child: SelectableText(_pathError!),
+            ),
+          ),
+        ui.generateSection(
+          items: [
+            ui.DecorationListItem(
+              key: const ValueKey('lua-directories-settings'),
+              leading: const ui.GlyphIcon(ui.AppGlyphs.code),
+              title: Text(context.l10n.luaDirectories),
+              onPressed: settings.steamPath.isEmpty
+                  ? null
+                  : () => Navigator.of(context).push(
+                      ui.buildAppPageRoute(
+                        builder: (_) => LuaDirectoriesPage(
+                          steamPath: settings.steamPath,
+                          onSaved: () async {
+                            await widget.services.library.scan();
+                            await widget.services.lanTransfer
+                                .refreshDirectories();
+                          },
+                        ),
+                      ),
+                    ),
+              trailing: const ui.GlyphIcon(ui.AppGlyphs.chevronForward),
+            ),
+          ],
+        ),
+        ui.generateSection(
+          title: context.l10n.steamUpdateControl,
+          items: [
+            ui.ListItem.toggle(
+              key: const ValueKey('disable-steam-update-check'),
+              leading: const ui.GlyphIcon(ui.AppGlyphs.refresh),
+              title: Text(context.l10n.steamUpdateChecks),
+              subtitle: Text(
+                _updateControl.disableUpdateCheck
+                    ? context.l10n.blockedSetting
+                    : context.l10n.allowedSetting,
+              ),
+              value: !_updateControl.disableUpdateCheck,
+              onChanged: _updatesBusy || !_updatesLoaded
+                  ? null
+                  : (value) => _setUpdateControl(disableUpdateCheck: !value),
+            ),
+            ui.ListItem.toggle(
+              key: const ValueKey('disable-steam-forced-update'),
+              leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
+              title: Text(context.l10n.steamForcedUpdates),
+              subtitle: Text(
+                _updateControl.disableForcedUpdate
+                    ? context.l10n.blockedSetting
+                    : context.l10n.allowedSetting,
+              ),
+              value: !_updateControl.disableForcedUpdate,
+              onChanged: _updatesBusy || !_updatesLoaded
+                  ? null
+                  : (value) => _setUpdateControl(disableForcedUpdate: !value),
+            ),
+          ],
+          footer: context.l10n.steamUpdateControlDescription,
         ),
       ],
     ),
@@ -647,8 +649,9 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
         child: SizedBox(
           width: 520,
           child: SingleChildScrollView(
-            child: SelectableText(
-              release.notes.isEmpty
+            child: ui.ReleaseNotes(
+              baseUrl: release.url,
+              data: release.notes.isEmpty
                   ? context.l10n.noReleaseNotesWereProvided
                   : release.notes,
             ),
@@ -744,42 +747,14 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
                       .of(context)
                       .copyWith(color: colorScheme.onSurfaceVariant),
                 ),
-              for (final (index, section) in changelog.sections.indexed) ...[
-                if (index > 0 || changelog.date != null)
-                  const SizedBox(height: 16),
-                Text(
-                  section.title,
-                  style: ui.AppTextStyle.title2.of(context, emphasized: true),
+              const SizedBox(height: 16),
+              ui.ReleaseNotes(
+                data: changelog.markdown,
+                baseUrl: Uri.https(
+                  'github.com',
+                  '/$appRepository/releases/tag/v${changelog.version}',
                 ),
-                const SizedBox(height: 8),
-                for (final item in section.items)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 7),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Container(
-                            width: 5,
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: SelectableText(
-                            item,
-                            style: ui.AppTextStyle.body.of(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+              ),
             ],
           ),
         ),
@@ -790,6 +765,7 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
   @override
   Widget build(BuildContext context) => ui.CommonScaffold(
     title: context.l10n.applicationUpdates,
+    isLoading: _checking || preferences.isCheckingUpdate,
     body: ListView(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -831,16 +807,18 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
                   size: 18,
                 ),
               ),
-            if (preferences.updateError != null)
-              ui.CommonCard(
-                isError: true,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SelectableText('${preferences.updateError}'),
-                ),
-              ),
           ],
         ),
+        if (preferences.updateError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: ui.CommonCard(
+              isError: true,
+              inert: true,
+              padding: const EdgeInsets.all(16),
+              child: SelectableText('${preferences.updateError}'),
+            ),
+          ),
         if (_changelog case final changelog?) ...[
           const SizedBox(height: 18),
           _changelogSection(context, changelog),

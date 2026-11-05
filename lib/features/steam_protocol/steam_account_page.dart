@@ -68,6 +68,7 @@ class _SteamAccountManagerPageState extends State<SteamAccountManagerPage> {
         final accounts = widget.library.accounts;
         return ui.CommonScaffold(
           title: texts.accountManagement,
+          isLoading: _busy,
           actions: [
             IconButton(
               tooltip: texts.refresh,
@@ -146,11 +147,6 @@ class _SteamAccountManagerPageState extends State<SteamAccountManagerPage> {
                   ),
                 ],
               ),
-              if (_busy)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: const ui.CommonProgressBar(value: null),
-                ),
             ],
           ),
         );

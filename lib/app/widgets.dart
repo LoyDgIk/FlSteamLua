@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../ui/feedback.dart';
+import '../ui/localization.dart';
+
+String formatGamePlaytime(AppLocalizations l10n, int? minutes) {
+  if (minutes == null) return l10n.notRecorded;
+  if (minutes < 60) return l10n.minutes(minutes.toString());
+  return l10n.playtimeHours((minutes / 60).toStringAsFixed(1));
+}
 
 Future<void> showAction(
   BuildContext context,
@@ -14,7 +21,7 @@ Future<void> showAction(
     }
   } catch (error) {
     if (context.mounted) {
-      context.showFeedback('$error', level: MessageLevel.error);
+      showAppError(context, error);
     }
   }
 }

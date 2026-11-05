@@ -38,7 +38,7 @@ class LanTransferEngineClient implements LanTransferEngineTransport {
   final StreamController<LanTransferEngineEvent> _events =
       StreamController<LanTransferEngineEvent>.broadcast();
   int _sequence = 0;
-  bool _starting = false;
+  Future<void>? _startFuture;
   bool _closed = false;
   Future<void> _writes = Future.value();
   String? _lastError;
@@ -69,56 +69,67 @@ class LanTransferEngineClient implements LanTransferEngineTransport {
   }
 
   @override
-  Future<void> start(String dataDir) async {
+  Future<void> start(String dataDir) {
     if (_closed) throw StateError('LAN transfer engine client is closed');
-    if (_process != null || _starting) return;
-    _starting = true;
+    final starting = _startFuture;
+    if (starting != null) return starting;
+    if (_process != null) return Future.value();
+    return _startFuture = _start(dataDir).whenComplete(() {
+      _startFuture = null;
+    });
+  }
+
+  Future<void> _start(String dataDir) async {
+    await Directory(dataDir).create(recursive: true);
+    final executable = executablePath;
+    if (!await File(executable).exists()) {
+      throw StateError('LAN transfer engine is missing: $executable');
+    }
+    final process = await Process.start(
+      executable,
+      ['--data-dir', dataDir],
+      workingDirectory: p.dirname(executable),
+      mode: ProcessStartMode.normal,
+    );
+    _process = process;
+    _stdoutSubscription = process.stdout
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen(_handleLine, onError: _handleStreamError);
+    _stderrSubscription = process.stderr
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen((line) {
+          if (line.trim().isNotEmpty) debugPrint('LAN engine: $line');
+        }, onError: _handleStreamError);
+    unawaited(
+      process.exitCode.then((code) {
+        if (!identical(_process, process)) return;
+        _process = null;
+        final error = StateError('LAN transfer engine exited ($code)');
+        _lastError = '$error';
+        for (final pending in _pending.values) {
+          if (!pending.isCompleted) pending.completeError(error);
+        }
+        _pending.clear();
+        if (!_events.isClosed) {
+          _events.add(
+            LanTransferEngineEvent('engine.exit', {
+              'code': code,
+              'message': '$error',
+            }),
+          );
+        }
+      }),
+    );
     try {
-      await Directory(dataDir).create(recursive: true);
-      final executable = executablePath;
-      if (!await File(executable).exists()) {
-        throw StateError('LAN transfer engine is missing: $executable');
-      }
-      final process = await Process.start(
-        executable,
-        ['--data-dir', dataDir],
-        workingDirectory: p.dirname(executable),
-        mode: ProcessStartMode.normal,
-      );
-      _process = process;
-      _stdoutSubscription = process.stdout
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen(_handleLine, onError: _handleStreamError);
-      _stderrSubscription = process.stderr
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen((line) {
-            if (line.trim().isNotEmpty) debugPrint('LAN engine: $line');
-          }, onError: _handleStreamError);
-      unawaited(
-        process.exitCode.then((code) {
-          _process = null;
-          final error = StateError('LAN transfer engine exited ($code)');
-          _lastError = '$error';
-          for (final pending in _pending.values) {
-            if (!pending.isCompleted) pending.completeError(error);
-          }
-          _pending.clear();
-          if (!_events.isClosed) {
-            _events.add(
-              LanTransferEngineEvent('engine.exit', {
-                'code': code,
-                'message': '$error',
-              }),
-            );
-          }
-        }),
-      );
       await request('hello', const {}, timeout: const Duration(seconds: 20));
       _lastError = null;
-    } finally {
-      _starting = false;
+    } catch (_) {
+      if (identical(_process, process)) _process = null;
+      process.kill();
+      await process.stdin.close().catchError((_) {});
+      rethrow;
     }
   }
 
@@ -195,6 +206,7 @@ class LanTransferEngineClient implements LanTransferEngineTransport {
   Future<void> close() async {
     if (_closed) return;
     _closed = true;
+    await _startFuture?.catchError((Object _) {});
     try {
       if (_process != null) {
         await request(

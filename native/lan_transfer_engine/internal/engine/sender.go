@@ -22,14 +22,24 @@ type outboundChunkSource struct {
 }
 
 type outboundReader struct {
-	mu      sync.Mutex
-	sources map[uint32]outboundChunkSource
-	files   map[string]*os.File
-	pool    sync.Pool
+	mu        sync.Mutex
+	sources   map[uint32]outboundChunkSource
+	files     map[string]*outboundFile
+	remaining map[string]int
+	pool      sync.Pool
 }
 
-func (e *Engine) runSend(sessionID string, peer model.Peer, transferPlan *model.Plan) {
-	runtime := e.session(sessionID)
+type outboundFile struct {
+	file   *os.File
+	active int
+}
+
+type peerRead struct {
+	frame protocol.Frame
+	err   error
+}
+
+func (e *Engine) runSend(ctx context.Context, runtime *sessionRuntime, peer model.Peer, transferPlan *model.Plan) {
 	if runtime == nil {
 		return
 	}
@@ -38,37 +48,51 @@ func (e *Engine) runSend(sessionID string, peer model.Peer, transferPlan *model.
 		e.markSessionError(runtime, fmt.Errorf("engine is not configured"))
 		return
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	runtime.mu.Lock()
-	if runtime.cancel != nil {
-		runtime.cancel()
+	if err := ctx.Err(); err != nil {
+		e.markSessionError(runtime, err)
+		return
 	}
-	runtime.cancel = cancel
+	runtime.mu.Lock()
+	if ctx.Err() != nil {
+		runtime.mu.Unlock()
+		return
+	}
 	runtime.plan = transferPlan
 	runtime.peer = peer
 	runtime.data.Status = "waitingForApproval"
 	runtime.mu.Unlock()
-	defer cancel()
+	defer func() {
+		if ctx.Err() != nil {
+			runtime.mu.Lock()
+			status := runtime.data.Status
+			runtime.mu.Unlock()
+			if status != "paused" && status != "cancelled" && status != "completed" {
+				e.markSessionError(runtime, ctx.Err())
+			}
+		}
+	}()
 	e.emitSession(runtime)
 	config := e.currentConfig()
 	address := net.JoinHostPort(peer.Address, fmt.Sprint(peer.Port))
 	if peer.Port == 0 {
 		address = net.JoinHostPort(peer.Address, fmt.Sprint(discovery.Port))
 	}
-	raw, err := tls.DialWithDialer(
-		&net.Dialer{Timeout: 8 * time.Second},
-		"tcp",
-		address,
-		id.ClientConfig(peer.Fingerprint),
-	)
+	dialer := tls.Dialer{NetDialer: &net.Dialer{Timeout: 8 * time.Second}, Config: id.ClientConfig(peer.Fingerprint)}
+	connection, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
 		e.markSessionError(runtime, err)
 		return
 	}
+	raw := connection.(*tls.Conn)
 	conn := &peerConn{conn: raw, fingerprint: identity.PeerFingerprint(raw.ConnectionState())}
 	runtime.mu.Lock()
 	runtime.conn = conn
 	runtime.mu.Unlock()
+	if ctx.Err() != nil {
+		conn.close()
+		e.markSessionError(runtime, ctx.Err())
+		return
+	}
 	defer func() {
 		conn.close()
 		runtime.mu.Lock()
@@ -77,10 +101,13 @@ func (e *Engine) runSend(sessionID string, peer model.Peer, transferPlan *model.
 		}
 		runtime.mu.Unlock()
 	}()
+	_ = raw.SetDeadline(time.Now().Add(15 * time.Second))
 	if _, err := e.performClientHello(conn, peer.Address, config.DisplayName, id.Fingerprint); err != nil {
 		e.markSessionError(runtime, err)
 		return
 	}
+	_ = raw.SetDeadline(time.Time{})
+	_ = raw.SetReadDeadline(time.Now().Add(5*time.Minute + 15*time.Second))
 	offer := protocol.Offer{
 		SessionID: runtime.data.ID, BundleID: runtime.data.BundleID,
 		AppID: transferPlan.AppID, GameName: transferPlan.GameName,
@@ -120,6 +147,8 @@ func (e *Engine) runSend(sessionID string, peer model.Peer, transferPlan *model.
 		e.markSessionError(runtime, err)
 		return
 	}
+	// Receivers may hash a large installed game before reporting the bitmap.
+	_ = raw.SetReadDeadline(time.Time{})
 	readyFrame, err := conn.read()
 	if err != nil {
 		e.markSessionError(runtime, err)
@@ -136,36 +165,60 @@ func (e *Engine) runSend(sessionID string, peer model.Peer, transferPlan *model.
 	}
 	missing, presentBytes, cachedChunks := missingChunks(transferPlan, ready.Bitmap)
 	runtime.mu.Lock()
+	if ctx.Err() != nil {
+		runtime.mu.Unlock()
+		return
+	}
 	runtime.data.Status = "transferring"
 	runtime.data.CachedChunks = cachedChunks
 	runtime.data.CompletedChunks = cachedChunks
 	runtime.data.TransferredBytes = presentBytes
+	runtime.data.NetworkBytes = 0
+	runtime.lastBytes = 0
+	runtime.lastAt = time.Now()
 	runtime.mu.Unlock()
 	e.emitSession(runtime)
 	sources := outboundSources(transferPlan)
 	reader := &outboundReader{
-		sources: sources,
-		files:   make(map[string]*os.File),
+		sources:   sources,
+		files:     make(map[string]*outboundFile),
+		remaining: make(map[string]int),
+	}
+	for _, index := range missing {
+		reader.remaining[sources[index].Path]++
 	}
 	reader.pool.New = func() any { return make([]byte, 4*1024*1024) }
 	defer reader.close()
-	frames := make(chan protocol.Frame, 128)
-	readErr := make(chan error, 1)
-	go readPeerFrames(ctx, conn, frames, readErr)
+	frames := make(chan peerRead, 128)
+	go readPeerFrames(ctx, conn, frames)
 	if err := sendMissingChunks(
-		ctx, e, runtime, conn, transferPlan, missing, reader, int(ready.Window), frames, readErr,
+		ctx, e, runtime, conn, transferPlan, missing, reader, int(ready.Window), frames,
 	); err != nil {
 		e.markSessionError(runtime, err)
 		return
 	}
+	finishRequested := false
 	for {
-		if err := conn.write(protocol.Frame{Type: protocol.FrameFinish, Payload: protocol.EncodeFinish(protocol.Finish{Status: "finish"})}); err != nil {
-			e.markSessionError(runtime, err)
-			return
+		if !finishRequested {
+			if err := conn.write(protocol.Frame{Type: protocol.FrameFinish, Payload: protocol.EncodeFinish(protocol.Finish{Status: "finish"})}); err != nil {
+				e.markSessionError(runtime, err)
+				return
+			}
+			finishRequested = true
 		}
 		select {
-		case frame := <-frames:
+		case received := <-frames:
+			if received.err != nil {
+				e.markSessionError(runtime, received.err)
+				return
+			}
+			frame := received.frame
 			switch frame.Type {
+			case protocol.FrameProgress:
+				if err := e.applyPeerProgress(runtime, frame.Payload); err != nil {
+					e.markSessionError(runtime, err)
+					return
+				}
 			case protocol.FrameFinishResult:
 				result, _ := protocol.DecodeFinish(frame.Payload)
 				switch result.Status {
@@ -173,12 +226,16 @@ func (e *Engine) runSend(sessionID string, peer model.Peer, transferPlan *model.
 					e.markSessionCompleted(runtime)
 					return
 				case "waitingForSteamExit":
-					runtime.mu.Lock()
-					runtime.data.Status = "waitingForSteamExit"
-					runtime.data.Message = result.Message
-					runtime.mu.Unlock()
-					e.emitSession(runtime)
-					time.Sleep(2 * time.Second)
+					e.updateSession(runtime, func(data *model.Session) {
+						data.Status = "waitingForSteamExit"
+						data.Message = result.Message
+					})
+					select {
+					case <-ctx.Done():
+						return
+					case <-time.After(2 * time.Second):
+					}
+					finishRequested = false
 				case "cancelled", "paused":
 					runtime.mu.Lock()
 					runtime.data.Status = result.Status
@@ -196,9 +253,6 @@ func (e *Engine) runSend(sessionID string, peer model.Peer, transferPlan *model.
 			default:
 				continue
 			}
-		case err := <-readErr:
-			e.markSessionError(runtime, err)
-			return
 		case <-ctx.Done():
 			_ = conn.write(protocol.Frame{Type: protocol.FrameCancel, Payload: protocol.EncodeError("cancelled")})
 			return
@@ -263,13 +317,19 @@ func missingChunks(value *model.Plan, bitmap []byte) ([]uint32, int64, int) {
 	var missing []uint32
 	var presentBytes int64
 	cached := 0
-	for index, chunk := range value.Chunks {
+	for index := range value.Chunks {
 		present := index/8 < len(bitmap) && bitmap[index/8]&(1<<uint(index%8)) != 0
 		if present {
-			presentBytes += chunk.Size
 			cached++
 		} else {
 			missing = append(missing, uint32(index))
+		}
+	}
+	for _, file := range value.Files {
+		for _, ref := range file.Chunks {
+			if int(ref.ChunkIndex)/8 < len(bitmap) && bitmap[ref.ChunkIndex/8]&(1<<uint(ref.ChunkIndex%8)) != 0 {
+				presentBytes += ref.Size
+			}
 		}
 	}
 	return missing, presentBytes, cached
@@ -299,8 +359,7 @@ func sendMissingChunks(
 	missing []uint32,
 	reader *outboundReader,
 	window int,
-	frames <-chan protocol.Frame,
-	readErr <-chan error,
+	frames <-chan peerRead,
 ) error {
 	if window <= 0 {
 		window = 16
@@ -314,10 +373,39 @@ func sendMissingChunks(
 	if window == 0 {
 		return nil
 	}
+	logicalBytes := make([]int64, len(value.Chunks))
+	for _, file := range value.Files {
+		for _, ref := range file.Chunks {
+			logicalBytes[ref.ChunkIndex] += ref.Size
+		}
+	}
+	workers := sync.WaitGroup{}
+	sendErrors := make(chan error, window)
+	inFlightChunks := make(map[uint32]bool, window)
+	defer func() {
+		// Unblock writers before closing their file handles on cancellation/error.
+		if len(inFlightChunks) != 0 {
+			conn.close()
+		}
+		workers.Wait()
+	}()
+	send := func(index uint32) {
+		inFlightChunks[index] = true
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			if err := sendChunkFrame(conn, value, index, reader); err != nil {
+				select {
+				case sendErrors <- err:
+				default:
+				}
+			}
+		}()
+	}
 	next := 0
 	inFlight := 0
 	for next < len(missing) && inFlight < window {
-		go sendChunkFrame(conn, value, missing[next], reader)
+		send(missing[next])
 		next++
 		inFlight++
 	}
@@ -326,13 +414,26 @@ func sendMissingChunks(
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case err := <-readErr:
+		case err := <-sendErrors:
 			return err
-		case frame := <-frames:
+		case received := <-frames:
+			if received.err != nil {
+				return received.err
+			}
+			frame := received.frame
+			if frame.Type == protocol.FrameProgress {
+				if err := engine.applyPeerProgress(runtime, frame.Payload); err != nil {
+					return err
+				}
+				continue
+			}
 			if frame.Type == protocol.FrameError {
 				return fmt.Errorf("%s", protocol.DecodeError(frame.Payload))
 			}
 			if frame.Type != protocol.FrameChunkAck {
+				if frame.Type == protocol.FrameCancel || frame.Type == protocol.FrameFinishResult {
+					return fmt.Errorf("peer stopped the transfer")
+				}
 				continue
 			}
 			ack, err := protocol.DecodeChunkAck(frame.Payload)
@@ -342,15 +443,20 @@ func sendMissingChunks(
 			if !ack.OK {
 				return fmt.Errorf("receiver rejected chunk %d: %s", ack.Index, ack.Message)
 			}
+			if !inFlightChunks[ack.Index] {
+				return fmt.Errorf("unexpected chunk acknowledgement %d", ack.Index)
+			}
+			delete(inFlightChunks, ack.Index)
 			completed++
 			inFlight--
 			chunk := value.Chunks[ack.Index]
 			engine.updateSession(runtime, func(data *model.Session) {
-				data.TransferredBytes += chunk.Size
+				data.TransferredBytes += logicalBytes[ack.Index]
+				data.NetworkBytes += chunk.Size
 				data.CompletedChunks++
 			})
 			if next < len(missing) {
-				go sendChunkFrame(conn, value, missing[next], reader)
+				send(missing[next])
 				next++
 				inFlight++
 			}
@@ -359,16 +465,42 @@ func sendMissingChunks(
 	return nil
 }
 
-func sendChunkFrame(conn *peerConn, value *model.Plan, index uint32, reader *outboundReader) {
+func (e *Engine) applyPeerProgress(runtime *sessionRuntime, payload []byte) error {
+	progress, err := protocol.DecodeProgress(payload)
+	if err != nil {
+		return err
+	}
+	runtime.mu.Lock()
+	totalFiles, totalBytes := runtime.data.TotalFiles, runtime.data.TotalBytes
+	runtime.mu.Unlock()
+	if progress.TotalFiles != totalFiles || progress.InstalledFiles > totalFiles || progress.InstalledBytes > totalBytes {
+		return fmt.Errorf("invalid peer installation progress")
+	}
+	switch progress.Status {
+	case "preparing", "transferring", "verifying", "committing", "waitingForSteamExit", "completed", "failed", "cancelled", "paused":
+	default:
+		return fmt.Errorf("invalid peer transfer status")
+	}
+	e.updateSession(runtime, func(data *model.Session) {
+		data.DiskBytes = progress.DiskBytes
+		data.DiskSpeed = progress.DiskSpeed
+		data.InstalledBytes = progress.InstalledBytes
+		data.InstalledFiles = progress.InstalledFiles
+		switch progress.Status {
+		case "verifying", "committing", "waitingForSteamExit":
+			data.Status = progress.Status
+		}
+	})
+	return nil
+}
+
+func sendChunkFrame(conn *peerConn, value *model.Plan, index uint32, reader *outboundReader) error {
 	data, err := reader.read(index, value.Chunks[index])
 	if err != nil {
-		_ = conn.write(protocol.Frame{Type: protocol.FrameError, Payload: protocol.EncodeError(err.Error())})
-		return
+		return err
 	}
 	defer reader.release(data)
-	if err := conn.writeChunk(index, data); err != nil {
-		_ = conn.write(protocol.Frame{Type: protocol.FrameError, Payload: protocol.EncodeError(err.Error())})
-	}
+	return conn.writeChunk(index, data)
 }
 
 func (r *outboundReader) read(index uint32, chunk model.Chunk) ([]byte, error) {
@@ -387,7 +519,8 @@ func (r *outboundReader) read(index uint32, chunk model.Chunk) ([]byte, error) {
 		r.release(data)
 		return nil, err
 	}
-	read, err := file.ReadAt(data, source.Offset)
+	read, err := file.file.ReadAt(data, source.Offset)
+	r.releaseFile(source.Path, file)
 	if err != nil || read != len(data) {
 		r.release(data)
 		if err != nil {
@@ -398,18 +531,31 @@ func (r *outboundReader) read(index uint32, chunk model.Chunk) ([]byte, error) {
 	return data, nil
 }
 
-func (r *outboundReader) file(path string) (*os.File, error) {
+func (r *outboundReader) file(path string) (*outboundFile, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if existing := r.files[path]; existing != nil {
+		existing.active++
 		return existing, nil
 	}
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
-	r.files[path] = file
-	return file, nil
+	value := &outboundFile{file: file, active: 1}
+	r.files[path] = value
+	return value, nil
+}
+
+func (r *outboundReader) releaseFile(path string, value *outboundFile) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	value.active--
+	r.remaining[path]--
+	if value.active == 0 && (r.remaining[path] == 0 || len(r.files) > 64) {
+		_ = value.file.Close()
+		delete(r.files, path)
+	}
 }
 
 func (r *outboundReader) release(data []byte) {
@@ -422,24 +568,20 @@ func (r *outboundReader) close() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, file := range r.files {
-		_ = file.Close()
+		_ = file.file.Close()
 	}
-	r.files = make(map[string]*os.File)
+	r.files = make(map[string]*outboundFile)
 }
 
-func readPeerFrames(ctx context.Context, conn *peerConn, output chan<- protocol.Frame, result chan<- error) {
+func readPeerFrames(ctx context.Context, conn *peerConn, output chan<- peerRead) {
 	for {
 		frame, err := conn.read()
-		if err != nil {
-			select {
-			case result <- err:
-			default:
-			}
+		select {
+		case output <- peerRead{frame: frame, err: err}:
+		case <-ctx.Done():
 			return
 		}
-		select {
-		case output <- frame:
-		case <-ctx.Done():
+		if err != nil {
 			return
 		}
 	}

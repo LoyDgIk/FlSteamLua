@@ -378,6 +378,42 @@ void main() {
   );
 
   test(
+    'request-code script receives exact depot and uint64 GID context',
+    () async {
+      final directory = await Directory.systemTemp.createTemp(
+        'request-code-context-',
+      );
+      addTearDown(() => directory.delete(recursive: true));
+      const gid = '9876543210987654321';
+      final service = ManifestSourceService(
+        paths: AppPaths(directory.path),
+        secrets: _MemorySecrets(),
+        assetLoader: _loadScript,
+        runner: _FixtureRunner((params, _, _) async {
+          expect(params['appid'], 440);
+          expect(params['depotid'], 441);
+          expect(params['gid'], gid);
+          return {
+            'manifestRequestCodes': [
+              {'depotId': 441, 'manifestId': gid, 'requestCode': '12345'},
+            ],
+          };
+        }),
+      );
+      addTearDown(service.dispose);
+      await service.initialize();
+      await service.saveConfig('ryuu', {'authKey': 'fixture'});
+      final payload = await service.downloadContent(
+        'ryuu',
+        440,
+        requestedCapabilities: {ContentCapability.manifestRequestCodes},
+        manifestRequest: (depotId: 441, manifestId: gid),
+      );
+      expect(payload.requestCodes.single.manifestId, gid);
+    },
+  );
+
+  test(
     'download refuses traversal names and source failure payloads',
     () async {
       final directory = await Directory.systemTemp.createTemp(

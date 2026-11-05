@@ -1,6 +1,7 @@
 package plan
 
 import (
+	"context"
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
@@ -23,8 +24,10 @@ const fixedChunkSize = 4 * 1024 * 1024
 var manifestReferencePattern = regexp.MustCompile(`(?i)setManifestid\s*\(\s*(\d+)\s*,\s*["'](\d+)["']`)
 
 type Builder struct {
-	Config model.Config
-	Keys   map[uint32][]byte
+	Config               model.Config
+	Keys                 map[uint32][]byte
+	AllowMissingOfficial bool
+	Context              context.Context
 }
 
 func (b *Builder) Build(game model.GameInput) (*model.Plan, error) {
@@ -52,10 +55,16 @@ func (b *Builder) Build(game model.GameInput) (*model.Plan, error) {
 	}
 	officialByPath := make(map[string]ManifestFile)
 	for _, manifest := range loaded {
+		if manifest.FilenamesEncrypted {
+			continue
+		}
 		for _, file := range manifest.Files {
-			relative := normalizeRelative(file.FileName)
-			if relative == "" || file.Flags&(64|256) != 0 {
+			if file.Flags&(64|256) != 0 {
 				continue
+			}
+			relative, err := SafeRelativePath(file.FileName)
+			if err != nil {
+				return nil, err
 			}
 			officialByPath[strings.ToLower(relative)] = file
 		}
@@ -129,7 +138,7 @@ func (b *Builder) Build(game model.GameInput) (*model.Plan, error) {
 		CoverURL:            game.CoverURL,
 		SourceAppManifest:   string(acfBytes),
 		LuaContent:          luaContent,
-		LuaEnabled:          luaContent != "",
+		LuaEnabled:          game.LuaEnabled && luaContent != "",
 		ManifestAvailable:   len(loaded) > 0 && encrypted == 0,
 		TotalCandidateBytes: totalBytes,
 		Warnings:            warnings,
@@ -149,6 +158,9 @@ func (b *Builder) scanInstalledFiles(
 ) ([]model.PlanFile, int64, error) {
 	var paths []string
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
+		if contextErr := b.context().Err(); contextErr != nil {
+			return contextErr
+		}
 		if err != nil {
 			return err
 		}
@@ -166,29 +178,38 @@ func (b *Builder) scanInstalledFiles(
 	}
 	sort.Slice(paths, func(i, j int) bool { return strings.ToLower(paths[i]) < strings.ToLower(paths[j]) })
 	files := make([]model.PlanFile, 0, len(paths))
+	seenOfficial := make(map[string]bool, len(official))
 	var total int64
 	for _, path := range paths {
+		if err := b.context().Err(); err != nil {
+			return nil, 0, err
+		}
 		relative, err := filepath.Rel(root, path)
 		if err != nil {
 			return nil, 0, err
 		}
 		relative = normalizeRelative(relative)
 		manifestFile, officialFile := official[strings.ToLower(relative)]
+		info, err := os.Stat(path)
+		if err != nil {
+			return nil, 0, err
+		}
 		size := manifestFile.Size
 		sha1Text := hex.EncodeToString(manifestFile.SHA)
 		sourceModified := int64(0)
 		category := "official"
 		selected := true
 		if !officialFile {
-			info, err := os.Stat(path)
-			if err != nil {
-				return nil, 0, err
-			}
 			size = uint64(info.Size())
 			sha1Text = ""
 			sourceModified = info.ModTime().UnixMilli()
 			category = "extra"
 			selected = false
+		} else {
+			seenOfficial[strings.ToLower(relative)] = true
+			if uint64(info.Size()) != manifestFile.Size && !b.AllowMissingOfficial {
+				return nil, 0, fmt.Errorf("official source file size differs from manifest: %s", relative)
+			}
 		}
 		id := fileID(relative)
 		file := model.PlanFile{
@@ -197,10 +218,19 @@ func (b *Builder) scanInstalledFiles(
 			SourcePath: path,
 		}
 		if !officialFile {
-			appendFixedChunks(&file, chunks, chunkIndex)
+			if err := appendFixedChunks(b.context(), &file, chunks, chunkIndex); err != nil {
+				return nil, 0, err
+			}
 		}
 		files = append(files, file)
 		total += int64(size)
+	}
+	if !b.AllowMissingOfficial {
+		for relative := range official {
+			if !seenOfficial[relative] {
+				return nil, 0, fmt.Errorf("official source file is missing: %s", relative)
+			}
+		}
 	}
 	return files, total, nil
 }
@@ -230,7 +260,9 @@ func (b *Builder) manifestEntries(
 			SHA1: hex.EncodeToString(sha1Bytes[:]), SHA256: hex.EncodeToString(sha256Bytes[:]),
 			Category: "depotManifest", Selected: true, SourcePath: path,
 		}
-		appendFixedChunks(&file, chunks, chunkIndex)
+		if err := appendFixedChunks(b.context(), &file, chunks, chunkIndex); err != nil {
+			return nil, 0, err
+		}
 		result = append(result, file)
 		total += file.Size
 	}
@@ -334,6 +366,7 @@ func Filter(plan *model.Plan, selectedOptional map[string]bool) *model.Plan {
 			file.Selected = false
 		}
 		if file.Selected {
+			file.Chunks = append([]model.FileChunkRef(nil), file.Chunks...)
 			files = append(files, file)
 		}
 	}
@@ -364,7 +397,8 @@ func Summary(plan *model.Plan) model.PlanSummary {
 		ID: plan.ID, AppID: plan.AppID, GameName: plan.GameName,
 		InstallDir: plan.InstallDir, CoverURL: plan.CoverURL,
 		LuaEnabled: plan.LuaEnabled, ManifestAvailable: plan.ManifestAvailable,
-		ChunkCount: len(plan.Chunks), Warnings: append([]string(nil), plan.Warnings...),
+		LuaAvailable: plan.LuaContent != "",
+		ChunkCount:   len(plan.Chunks), Warnings: append([]string(nil), plan.Warnings...),
 	}
 	for _, file := range plan.Files {
 		switch file.Category {
@@ -386,23 +420,51 @@ func Summary(plan *model.Plan) model.PlanSummary {
 	return summary
 }
 
-func appendFixedChunks(file *model.PlanFile, chunks *[]model.Chunk, indexMap map[string]uint32) {
+func appendFixedChunks(ctx context.Context, file *model.PlanFile, chunks *[]model.Chunk, indexMap map[string]uint32) error {
 	if file.Size <= 0 {
-		return
+		return nil
 	}
+	source, err := os.Open(file.SourcePath)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+	buffer := make([]byte, minInt64(fixedChunkSize, file.Size))
+	whole := sha1.New()
 	for offset := int64(0); offset < file.Size; offset += fixedChunkSize {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		length := minInt64(fixedChunkSize, file.Size-offset)
-		id := fmt.Sprintf("f-%s-%d-%d", file.ID, offset, length)
+		data := buffer[:length]
+		if _, err := io.ReadFull(source, data); err != nil {
+			return fmt.Errorf("read extra file %s: %w", file.RelativePath, err)
+		}
+		sum := sha1.Sum(data)
+		_, _ = whole.Write(data)
+		sha := hex.EncodeToString(sum[:])
+		id := "f-" + sha
 		index, exists := indexMap[id]
 		if !exists {
 			index = uint32(len(*chunks))
 			indexMap[id] = index
-			*chunks = append(*chunks, model.Chunk{ID: id, Size: length})
+			*chunks = append(*chunks, model.Chunk{ID: id, Size: length, SHA1: sha})
 		}
 		file.Chunks = append(file.Chunks, model.FileChunkRef{
 			ChunkIndex: index, Offset: offset, Size: length,
 		})
 	}
+	if file.SHA1 == "" {
+		file.SHA1 = hex.EncodeToString(whole.Sum(nil))
+	}
+	return nil
+}
+
+func (b *Builder) context() context.Context {
+	if b.Context == nil {
+		return context.Background()
+	}
+	return b.Context
 }
 
 func planID(plan *model.Plan) string {
@@ -429,12 +491,13 @@ func planID(plan *model.Plan) string {
 		})
 	}
 	value := struct {
-		AppID  uint32        `json:"appId"`
-		ACF    string        `json:"acf"`
-		Lua    string        `json:"lua"`
-		Files  []idFile      `json:"files"`
-		Chunks []model.Chunk `json:"chunks"`
-	}{plan.AppID, plan.SourceAppManifest, plan.LuaContent, files, plan.Chunks}
+		AppID      uint32        `json:"appId"`
+		ACF        string        `json:"acf"`
+		Lua        string        `json:"lua"`
+		LuaEnabled bool          `json:"luaEnabled"`
+		Files      []idFile      `json:"files"`
+		Chunks     []model.Chunk `json:"chunks"`
+	}{plan.AppID, plan.SourceAppManifest, plan.LuaContent, plan.LuaEnabled, files, plan.Chunks}
 	data, _ := json.Marshal(value)
 	sum := sha256.Sum256(data)
 	return hex.EncodeToString(sum[:])

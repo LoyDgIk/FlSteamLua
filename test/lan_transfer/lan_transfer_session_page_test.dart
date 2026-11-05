@@ -94,6 +94,64 @@ void main() {
       settings.dispose();
     }
   });
+
+  testWidgets('failed sending session exposes retry', (tester) async {
+    final paths = AppPaths('fixture');
+    final settings = SettingsStore(paths);
+    final tasks = TaskCenter();
+    final engine = _FakeEngine();
+    final library = LibraryService(paths: paths, settings: settings);
+    final service = LanTransferService(
+      paths: paths,
+      settings: settings,
+      library: library,
+      tasks: tasks,
+      engine: engine,
+    );
+    final session = TransferSession(
+      id: 'send:failed',
+      bundleId: 'failed',
+      appId: 42,
+      gameName: 'Fixture Game',
+      direction: TransferDirection.send,
+      peer: const LanPeer(
+        id: 'peer',
+        alias: 'Peer',
+        address: '127.0.0.1',
+        port: lanTransferPort,
+        fingerprint: 'PEER',
+        trusted: true,
+      ),
+      status: TransferSessionStatus.failed,
+      totalBytes: 100,
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('en'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          theme: ui.buildAppTheme(seedColor: Colors.blue),
+          home: LanTransferSessionPage(
+            service: service,
+            settings: settings,
+            session: session,
+          ),
+        ),
+      );
+      await tester.tap(find.byTooltip('Retry transfer').first);
+      await tester.pump();
+      expect(engine.requests.single.$1, 'session.resume');
+      expect(engine.requests.single.$2, {'sessionId': 'send:failed'});
+    } finally {
+      service.dispose();
+      tasks.dispose();
+      library.dispose();
+      settings.dispose();
+    }
+  });
 }
 
 class _FakeEngine implements LanTransferEngineTransport {

@@ -1,7 +1,10 @@
-# High-signal release checks. UI presentation tests are intentionally excluded.
+# Release checks for services and critical startup/Markdown flows.
 test/app/shell_test.dart
+test/app/quick_start_test.dart
+test/ui/release_notes_test.dart
 test/cloud/cloud_oauth_test.dart
 test/cloud/cloud_service_test.dart
+test/cloud/cloud_management_test.dart
 test/cloud/remote/remote_store_test.dart
 test/content_sources/content_import_service_test.dart
 test/content_sources/content_registry_test.dart
@@ -15,12 +18,15 @@ test/key_cache/key_cache_service_test.dart
 test/lan_transfer/engine_client_test.dart
 test/lan_transfer/lan_transfer_service_test.dart
 test/library/library_service_test.dart
+test/library/lua_directories_test.dart
 test/manifests/manifest_sources_test.dart
 test/manifests/quickjs_runtime_test.dart
 test/network/network_preferences_test.dart
 test/patching/game_file_verification_test.dart
 test/patching/game_patch_source_test.dart
 test/patching/patching_test.dart
+test/patching/ticket_transaction_test.dart
+test/steam_versions/steam_version_service_test.dart
 test/preferences/friend_presence_settings_test.dart
 test/preferences/preferences_controller_test.dart
 test/steam_protocol/auth_test.dart

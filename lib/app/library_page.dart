@@ -74,6 +74,7 @@ Future<void> importLibraryFiles(
       await Navigator.of(context).push(
         ui.buildAppPageRoute(
           builder: (_) => TicketPage(
+            settings: services.settings,
             paths: services.paths,
             tasks: services.tasks,
             game: game,
@@ -190,7 +191,6 @@ class _LibraryPageState extends State<LibraryPage> {
   bool _importing = false;
   bool _metadataBusy = false;
   bool _metadataScheduled = false;
-  bool _luaDirectoryBusy = false;
 
   LibraryService get _library => widget.services.library;
 
@@ -353,7 +353,9 @@ class _LibraryPageState extends State<LibraryPage> {
         'recent' => (b.lastPlayed ?? DateTime(1970)).compareTo(
           a.lastPlayed ?? DateTime(1970),
         ),
-        'playtime' => b.playtimeMinutes.compareTo(a.playtimeMinutes),
+        'playtime' => (b.playtimeMinutes ?? -1).compareTo(
+          a.playtimeMinutes ?? -1,
+        ),
         _ => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
       },
     );
@@ -380,31 +382,6 @@ class _LibraryPageState extends State<LibraryPage> {
       dialogTitle: localeText.chooseALuaAndManifestFolder,
     );
     if (path != null && mounted) await _import([path]);
-  }
-
-  Future<void> _chooseLuaDirectory() async {
-    final localeText = context.l10n;
-    final current = widget.services.settings.get<String>('luaPath', '');
-    final path = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: localeText.setLuaDirectory,
-      initialDirectory: current.isEmpty ? null : current,
-    );
-    if (path == null || !mounted) return;
-    setState(() => _luaDirectoryBusy = true);
-    try {
-      await widget.services.settings.set('luaPath', path);
-      await widget.services.tasks.run(
-        localeText.refreshGameLibrary,
-        (task) => _library.scan(context: task),
-      );
-      if (mounted) {
-        ui.showAppSuccess(context, localeText.luaDirectoryUpdated);
-      }
-    } catch (error) {
-      if (mounted) ui.showAppError(context, error);
-    } finally {
-      if (mounted) setState(() => _luaDirectoryBusy = false);
-    }
   }
 
   void _openDetails(GameEntry game) => Navigator.of(context).push(
@@ -853,7 +830,10 @@ class _LibraryPageState extends State<LibraryPage> {
                   child: Text(
                     _scope == 0
                         ? 'AppID ${game.appId}'
-                        : context.l10n.min((game.playtimeMinutes).toString()),
+                        : formatGamePlaytime(
+                            context.l10n,
+                            game.playtimeMinutes,
+                          ),
                     style: ui.AppTextStyle.caption1
                         .of(context)
                         .copyWith(color: context.colorScheme.onSurfaceVariant),
@@ -963,8 +943,9 @@ class _LibraryPageState extends State<LibraryPage> {
                         child: Text(
                           _scope == 0
                               ? game.luaPath!
-                              : context.l10n.min(
-                                  (game.playtimeMinutes).toString(),
+                              : formatGamePlaytime(
+                                  context.l10n,
+                                  game.playtimeMinutes,
                                 ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -1167,23 +1148,6 @@ class _LibraryPageState extends State<LibraryPage> {
           }),
         ),
         ui.CommonPopupMenuItem(
-          label: context.l10n.import,
-          glyph: ui.AppGlyphs.addCircle,
-          section: const ui.CommonPopupMenuSection(),
-          subItems: [
-            ui.CommonPopupMenuItem(
-              label: context.l10n.importFilesOrArchives,
-              glyph: ui.AppGlyphs.add,
-              onPressed: () => _import(null),
-            ),
-            ui.CommonPopupMenuItem(
-              label: context.l10n.importFolder,
-              glyph: ui.AppGlyphs.resources,
-              onPressed: _importFolder,
-            ),
-          ],
-        ),
-        ui.CommonPopupMenuItem(
           label: context.l10n.rescan,
           glyph: ui.AppGlyphs.refresh,
           onPressed: _library.isScanning
@@ -1287,6 +1251,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
   Widget _warnings(LibraryService library) => ui.CommonCard(
     isError: true,
+    inert: true,
     padding: const EdgeInsets.all(14),
     child: Row(
       children: [
@@ -1347,14 +1312,31 @@ class _LibraryPageState extends State<LibraryPage> {
       final colors = Theme.of(context).colorScheme;
       return ui.CommonScaffold(
         title: context.l10n.library,
+        isLoading: library.isScanning || _importing || _metadataBusy,
         searchState: _searchState,
         searchHint: context.l10n.searchGameNamesOrAppid,
         trailingAction: _moreMenu(scopeGames),
         actions: [
-          ui.DashboardIconButton(
-            glyph: ui.AppGlyphs.resources,
-            tooltip: context.l10n.setLuaDirectory,
-            onPressed: _luaDirectoryBusy ? null : _chooseLuaDirectory,
+          ui.CommonPopupBox(
+            key: const ValueKey('library-import-menu'),
+            targetBuilder: (open) => ui.TonalButton(
+              size: ui.TonalButtonSize.compact,
+              glyph: ui.AppGlyphs.add,
+              label: context.l10n.import,
+              onPressed: _importing ? null : open,
+            ),
+            popupBuilder: (_) => ui.CommonPopupMenu(
+              items: [
+                ui.CommonPopupMenuItem(
+                  label: context.l10n.importFilesOrArchives,
+                  onPressed: () => _import(null),
+                ),
+                ui.CommonPopupMenuItem(
+                  label: context.l10n.importFolder,
+                  onPressed: _importFolder,
+                ),
+              ],
+            ),
           ),
           _scopeMenu(),
           _viewMenu(),
@@ -1416,39 +1398,6 @@ class _LibraryPageState extends State<LibraryPage> {
                                       ? 0
                                       : ui.pageContentTopInset,
                                 ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: IgnorePointer(
-                          child: AnimatedSlide(
-                            duration: MediaQuery.disableAnimationsOf(context)
-                                ? Duration.zero
-                                : const Duration(milliseconds: 200),
-                            offset:
-                                library.isScanning ||
-                                    _importing ||
-                                    _metadataBusy
-                                ? Offset.zero
-                                : const Offset(0, -1),
-                            child: AnimatedOpacity(
-                              duration: MediaQuery.disableAnimationsOf(context)
-                                  ? Duration.zero
-                                  : const Duration(milliseconds: 160),
-                              opacity:
-                                  library.isScanning ||
-                                      _importing ||
-                                      _metadataBusy
-                                  ? 1
-                                  : 0,
-                              child: const ui.CommonProgressBar(
-                                value: null,
-                                height: 2,
-                              ),
-                            ),
-                          ),
                         ),
                       ),
                       if (_dragging)

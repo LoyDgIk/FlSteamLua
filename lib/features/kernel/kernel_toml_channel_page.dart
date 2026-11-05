@@ -155,13 +155,14 @@ class _KernelTomlChannelPageState extends State<KernelTomlChannelPage> {
                       )
                     : const SizedBox.shrink(),
               ),
-              ui.FormRow(
-                title: context.l10n.channelName,
-                trailing: ui.FormRowTextField(
-                  controller: _channel,
-                  hintText: 'main',
+              if (_mode == KernelTomlChannelMode.directory)
+                ui.FormRow(
+                  title: context.l10n.channelName,
+                  trailing: ui.FormRowTextField(
+                    controller: _channel,
+                    hintText: 'main',
+                  ),
                 ),
-              ),
               ui.FormRowSelect<KernelTomlChannelMode>(
                 title: context.l10n.channelFormat,
                 value: _mode,
@@ -182,6 +183,7 @@ class _KernelTomlChannelPageState extends State<KernelTomlChannelPage> {
                       },
               ),
             ],
+            footer: context.l10n.kernelChannelDescription,
           ),
           ui.generateSection(
             items: [

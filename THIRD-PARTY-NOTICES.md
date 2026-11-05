@@ -57,6 +57,12 @@ official release of either upstream project.
   not shipped as a .NET executable or assembly. See the protocol implementation
   source and upstream record for the actual adapted protocol material.
 
+## Markdown rendering
+
+- Source: https://github.com/foresightmobile/flutter_markdown_plus and https://github.com/dart-lang/markdown
+- Licenses: BSD 3-Clause. Package license texts are included in Flutter's generated license registry and the in-app license browser.
+- Usage: GitHub-flavored Markdown rendering for application and kernel release notes.
+
 ## Go runtime
 
 - Source: https://go.dev/

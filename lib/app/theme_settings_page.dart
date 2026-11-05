@@ -8,7 +8,7 @@ import '../ui/context.dart';
 import '../ui/localization.dart';
 import '../ui/ui.dart' as ui;
 
-const _defaultColors = <int>[
+const defaultThemeColors = <int>[
   0xff007aff,
   0xffcb30e0,
   0xffff2d55,
@@ -80,7 +80,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   List<int> get _themeColors =>
-      settings.themeColors.isEmpty ? _defaultColors : settings.themeColors;
+      settings.themeColors.isEmpty ? defaultThemeColors : settings.themeColors;
   Future<void> _resetColors() async {
     final accepted = await ui.showFlDialog<bool>(
       context: context,
@@ -101,7 +101,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       ),
     );
     if (accepted != true) return;
-    await settings.set('themeColors', _defaultColors);
+    await settings.set('themeColors', defaultThemeColors);
     await settings.set('themeSeed', defaultThemeColor);
     await settings.set('themeFollowSystem', true);
     await settings.set('themeColorStyle', 'vivid');
@@ -316,7 +316,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     final followSystem = settings.themeFollowSystem;
     final isDefault =
         followSystem &&
-        _sameColors(colors, _defaultColors) &&
+        _sameColors(colors, defaultThemeColors) &&
         _colorStyle == ui.ColorStyle.vivid;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -341,7 +341,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 8,
             children: [
-              _ColorSwatches(
+              ThemeColorSwatches(
                 colors: colors,
                 selected: followSystem ? null : settings.themeSeed,
                 systemColor: Color(systemAccentColor()),
@@ -860,23 +860,24 @@ Future<T?> _showThemeSheet<T>(BuildContext context, WidgetBuilder builder) {
   return ui.showModalSideSheet<T>(context: context, builder: builder);
 }
 
-class _ColorSwatches extends StatelessWidget {
-  const _ColorSwatches({
+class ThemeColorSwatches extends StatelessWidget {
+  const ThemeColorSwatches({
+    super.key,
     required this.colors,
     required this.selected,
     required this.systemColor,
     required this.onSelect,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onAdd,
+    this.onEdit,
+    this.onDelete,
+    this.onAdd,
   });
   final List<int> colors;
   final int? selected;
   final Color systemColor;
   final ValueChanged<int?> onSelect;
-  final ValueChanged<int> onEdit;
-  final ValueChanged<int> onDelete;
-  final VoidCallback onAdd;
+  final ValueChanged<int>? onEdit;
+  final ValueChanged<int>? onDelete;
+  final VoidCallback? onAdd;
   @override
   Widget build(BuildContext context) {
     final level = context.raisedSurfaceLevel;
@@ -917,13 +918,14 @@ class _ColorSwatches extends StatelessWidget {
                     selected: selected == color,
                     label: Color(color).hex,
                     onPressed: () => onSelect(color),
-                    onEdit: () => onEdit(color),
-                    onDelete: () => onDelete(color),
+                    onEdit: onEdit == null ? null : () => onEdit!(color),
+                    onDelete: onDelete == null ? null : () => onDelete!(color),
                   ),
-                _AddColorButton(
-                  key: const ValueKey('theme-color-add'),
-                  onPressed: onAdd,
-                ),
+                if (onAdd != null)
+                  _AddColorButton(
+                    key: const ValueKey('theme-color-add'),
+                    onPressed: onAdd!,
+                  ),
               ],
             );
           },

@@ -60,6 +60,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
     final controller = widget.controller;
     return ui.CommonScaffold(
       title: context.l10n.backgroundAndSteamPreferences,
+      isLoading: _saving,
       actions: [
         ui.DashboardIconButton(
           key: const ValueKey('refresh-preference-state'),
@@ -119,10 +120,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     ),
                   ),
                 ),
-              if (controller.updateError != null)
-                _errorCard('${controller.updateError}'),
             ],
           ),
+          if (controller.updateError != null)
+            _errorCard('${controller.updateError}'),
           ui.generateSection(
             title: context.l10n.startupAndSteam,
             items: [
@@ -136,19 +137,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           _save(() => controller.setStartupEnabled(value)),
               ),
               ui.ListItem.toggle(
-                key: const ValueKey('friend-broadcast-switch'),
-                title: Text(context.l10n.broadcastPlayStatusToFriends),
-                value: controller.friendBroadcastEnabled ?? true,
-                onChanged:
-                    _saving ||
-                        !(widget.settings.steamPath.isNotEmpty ||
-                            controller.library.steamPath != null)
-                    ? null
-                    : (value) => _save(
-                        () => controller.setFriendBroadcastEnabled(value),
-                      ),
-              ),
-              ui.ListItem.toggle(
                 key: const ValueKey('steam-offline-switch'),
                 title: Text(context.l10n.steamOfflineMode),
                 value: controller.offlineEnabled ?? false,
@@ -156,11 +144,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     ? null
                     : (value) => _save(() => controller.setOfflineMode(value)),
               ),
-              if (controller.friendBroadcastEnabled == null)
-                ui.ListItem<void>(
-                  leading: const ui.GlyphIcon(ui.AppGlyphs.info),
-                  title: Text(context.l10n.broadcastStateHasNotBeenReadYet),
-                ),
               if (controller.offlineEnabled == null)
                 ui.ListItem<void>(
                   leading: const ui.GlyphIcon(ui.AppGlyphs.info),
@@ -172,11 +155,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
                 ),
             ],
           ),
-          if (_saving)
-            Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: const ui.CommonProgressBar(value: null, height: 2),
-            ),
           if (_error != null) _errorCard(_error!),
           if (controller.platformError != null)
             _errorCard('${controller.platformError}'),
@@ -209,6 +187,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
     padding: const EdgeInsets.only(top: 12),
     child: ui.CommonCard(
       isError: true,
+      inert: true,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SelectableText(error),

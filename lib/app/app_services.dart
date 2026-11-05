@@ -60,6 +60,7 @@ class AppServices extends ChangeNotifier {
               sourceId,
               appId,
               requestedCapabilities: {ContentCapability.manifestRequestCodes},
+              manifestRequest: (depotId: depotId, manifestId: gid),
             );
             return payload.requestCodes
                 .where(
@@ -80,7 +81,13 @@ class AppServices extends ChangeNotifier {
       library: library,
       tasks: tasks,
     );
-    tools = ToolsController(appPaths: paths, settings: settings, tasks: tasks);
+    tools = ToolsController(
+      library: library,
+      appPaths: paths,
+      settings: settings,
+      tasks: tasks,
+      kernel: kernel,
+    );
     preferences = PreferencesController(
       paths: paths,
       settings: settings,
@@ -171,7 +178,7 @@ class AppServices extends ChangeNotifier {
       startupErrors.add('Key subscriptions: $error');
     }
     try {
-      await lanTransfer.initialize();
+      await lanTransfer.initializeIfReceiving();
     } catch (error) {
       startupErrors.add('LAN transfer: $error');
     }

@@ -1,3 +1,4 @@
+import '../features/library/game_picker_sheet.dart';
 import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
@@ -41,7 +42,25 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   final _navigators = List.generate(8, (_) => GlobalKey<NavigatorState>());
-  final _visited = <int>{0};
+  final _pages = PageController();
+  final _activePage = ValueNotifier<int>(0);
+  final _libraryRequests = ValueNotifier<int>(0);
+  late final _pageNavigators = List.generate(
+    _navigators.length,
+    (index) => Navigator(
+      key: _navigators[index],
+      onGenerateRoute: (_) => MaterialPageRoute(
+        builder: (_) => ListenableBuilder(
+          listenable: Listenable.merge([
+            services.settings,
+            services.library,
+            if (index == 1) _libraryRequests,
+          ]),
+          builder: (_, _) => _page(index),
+        ),
+      ),
+    ),
+  );
   int _index = 0;
   int _navigationDirection = 1;
   int _navigationNonce = 0;
@@ -111,6 +130,9 @@ class _AppShellState extends State<AppShell> {
   void dispose() {
     services.settings.removeListener(_settingsChanged);
     services.lanTransfer.removeListener(_lanTransferChanged);
+    _pages.dispose();
+    _activePage.dispose();
+    _libraryRequests.dispose();
     super.dispose();
   }
 
@@ -120,24 +142,28 @@ class _AppShellState extends State<AppShell> {
       _navigationNonce++;
     }
     _index = index;
-    _visited.add(index);
+    _activePage.value = index;
+    _pages.jumpToPage(index);
   });
 
   void _openLibrary(int tab) => setState(() {
     _libraryTab = tab;
     _libraryTabRequest++;
+    _libraryRequests.value = _libraryTabRequest;
     _index = 1;
     _navigationDirection = 1;
     _navigationNonce++;
-    _visited.add(1);
+    _activePage.value = 1;
+    _pages.jumpToPage(1);
   });
 
-  void _push(Widget page) => _navigators[_index].currentState!.push(
-    ui.buildAppPageRoute(
-      builder: (_) => page,
-      reduceMotion: MediaQuery.disableAnimationsOf(context),
-    ),
-  );
+  Future<void> _push(Widget page) async =>
+      _navigators[_index].currentState!.push(
+        ui.buildAppPageRoute(
+          builder: (_) => page,
+          reduceMotion: MediaQuery.disableAnimationsOf(context),
+        ),
+      );
 
   Widget _secondary(String title, Widget page) => Scaffold(body: page);
 
@@ -154,33 +180,24 @@ class _AppShellState extends State<AppShell> {
       _ => -1,
     };
     if (target >= 0) {
-      _select(target);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _navigators[target].currentState?.push(
-          ui.buildAppPageRoute(
-            builder: (_) => _secondary(
-              target == 3 ? context.l10n.achievements : context.l10n.cloudSaves,
-              target == 3
-                  ? AchievementsPage(
-                      service: services.achievements,
-                      games: services.library.games,
-                      steamPath: services.settings.steamPath,
-                      selectedGame: game,
-                      language: services.settings.language,
-                    )
-                  : CloudPage(
-                      service: services.cloud,
-                      game: game,
-                      games: services.library.games,
-                      tasks: services.tasks,
-                      steamProcess: services.library.processActions,
-                    ),
-            ),
-            reduceMotion: MediaQuery.disableAnimationsOf(context),
-          ),
-        );
-      });
+      _push(
+        target == 3
+            ? AchievementsPage(
+                service: services.achievements,
+                games: services.library.games,
+                steamPath: services.settings.steamPath,
+                selectedGame: game,
+                language: services.settings.language,
+              )
+            : CloudPage(
+                service: services.cloud,
+                library: services.library,
+                game: game,
+                games: services.library.games,
+                tasks: services.tasks,
+                steamProcess: services.library.processActions,
+              ),
+      );
     } else if (destination == 'dlc_analysis') {
       _openDlcAnalysis(game);
     } else if (destination == 'key_cache') {
@@ -236,6 +253,13 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _settings() => _select(6);
+
+  Future<void> _steamFiles() => _push(SteamFilesPage(services: services));
+
+  Future<void> _chooseToolGame() async {
+    final game = await showGamePickerSheet(context, services.library.games);
+    if (game != null && mounted) _openTools(game);
+  }
 
   void _showTasks() => ui.showModalSideSheet<void>(
     context: context,
@@ -358,6 +382,7 @@ class _AppShellState extends State<AppShell> {
           selectedGame: game,
           games: services.library.games,
           controller: services.tools,
+          onChooseGame: _chooseToolGame,
           lanTransfer: services.lanTransfer,
           steam: services.steam,
           achievements: services.achievements,
@@ -407,8 +432,8 @@ class _AppShellState extends State<AppShell> {
 
   Future<void> _addStoreGame(GameEntry game) async {
     if (services.settings.steamPath.isEmpty) {
-      _settings();
-      return;
+      await _steamFiles();
+      if (!mounted || services.settings.steamPath.isEmpty) return;
     }
     StoreGameDetails? details;
     try {
@@ -444,7 +469,7 @@ class _AppShellState extends State<AppShell> {
       services: services,
       onNavigate: _select,
       detailBuilder: _detail,
-      onSettings: _settings,
+      onSettings: _steamFiles,
       onOpenFeature: _openFeature,
       onLibraryTab: _openLibrary,
       onShowTasks: _showTasks,
@@ -452,7 +477,7 @@ class _AppShellState extends State<AppShell> {
     1 => LibraryPage(
       services: services,
       detailBuilder: _detail,
-      onSettings: _settings,
+      onSettings: _steamFiles,
       onDestination: _destination,
       initialTab: _libraryTab,
       tabRequest: _libraryTabRequest,
@@ -473,6 +498,7 @@ class _AppShellState extends State<AppShell> {
     ),
     4 => CloudPage(
       service: services.cloud,
+      library: services.library,
       games: services.library.games,
       tasks: services.tasks,
       steamProcess: services.library.processActions,
@@ -483,6 +509,7 @@ class _AppShellState extends State<AppShell> {
       tasks: services.tasks,
       games: services.library.games,
       controller: services.tools,
+      onChooseGame: _chooseToolGame,
       lanTransfer: services.lanTransfer,
       steam: services.steam,
       achievements: services.achievements,
@@ -514,7 +541,7 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _accountFooter(double progress) {
+  Widget Function(double) _accountFooterBuilder() {
     final current = services.library.accounts
         .where((account) => account.mostRecent)
         .firstOrNull;
@@ -523,7 +550,11 @@ class _AppShellState extends State<AppShell> {
         : current.personaName.isEmpty
         ? current.accountName
         : current.personaName;
-    return ui.CommonPopupBox(
+    final avatar = SteamAvatar(
+      path: current == null ? null : services.library.avatarPath(current),
+      size: 20,
+    );
+    return (progress) => ui.CommonPopupBox(
       popupBuilder: (_) => ui.CommonPopupMenu(
         items: [
           for (final account in services.library.accounts)
@@ -558,10 +589,7 @@ class _AppShellState extends State<AppShell> {
         ],
       ),
       targetBuilder: (open) => ui.SidebarFooterButton(
-        icon: SteamAvatar(
-          path: current == null ? null : services.library.avatarPath(current),
-          size: 20,
-        ),
+        icon: avatar,
         label: label,
         progress: progress,
         onTap: open,
@@ -683,6 +711,7 @@ class _AppShellState extends State<AppShell> {
     final floating = services.settings.sidebarFloating;
     final blur = services.settings.sidebarBlur;
     final radius = BorderRadius.circular(floating ? 20 : 0);
+    final accountFooter = _accountFooterBuilder();
     Widget pane = Material(
       color: blur
           ? scheme.chromeSurface.withValues(alpha: .78)
@@ -697,7 +726,8 @@ class _AppShellState extends State<AppShell> {
         expanded: expanded,
         onSelected: _select,
         onToggle: _toggleSidebar,
-        footerBuilder: (progress) => _sidebarFooter(progress),
+        footerBuilder: (progress) => _sidebarFooter(progress, accountFooter),
+        reduceMotion: MediaQuery.disableAnimationsOf(context),
       ),
     );
     if (blur) {
@@ -718,7 +748,10 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _sidebarFooter(double progress) => Column(
+  Widget _sidebarFooter(
+    double progress,
+    Widget Function(double) accountFooter,
+  ) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
       _FooterButton(
@@ -746,7 +779,7 @@ class _AppShellState extends State<AppShell> {
         selected: _index == 6,
         onTap: _settings,
       ),
-      _accountFooter(progress),
+      accountFooter(progress),
       const SizedBox(height: 10),
     ],
   );
@@ -758,6 +791,7 @@ class _AppShellState extends State<AppShell> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: ui.CommonCard(
             isError: true,
+            inert: true,
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
@@ -777,56 +811,72 @@ class _AppShellState extends State<AppShell> {
   );
 
   Widget _buildAnimatedPages(BuildContext context) {
-    final content = Stack(
-      children: [
-        for (var index = 0; index < _navigators.length; index++)
-          if (_visited.contains(index))
-            Offstage(
-              offstage: _index != index,
-              child: TickerMode(
-                enabled: _index == index,
-                child: ExcludeFocus(
-                  excluding: _index != index,
-                  child: Navigator(
-                    key: _navigators[index],
-                    onGenerateRoute: (_) => MaterialPageRoute(
-                      builder: (_) => ListenableBuilder(
-                        listenable: Listenable.merge([
-                          services.settings,
-                          services.library,
-                        ]),
-                        builder: (_, _) => _page(index),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-      ],
-    );
     final reduceMotion =
         MediaQuery.disableAnimationsOf(context) ||
         services.settings.tabAnimation == 'none';
-    return TweenAnimationBuilder<double>(
-      key: ValueKey('page-$_index-$_navigationNonce'),
-      tween: Tween(begin: 0, end: 1),
-      duration: reduceMotion
-          ? Duration.zero
-          : const Duration(milliseconds: 260),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
-        final slide = services.settings.tabAnimation == 'slide';
-        return Opacity(
-          opacity: slide ? .82 + .18 * value : value,
-          child: Transform.translate(
-            offset: slide
-                ? Offset(18 * _navigationDirection * (1 - value), 0)
-                : Offset.zero,
-            child: child,
+    // FlClash HomePage uses a PageView with kept-alive navigation stacks.
+    // Offstage still lays out every hidden page on each sidebar width tick.
+    return PageView.builder(
+      controller: _pages,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _navigators.length,
+      itemBuilder: (context, index) => ui.KeepScope(
+        key: ValueKey(index),
+        child: ValueListenableBuilder<int>(
+          valueListenable: _activePage,
+          builder: (context, selected, child) => TickerMode(
+            enabled: selected == index,
+            child: ExcludeFocus(
+              excluding: selected != index,
+              child: TweenAnimationBuilder<double>(
+                key: ValueKey('page-$index-$_navigationNonce'),
+                tween: Tween(begin: 0, end: 1),
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 260),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  final slide = services.settings.tabAnimation == 'slide';
+                  return Opacity(
+                    opacity: slide ? .82 + .18 * value : value,
+                    child: Transform.translate(
+                      offset: slide
+                          ? Offset(18 * _navigationDirection * (1 - value), 0)
+                          : Offset.zero,
+                      child: child,
+                    ),
+                  );
+                },
+                child: _PageSizeHold(active: selected == index, child: child!),
+              ),
+            ),
           ),
-        );
-      },
-      child: content,
+          child: _pageNavigators[index],
+        ),
+      ),
+    );
+  }
+}
+
+// Adapted from FlClash KeyboardInsetHold: a retained desktop tab does not need
+// window-size notifications until it becomes visible again.
+class _PageSizeHold extends StatefulWidget {
+  const _PageSizeHold({required this.active, required this.child});
+  final bool active;
+  final Widget child;
+  @override
+  State<_PageSizeHold> createState() => _PageSizeHoldState();
+}
+
+class _PageSizeHoldState extends State<_PageSizeHold> {
+  Size? _visibleSize;
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    if (widget.active || _visibleSize == null) _visibleSize = media.size;
+    return MediaQuery(
+      data: media.copyWith(size: _visibleSize),
+      child: widget.child,
     );
   }
 }

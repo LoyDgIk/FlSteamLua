@@ -12,6 +12,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageName => 'English';
 
   @override
+  String get quickStart => 'Quick start';
+
+  @override
+  String get quickStartSkip => 'Skip setup';
+
+  @override
+  String get quickStartBack => 'Back';
+
+  @override
+  String get quickStartNext => 'Next';
+
+  @override
+  String get quickStartEnter => 'Enter app';
+
+  @override
+  String get quickStartAppearance => 'Appearance';
+
+  @override
+  String get quickStartFolders => 'Game folders';
+
+  @override
+  String get quickStartPrepare => 'Get ready';
+
+  @override
+  String get quickStartAppearanceTitle => 'Make it yours';
+
+  @override
+  String get quickStartAppearanceHint =>
+      'Choose your language, colors and sidebar. Changes appear immediately.';
+
+  @override
+  String get quickStartFoldersTitle => 'Connect your library';
+
+  @override
+  String get quickStartFoldersHint =>
+      'Choose your Steam installation and the folder where new Lua files will be saved.';
+
+  @override
+  String get quickStartPrepareTitle => 'Ready when you are';
+
+  @override
+  String get quickStartPrepareHint =>
+      'Set up the core and content sources as needed. You can return to quick start from Settings at any time.';
+
+  @override
+  String get quickStartMoreAppearance => 'More appearance settings';
+
+  @override
+  String get quickStartNetworkHint => 'Proxy and download mirrors';
+
+  @override
+  String quickStartSources(int count) {
+    return '$count configured sources enabled';
+  }
+
+  @override
+  String quickStartStep(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
   String get updateKeySubscriptions => 'Update key subscriptions';
 
   @override
@@ -66,7 +127,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dlcAnalysis => 'DLC management';
 
   @override
-  String get keySubscriptionsOfflineLua => 'Key subscriptions & offline Lua';
+  String get keySubscriptionsOfflineLua => 'Get Lua / manifests';
 
   @override
   String get gameToolsAndVersionManagement =>
@@ -112,13 +173,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get getLuaManifests => 'Get Lua / manifests';
 
   @override
-  String get addToLibrary => 'Add to library';
+  String get addToLibrary => 'Add to Lua library';
 
   @override
   String get openGameFolder => 'Open game folder';
 
   @override
   String get playtime => 'Playtime';
+
+  @override
+  String playtimeHours(String hours) {
+    return '$hours hours';
+  }
 
   @override
   String minutes(String playtimeMinutes) {
@@ -148,8 +214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudSaves => 'Cloud saves';
 
   @override
-  String get backUpSyncAndRestoreProgress =>
-      'Back up, sync and restore progress';
+  String get backUpSyncAndRestoreProgress => 'View save locations and backups';
 
   @override
   String get gameManagement => 'Game management';
@@ -162,7 +227,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enabledTakesEffectAfterRestartingSteam =>
-      'Enabled; takes effect after restarting Steam';
+      'Enabled; the core can reload this Lua automatically';
 
   @override
   String get disabledFileIsPreserved => 'Disabled; file is preserved';
@@ -511,7 +576,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tasks => 'Tasks';
 
   @override
-  String get clearCompleted => 'Clear completed';
+  String get clearCompleted => 'Clear finished tasks';
 
   @override
   String get allClear => 'All clear';
@@ -709,11 +774,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refreshCloudSaves => 'Refresh cloud saves';
 
   @override
-  String get localSaveRedirection => 'Local save redirection';
+  String get localSaveRedirection => 'Save redirection';
 
   @override
   String get enabledRestartSteamAfterChanges =>
-      'Enabled; restart Steam after changes';
+      'Enabled in configuration; restart Steam after changes';
 
   @override
   String get disabledEnablingDownloadsAndVerifiesTheCloudredirectDll =>
@@ -731,7 +796,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configureRedirection => 'Configure redirection';
 
   @override
-  String get localSaveFolder => 'Local save folder';
+  String get localSaveFolder => 'Folder-provider directory';
 
   @override
   String get remoteStorage => 'Remote storage';
@@ -740,7 +805,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configured => 'Configured';
 
   @override
-  String get remoteSyncIsNotConfigured => 'Remote sync is not configured';
+  String get remoteSyncIsNotConfigured => 'Remote storage is not configured';
 
   @override
   String get configure => 'Configure';
@@ -799,7 +864,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appData => 'App data';
 
   @override
-  String get lanTransferCache => 'LAN transfer cache';
+  String get lanTransferCache => 'Transfer staging';
 
   @override
   String get cleanup => 'Cleanup';
@@ -880,13 +945,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openFolder => 'Open folder';
 
   @override
-  String get backUpThisGame => 'Back up this game';
+  String get backUpThisGame => 'Back up selected save location';
 
   @override
-  String get downloadToFolder => 'Download to folder';
+  String get downloadToFolder => 'Export raw repository';
 
   @override
-  String get uploadToRemote => 'Upload to remote';
+  String get uploadToRemote => 'Copy folder repository to remote';
 
   @override
   String get previewDeletion => 'Preview deletion';
@@ -912,10 +977,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backUpSaves => 'Back up saves';
 
   @override
-  String get downloadSaves => 'Download saves';
+  String get downloadSaves => 'Export save repository';
 
   @override
-  String get uploadSaves => 'Upload saves';
+  String get uploadSaves => 'Copy save repository';
 
   @override
   String get remoteFilesWithTheSameNamesWillBeReplacedCloseTheGameFirst =>
@@ -925,11 +990,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prepareDeletionPreview => 'Prepare deletion preview';
 
   @override
-  String get deleteThisGameSSaves => 'Delete this game’s saves';
+  String get deleteThisGameSSaves =>
+      'Delete saves at the selected account and location';
 
   @override
   String get aCompleteBackupIsCreatedBeforeDeleting =>
-      'A complete backup is created before deleting:';
+      'Back up and then delete the selected locations:';
 
   @override
   String get backupLocation => 'Backup location';
@@ -1299,7 +1365,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameManagement2 => 'Game management';
 
   @override
-  String get patchSettings => 'Patch settings';
+  String get patchSettings => 'Patch tools';
 
   @override
   String get patchSettingsDescription =>
@@ -1342,7 +1408,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authorizationTicketDescription =>
-      'Import tickets.txt, validate its AppID and payload lengths, then apply the ticket only when explicitly requested.';
+      'Import and verify tickets while preserving the existing authorization identity by default.';
 
   @override
   String get matchingLua => 'Matching Lua';
@@ -1623,7 +1689,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get luaLoginDescription =>
-      'Open the Steam account page to sign in or change account.';
+      'Extraction will try the local Steam session. You can also sign in from the account page.';
 
   @override
   String get appIdForExtraction => 'Game AppID';
@@ -1642,7 +1708,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get extractionOptions => 'Extraction options';
 
   @override
-  String get copyAchievements => 'Copy achievements data';
+  String get copyAchievements => 'Include local achievement cache';
 
   @override
   String get extractionResult => 'Extraction result';
@@ -1685,7 +1751,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ticketExtractionOptions => 'Ticket options';
 
   @override
-  String get extractDenuvoTicket => 'Extract ticket';
+  String get extractDenuvoTicket => 'Extract tickets';
 
   @override
   String get openAuthorizationPage => 'Open authorization page';
@@ -1883,17 +1949,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importGoldbergConfiguration => 'Import Goldberg configuration';
 
   @override
-  String get authorizationTickets => 'Authorization tickets';
+  String get authorizationTickets => 'Ticket management';
 
   @override
   String get authorization => 'Authorization';
 
   @override
-  String get denuvoAuthorization => 'Denuvo authorization';
+  String get denuvoAuthorization => 'Denuvo ticket management';
 
   @override
   String get denuvoAuthorizationDescription =>
-      'Extract, validate, back up and apply AppTicket and ETicket data for your locally signed-in Steam account.';
+      'Extract, back up and manage AppTicket and ETicket. Changing authorization identity requires an explicit selection.';
 
   @override
   String
@@ -1911,7 +1977,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get applyToSteam => 'Apply to Steam';
 
   @override
-  String get saveTicketBackup => 'Save ticket backup';
+  String get saveTicketBackup => 'Save encrypted ticket backup';
 
   @override
   String get encryptedBackup => 'Encrypted backup';
@@ -1941,14 +2007,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get validateTicketFile => 'Validate ticket file';
 
   @override
-  String get applySteamTicket => 'Apply Steam ticket';
+  String get applySteamTicket => 'Apply tickets';
 
   @override
   String get thisReplacesExistingAppticketAndEticketValuesForThisGame =>
-      'This replaces existing AppTicket and ETicket values for this game.';
+      'Back up and replace the two tickets for this game, preserving its cached authorization identity by default.';
 
   @override
-  String get applyTicket => 'Apply ticket';
+  String get applyTicket => 'Write tickets';
 
   @override
   String get exportPlaintextTicket => 'Export plaintext ticket';
@@ -2044,7 +2110,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Start when the current user signs in to Windows.';
 
   @override
-  String get broadcastPlayStatusToFriends => 'Broadcast play status to friends';
+  String get broadcastPlayStatusToFriends => 'Friend presence for Lua games';
 
   @override
   String
@@ -2625,7 +2691,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Process all supported files in a folder';
 
   @override
-  String get manifestMonitoring => 'Manifest monitoring';
+  String get manifestMonitoring => 'Manifest request monitoring';
 
   @override
   String get fetchMissingManifestsRequestedBySteam =>
@@ -2796,13 +2862,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sourceConfigured => 'Configured';
 
   @override
-  String get sourceNotTested => 'Not tested';
+  String get sourceNotTested => 'Configured; not tested yet';
 
   @override
   String get sourceNeverUpdated => 'Not updated';
 
   @override
-  String get noContentSources => 'No matching content sources';
+  String get noContentSources => 'No content sources yet';
 
   @override
   String get contentImport => 'Add to Lua library';
@@ -2854,7 +2920,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidUrl => 'Enter an HTTP or HTTPS URL';
 
   @override
-  String get invalidUpdateInterval => 'Enter a non-negative integer';
+  String get invalidUpdateInterval => 'Enter a whole number from 0 to 8760.';
 
   @override
   String get sourceTestSucceeded => 'Test succeeded';
@@ -3058,10 +3124,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get luaFolder => 'Lua folder';
 
   @override
-  String get leaveEmptyToUseTheKernelConfigurationOrConfigLua =>
-      'Leave empty to use the kernel configuration or config/stplug-in';
-
-  @override
   String get saveAndRefreshLibrary => 'Save and refresh library';
 
   @override
@@ -3153,7 +3215,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get automaticRefreshUpdateChecksFriendPresenceStartupAndOfflineMode =>
-      'Automatic refresh, update checks, friend presence, startup and offline mode.';
+      'Automatic refresh, update checks, startup and offline mode.';
 
   @override
   String get downloadsKernelAndAccount => 'Downloads, kernel and account';
@@ -3729,7 +3791,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get releaseAnnouncement => 'Release notes';
 
   @override
-  String get manifestSettings => 'Manifest settings';
+  String get manifestSettings => 'Manifest request codes';
 
   @override
   String get manifestProvider => 'Manifest provider';
@@ -3738,7 +3800,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manifestModeBuiltIn => 'Built-in provider';
 
   @override
-  String get manifestModeCustom => 'Custom server';
+  String get manifestModeCustom => 'Custom server (through this app)';
 
   @override
   String get manifestModeLocalProxy => 'Local proxy';
@@ -3768,11 +3830,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manifestLocalProxyDescription =>
-      'Run a loopback server that resolves the selected content sources and returns a plain manifest request code to the kernel.';
+      'Resolve the current depot/GID through the selected scripts while this app stays running. The core may still use a built-in source if scripts fail.';
 
   @override
   String get manifestCustomHint =>
-      'Use depotId and gid placeholders in the URL';
+      'Include a gid or manifestId placeholder; appId and depotId are optional. Keep this app running; the core can fall back to a built-in source.';
 
   @override
   String get steamClientDataChannel => 'Steam client data channel';
@@ -3781,16 +3843,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get channelRepository => 'Data repository';
 
   @override
-  String get channelName => 'Channel';
+  String get channelName => 'Git branch';
 
   @override
   String get channelFormat => 'Repository format';
 
   @override
-  String get channelFormatBranch => 'Branch format';
+  String get channelFormatBranch => 'Separate pattern / ipc branches';
 
   @override
-  String get channelFormatDirectory => 'Directory format';
+  String get channelFormatDirectory =>
+      'Pattern / ipc directories in one branch';
 
   @override
   String get defaultRepository => 'Default';
@@ -3803,7 +3866,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get localTemporaryBuildDescription =>
-      'Use only after a Steam update when every online data channel is unavailable. The generated files apply only to the current Steam client build.';
+      'Scan the current Steam files using bundled signatures and write temporary metadata only when matches are complete. Unknown builds may not be supported.';
 
   @override
   String get localBuildTitle => 'Local emergency build';
@@ -4161,13 +4224,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Apply patches and manage license configuration.';
 
   @override
-  String get setLuaDirectory => 'Set Lua library folder';
-
-  @override
-  String get luaDirectoryUpdated =>
-      'Lua library folder updated and the library was refreshed.';
-
-  @override
   String get kernelDownloadsAndNetwork => 'Kernel, downloads and network';
 
   @override
@@ -4284,10 +4340,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lanReject => 'Reject';
 
   @override
-  String get lanRememberDevice => 'Remember this device';
+  String get lanRememberDevice => 'Trust this device and receive automatically';
 
   @override
-  String get lanAcceptAndRemember => 'Accept and remember';
+  String get lanAcceptAndRemember => 'Accept and trust';
 
   @override
   String get lanContentToTransfer => 'Content to transfer';
@@ -4319,6 +4375,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lanNetworkSpeed => 'Network';
 
   @override
+  String get lanDiskWriteSpeed => 'Disk writes';
+
+  @override
+  String get lanDownloadProgress => 'Downloading data';
+
+  @override
+  String get lanUploadProgress => 'Sending data';
+
+  @override
+  String get lanInstallProgress => 'Installing files';
+
+  @override
+  String lanNetworkTransferred(String bytes) {
+    return 'Transferred over the network: $bytes';
+  }
+
+  @override
   String get lanPeakSpeed => 'Peak';
 
   @override
@@ -4335,6 +4408,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lanResume => 'Resume transfer';
+
+  @override
+  String get lanRetryTransfer => 'Retry transfer';
 
   @override
   String get lanCancelTransfer => 'Cancel transfer';
@@ -4421,13 +4497,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lanCachedChunks => 'Cached chunks';
 
   @override
-  String get lanChunkCache => 'Chunk cache';
+  String get lanChunkCache => 'Transfer staging';
 
   @override
-  String get lanClearChunkCache => 'Clear chunk cache';
+  String get lanChunkCacheDescription =>
+      'Unfinished game data kept for resuming transfers.';
 
   @override
-  String get lanChunkCacheCleared => 'Chunk cache cleared.';
+  String get lanClearChunkCache => 'Clear transfer staging';
+
+  @override
+  String get lanClearChunkCacheConfirmation =>
+      'Clear unfinished transfer data? Resuming these transfers will require retransmission.';
+
+  @override
+  String get lanChunkCacheCleared => 'Transfer staging cleared.';
 
   @override
   String get lanManualAddressInvalid =>
@@ -4476,4 +4560,880 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noDownloadedManifests =>
       'No manifest files were found for this game in Steam depotcache.';
+
+  @override
+  String get luaDirectories => 'Lua directories';
+
+  @override
+  String get addLuaDirectory => 'Add Lua directory';
+
+  @override
+  String get luaDirectoryAlreadyAdded => 'This directory is already listed.';
+
+  @override
+  String get defaultLuaWriteDirectory => 'Default write directory';
+
+  @override
+  String get luaDirectoriesSaved =>
+      'Lua directories saved to the core configuration and library refreshed.';
+
+  @override
+  String get coreLuaDirectory => 'Fixed directory';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get configurationEnabled => 'Enabled in configuration';
+
+  @override
+  String get cloudPluginCache => 'Plugin local cache';
+
+  @override
+  String get cloudFolderRepository => 'Folder repository';
+
+  @override
+  String get cloudConfigurationSavedRestart =>
+      'Configuration saved. Restart Steam to apply it.';
+
+  @override
+  String get cloudConfigurationRestartDescription =>
+      'Steam loads this configuration at startup. Enabling it does not confirm that the plugin is loaded or sync has completed.';
+
+  @override
+  String get cloudMetadataSync => 'Achievement and playtime sync';
+
+  @override
+  String get cloudSyncAchievements => 'Sync achievements and statistics';
+
+  @override
+  String get cloudSyncPlaytime => 'Sync playtime';
+
+  @override
+  String get cloudRepositoryDescription =>
+      'Manage CloudRedirect repositories and caches here. Exports preserve hashed objects and metadata; the plugin inside Steam restores saves through synchronization.';
+
+  @override
+  String get manifestConfigurationSaved =>
+      'Request-code configuration saved. Restart Steam to apply script changes; custom and local proxy modes require this app to stay running.';
+
+  @override
+  String get kernelChannelDescription =>
+      'Saving updates both the core automatic source and manual downloads. Existing cached files remain in use; new build fingerprints use this source on the next Steam startup.';
+
+  @override
+  String get onlineFixRealAppIdDescription =>
+      'On the maintained fork, try keeping the real AppID for black-screen or loading issues. Games requiring the Spacewar AppID should use the option above.';
+
+  @override
+  String get luaPresenceDescription =>
+      'Controls friend presence for Lua games, without changing Steam-wide privacy. Requires a fork with presence support; the discontinued mainline does not support it.';
+
+  @override
+  String get customLuaDirectories => 'Custom directories';
+
+  @override
+  String get noCustomLuaDirectories => 'No custom directories';
+
+  @override
+  String get luaDirectoriesSort => 'Directory order';
+
+  @override
+  String get currentSteamLoginAccount => 'Current Steam account';
+
+  @override
+  String get ticketOwnerAccount => 'Ticket owner';
+
+  @override
+  String get cachedAuthorizationIdentity =>
+      'Cached authorization identity for this game';
+
+  @override
+  String get ticketIdentityNotSet => 'Not set';
+
+  @override
+  String get ticketAccountUnavailable => 'Not signed in or unavailable';
+
+  @override
+  String get applyTicketPreserveIdentity => 'Apply tickets, preserve identity';
+
+  @override
+  String syncAuthorizationIdentity(String steamId) {
+    return 'Also set authorization identity to $steamId';
+  }
+
+  @override
+  String get ticketIdentitySaveWarning =>
+      'Changing the authorization identity may affect game saves stored in SteamID-specific directories.';
+
+  @override
+  String get ticketCachedIdentityWarning =>
+      'The cached authorization identity differs from the ticket owner. Preserving it may affect authorization; only starting the game can confirm authorization.';
+
+  @override
+  String get ticketIdentityWarningLabel => 'Identity mismatch';
+
+  @override
+  String get ticketApplyBackupDescription =>
+      'Back up the previous AppTicket, ETicket and SteamID with encryption before applying. By default, only the two tickets are replaced.';
+
+  @override
+  String get ticketWrittenVerified => 'Tickets written and verified';
+
+  @override
+  String get restorePreApplyCredentials => 'Restore previous credentials';
+
+  @override
+  String get ticketRestoreCompleteSet =>
+      'Restore both tickets and SteamID from this backup, deleting values that were originally absent. Restore associated Lua files too and save the current credentials in an encrypted backup.';
+
+  @override
+  String get ticketCredentialsRestored =>
+      'Previous credential set restored and verified';
+
+  @override
+  String get ticketLuaCleanup => 'Ticket statements to remove from Lua';
+
+  @override
+  String ticketLuaRemovalCount(String count) {
+    return 'Found $count old ticket statements';
+  }
+
+  @override
+  String get ticketLuaCleanupDescription =>
+      'Confirming backs up the Lua files and removes these statements before applying, preventing the core from reloading old tickets.';
+
+  @override
+  String get ticketStopSteamForLua =>
+      'Steam will close after confirmation to prevent Lua hot reload from overwriting credentials. Restart it manually afterwards.';
+
+  @override
+  String get ticketPreviewChanged =>
+      'Credentials changed after the preview. Review them again.';
+
+  @override
+  String get ticketLuaChanged =>
+      'Lua changed after the preview or backup. The current file was not overwritten; review it again.';
+
+  @override
+  String get ticketInvalidBackup => 'Invalid credential backup.';
+
+  @override
+  String get ticketWriteNotVerified =>
+      'Credential read-back verification failed; restoration of the previous values was attempted.';
+
+  @override
+  String get ticketRollbackIncomplete =>
+      'The operation failed and rollback was incomplete. Restore the full credential set and Lua files from the encrypted backup.';
+
+  @override
+  String get ticketOperationBusy =>
+      'Another credential operation is still running.';
+
+  @override
+  String get ticketLuaManualCleanup =>
+      'The Lua ticket call is not a removable stand-alone statement. Edit it in the Lua editor before applying.';
+
+  @override
+  String get copyAchievementsHint =>
+      'Copies local cache files only; unlocked achievements are not transferred.';
+
+  @override
+  String lanAutomaticReceiveHint(String path) {
+    return 'Future transfers will be accepted into: $path. Use the device menu to forget this device.';
+  }
+
+  @override
+  String get noInstalledGamesToTransfer => 'No installed games to transfer';
+
+  @override
+  String get installGameBeforeTransfer =>
+      'Install a game, then refresh the library.';
+
+  @override
+  String get noAdditionalFiles => 'No additional files';
+
+  @override
+  String sourceNeedsConfiguration(String name) {
+    return '$name · Needs configuration';
+  }
+
+  @override
+  String get configureManifestSource => 'Configure selected manifest source';
+
+  @override
+  String sourceTestPassed(String name) {
+    return '$name passed the test.';
+  }
+
+  @override
+  String get fileWillBeBackedUpAndReplaced => 'Will be backed up and replaced';
+
+  @override
+  String get fileExistsChooseReplace =>
+      'File exists; confirm backup and replacement';
+
+  @override
+  String luaImportReady(String game) {
+    return 'Lua configuration for “$game” is saved. You can now open Steam to install it.';
+  }
+
+  @override
+  String get httpsUrlRequired => 'Enter a valid HTTPS URL.';
+
+  @override
+  String get subscriptionAutoUpdateScope =>
+      'Applies to all subscriptions; each uses its own update interval.';
+
+  @override
+  String get subscriptionIntervalDescription =>
+      'An interval of 0 means manual updates only. Enable automatic updates above to use the interval.';
+
+  @override
+  String get sourceOutputType => 'Content to retrieve';
+
+  @override
+  String get sourceArchiveOutput => 'Manifest archive';
+
+  @override
+  String get sourceCredentialHint =>
+      'Sign in on the source website and obtain this credential from account settings.';
+
+  @override
+  String get sourceOutputHint =>
+      'Lua retrieves configuration text; the archive option retrieves the source’s manifest package.';
+
+  @override
+  String get sourceProviderHint =>
+      'Choose the manifest provider used by this service.';
+
+  @override
+  String get sourceGameNameHint =>
+      'Used only by the source service; leave blank if unnecessary.';
+
+  @override
+  String get sourceDepotManifestHint =>
+      'Enter Depot ID and Manifest ID together, or leave both blank to request the game package.';
+
+  @override
+  String get openSourceWebsite => 'Open source website';
+
+  @override
+  String get luaDirectoryRemoved =>
+      'Directory removed from configuration. Its files are kept.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get bearerToken => 'Bearer token';
+
+  @override
+  String fillRequiredFields(String fields) {
+    return 'Complete these required fields: $fields.';
+  }
+
+  @override
+  String get cloudAddressInvalid =>
+      'Enter a complete HTTPS URL, or enable Allow HTTP to use an HTTP URL.';
+
+  @override
+  String get cloudTimeoutInvalid => 'Timeout must be from 0 to 300 seconds.';
+
+  @override
+  String get connectionFailedRetry =>
+      'Could not connect. Check your network and try again.';
+
+  @override
+  String get fileOperationFailedHint =>
+      'Could not access the files. Check folder permissions, disk space, and whether a file is in use.';
+
+  @override
+  String get remoteCredentialsRejected =>
+      'Remote access was denied. Check your credentials and folder permissions.';
+
+  @override
+  String get remoteLocationMissing =>
+      'The remote location was not found. Check the configured address or folder.';
+
+  @override
+  String get remoteOperationFailedHint =>
+      'The remote operation could not finish. Check the connection or open Details.';
+
+  @override
+  String get invalidInputHint =>
+      'The content format is invalid. Check the form or imported file.';
+
+  @override
+  String get operationFailedDetails =>
+      'The operation could not finish. Open Details for the cause.';
+
+  @override
+  String get steamLocalSave => 'Steam local saves';
+
+  @override
+  String selectBackupProvider(String provider) {
+    return 'This backup includes remote data from $provider. Select that storage provider before restoring.';
+  }
+
+  @override
+  String get steamUpdateChecks => 'Steam update checks';
+
+  @override
+  String get steamForcedUpdates => 'Steam forced updates';
+
+  @override
+  String get blockedSetting => 'Blocked';
+
+  @override
+  String get allowedSetting => 'Allowed';
+
+  @override
+  String get confirmApplyTickets => 'Confirm ticket application';
+
+  @override
+  String get reviewExtractedTickets => 'Review and apply these tickets';
+
+  @override
+  String get extractTrainerBeforeBinding =>
+      'Extract this archive first, then select the trainer executable to bind it to a game.';
+
+  @override
+  String get testAndUpdateSubscription => 'Test and update subscription';
+
+  @override
+  String get cloudOperationBusy =>
+      'Wait for the current save operation to finish.';
+
+  @override
+  String get cloudInvalidBackup => 'Invalid backup record.';
+
+  @override
+  String get cloudBackupChecksumFailed =>
+      'Backup checksum failed. Saves were not overwritten.';
+
+  @override
+  String get cloudPinnedBackup => 'Unpin the backup before deleting it.';
+
+  @override
+  String get cloudInvalidRetention =>
+      'Retention count and size must be nonnegative integers.';
+
+  @override
+  String get cloudBackupTargetUnknown =>
+      'This backup has no storage identity and cannot be restored remotely.';
+
+  @override
+  String get cloudBackupTargetChanged =>
+      'Storage location or account has changed. Review the destination.';
+
+  @override
+  String get cloudSyncActiveOnly =>
+      'Activate this storage before pulling to the plugin cache.';
+
+  @override
+  String get cloudSteamMustStop => 'Close Steam and games before continuing.';
+
+  @override
+  String get cloudInstallPluginFirst =>
+      'Install the CloudRedirect plugin first.';
+
+  @override
+  String get cloudSyncMetadataMissing =>
+      'Repository sync metadata is missing or invalid.';
+
+  @override
+  String get cloudSyncNotVerified =>
+      'The core did not confirm synchronization. The pre-operation backup is retained; check the task log.';
+
+  @override
+  String get cloudCurrentStorage => 'Current core configuration';
+
+  @override
+  String get cloudFolderAbsolute => 'Choose an absolute save-folder path.';
+
+  @override
+  String get cloudCredentialsRequired =>
+      'Enter credentials for the selected authentication method.';
+
+  @override
+  String get cloudUnknownStorage => 'Invalid storage type.';
+
+  @override
+  String get cloudAuthorizeFirst => 'Authorize an account in this form first.';
+
+  @override
+  String get cloudAccountLookupFailed =>
+      'Could not read the authorized account identity.';
+
+  @override
+  String get cloudWriteProbeFailed => 'Test-file readback verification failed.';
+
+  @override
+  String get cloudStorageNameRequired => 'Enter a storage name.';
+
+  @override
+  String get cloudActiveStorageDelete =>
+      'Switch the active sync target before removing it.';
+
+  @override
+  String get cloudDisableBeforeDisconnect =>
+      'Disable redirection before disconnecting the active target.';
+
+  @override
+  String get cloudStorages => 'Storage management';
+
+  @override
+  String get cloudAddStorage => 'Add storage';
+
+  @override
+  String get cloudStorageName => 'Storage name';
+
+  @override
+  String get cloudActivate => 'Use for synchronization';
+
+  @override
+  String get cloudActiveTarget => 'Sync target';
+
+  @override
+  String get cloudBrowse => 'Browse saves';
+
+  @override
+  String get cloudBrowsing => 'Browsing';
+
+  @override
+  String get cloudDuplicate => 'Duplicate configuration';
+
+  @override
+  String get cloudSortStorages => 'Storage order';
+
+  @override
+  String get cloudStorageSaved => 'Storage saved';
+
+  @override
+  String get cloudStorageRemoved =>
+      'Remove local configuration and credentials. Remote files are retained.';
+
+  @override
+  String get cloudStorageActivated =>
+      'Sync target updated; it takes effect on the next Steam launch.';
+
+  @override
+  String get cloudTestRead => 'Test reading';
+
+  @override
+  String get cloudTestWrite => 'Test writing and cleanup';
+
+  @override
+  String get cloudTestWriteHint =>
+      'Creates a temporary test file, verifies it, then deletes it.';
+
+  @override
+  String get cloudReadVerified => 'Reading verified';
+
+  @override
+  String get cloudWriteVerified => 'Reading and writing verified';
+
+  @override
+  String get cloudNotTested => 'Not tested';
+
+  @override
+  String get cloudDiscardDraft => 'Discard unsaved changes?';
+
+  @override
+  String get cloudPendingRestart => 'Pending Steam restart';
+
+  @override
+  String get cloudCoreReady => 'Core files ready';
+
+  @override
+  String get cloudCoreMissing => 'Core or loader not ready';
+
+  @override
+  String get cloudNotRuntimeVerified => 'Runtime not verified';
+
+  @override
+  String get cloudLastChecked => 'Last checked';
+
+  @override
+  String get cloudAllAccounts => 'All accounts';
+
+  @override
+  String get cloudAccountFilter => 'Account filter';
+
+  @override
+  String get cloudLocationFilter => 'Location filter';
+
+  @override
+  String get cloudAllLocations => 'All locations';
+
+  @override
+  String get cloudDetails => 'Save details';
+
+  @override
+  String get cloudLoadFiles => 'View files';
+
+  @override
+  String get cloudPull => 'Pull to plugin cache';
+
+  @override
+  String get cloudPullHint =>
+      'CloudRedirect pulls this game after backing up its cache. Launch the game afterward to verify save loading.';
+
+  @override
+  String get cloudSyncVerified =>
+      'Core sync completed; cache metadata verified';
+
+  @override
+  String get cloudCompare => 'Compare repository manifests';
+
+  @override
+  String get cloudLocalOnly => 'Local only';
+
+  @override
+  String get cloudRemoteOnly => 'Remote only';
+
+  @override
+  String get cloudChangedFiles => 'Different content or metadata';
+
+  @override
+  String get cloudManifestEqual => 'Repository manifests match';
+
+  @override
+  String get cloudCompareHint =>
+      'Compares file manifests; timestamps do not establish sync completion.';
+
+  @override
+  String get cloudExportRepository => 'Export repository copy';
+
+  @override
+  String get cloudExportHint =>
+      'Exports hashed objects and metadata. The destination must be empty.';
+
+  @override
+  String get cloudPreOperationBackup => 'Automatic pre-operation backup';
+
+  @override
+  String get cloudConfirmOperation => 'Confirm save operation';
+
+  @override
+  String get cloudStopAndContinue => 'Close Steam and continue';
+
+  @override
+  String get cloudBackupDetails => 'Backup details';
+
+  @override
+  String get cloudBackupNote => 'Note';
+
+  @override
+  String get cloudBackupPinned => 'Keep pinned';
+
+  @override
+  String get cloudVerifyBackup => 'Verify backup';
+
+  @override
+  String get cloudBackupVerified => 'Backup verified';
+
+  @override
+  String get cloudRetention => 'Clean up backups';
+
+  @override
+  String get cloudRetentionCount => 'Backups to keep per game';
+
+  @override
+  String get cloudRetentionSize => 'Size limit per game (MiB)';
+
+  @override
+  String get cloudRetentionHint =>
+      '0 means unlimited. Pinned backups are excluded. Files are deleted only after reviewing the list.';
+
+  @override
+  String get cloudNothingToClean => 'No backups to clean up';
+
+  @override
+  String get cloudBackupManual => 'Manual backup';
+
+  @override
+  String get cloudBackupBeforeDelete => 'Before deletion';
+
+  @override
+  String get cloudBackupBeforeRestore => 'Before restore';
+
+  @override
+  String get cloudBackupBeforeUpload => 'Before upload';
+
+  @override
+  String get cloudBackupBeforeSync => 'Before pull';
+
+  @override
+  String get cloudDestination => 'Destination';
+
+  @override
+  String get cloudRepositoryCopy => 'Copy to sync target';
+
+  @override
+  String get cloudGameAccount => 'Game / account';
+
+  @override
+  String get cloudTargetChangedDuringOperation =>
+      'The destination changed during the operation. Stopped.';
+
+  @override
+  String get cloudExportNotEmpty =>
+      'Choose an empty directory. Existing files were not overwritten.';
+
+  @override
+  String get cloudNoRestoreTargets => 'The backup has no restore locations.';
+
+  @override
+  String get cloudRestartForSettings =>
+      'Settings saved. Verify runtime behavior after restarting Steam.';
+
+  @override
+  String get cloudLoadFailedRetained =>
+      'Refresh failed; previous results retained';
+
+  @override
+  String get cloudDisconnectConfirm =>
+      'Remove this storage’s local credentials. Remote files are retained.';
+
+  @override
+  String get cloudNoFiles => 'No files';
+
+  @override
+  String get steamVersionTitle => 'Steam client versions';
+
+  @override
+  String get steamVersionDescription =>
+      'Browse, verify, install and restore Steam client versions';
+
+  @override
+  String get steamVersionBusy =>
+      'Wait for the current version operation to finish.';
+
+  @override
+  String get steamVersionInvalidCatalog =>
+      'The version catalogue is invalid or incomplete.';
+
+  @override
+  String get steamVersionManifestMismatch =>
+      'The manifest architecture or build does not match the request.';
+
+  @override
+  String get steamVersionInvalidFilter =>
+      'Use YYYYMMDD dates; the start date must not exceed the end date.';
+
+  @override
+  String steamVersionDownloading(String file) {
+    return 'Downloading and verifying $file';
+  }
+
+  @override
+  String steamVersionDownloadProgress(
+    String file,
+    String received,
+    String total,
+  ) {
+    return '$file · $received/$total bytes';
+  }
+
+  @override
+  String get steamVersionRangeInvalid =>
+      'The server returned an incorrect resume range.';
+
+  @override
+  String get steamVersionChecksumFailed =>
+      'File size or SHA-256 verification failed.';
+
+  @override
+  String steamVersionPackageInvalid(String file) {
+    return 'Missing or invalid package: $file';
+  }
+
+  @override
+  String get steamVersionSameImport =>
+      'This directory is already in the version library.';
+
+  @override
+  String get steamVersionStaging =>
+      'Installing and verifying the version in a temporary directory';
+
+  @override
+  String get steamVersionInstallUnverified =>
+      'The target installation could not be verified; it was not applied to Steam.';
+
+  @override
+  String get steamVersionLinkedPath =>
+      'Version files contain an unsupported link.';
+
+  @override
+  String steamVersionApplying(String current, String total) {
+    return 'Applying client file $current/$total';
+  }
+
+  @override
+  String get steamVersionTargetRequired =>
+      'Choose a Steam directory containing steam.exe, or an empty directory for a new installation.';
+
+  @override
+  String get steamVersionInvalidBackup => 'Invalid client backup.';
+
+  @override
+  String get steamVersionBackupTargetChanged =>
+      'This backup belongs to a different Steam directory.';
+
+  @override
+  String get steamVersionLatest => 'Sync official releases';
+
+  @override
+  String get steamVersionHistory => 'Update history index';
+
+  @override
+  String get steamVersionImport => 'Import downloaded version';
+
+  @override
+  String get steamVersionCurrent => 'Current client';
+
+  @override
+  String get steamVersionUnknown => 'Version not identified';
+
+  @override
+  String get steamVersionTarget => 'Installation directory';
+
+  @override
+  String get steamVersionEmpty => 'No cached versions';
+
+  @override
+  String get steamVersionOfficial => 'Official CDN';
+
+  @override
+  String get steamVersionArchive => 'Wayback archive';
+
+  @override
+  String get steamVersionLocal => 'Local import';
+
+  @override
+  String get steamVersionPackages => 'Client packages';
+
+  @override
+  String get steamVersionReady => 'Downloaded';
+
+  @override
+  String steamVersionPartial(String current, String total) {
+    return '$current/$total packages downloaded';
+  }
+
+  @override
+  String get steamVersionDownload => 'Download and verify';
+
+  @override
+  String get steamVersionVerify => 'Verify downloads';
+
+  @override
+  String get steamVersionInstall => 'Install this version';
+
+  @override
+  String get steamVersionInstallHint =>
+      'Installs offline in a temporary directory, then backs up and replaces client files with rollback on failure. Games, account settings, Lua and plugins are retained. Update behavior follows Settings → Steam update control.';
+
+  @override
+  String get steamVersionInstalled =>
+      'Client files applied and version checked. Start Steam to verify runtime behavior.';
+
+  @override
+  String get steamVersionDeleteDownload =>
+      'Delete local download packages while retaining the catalogue entry and client backups.';
+
+  @override
+  String get steamVersionBackups => 'Client backups';
+
+  @override
+  String get steamVersionRestoreHint =>
+      'Restore client files from before this operation, after backing up the current state.';
+
+  @override
+  String get steamVersionArchitecture => 'Client architecture';
+
+  @override
+  String get steamVersionStartDate => 'Start date';
+
+  @override
+  String get steamVersionEndDate => 'End date';
+
+  @override
+  String get steamVersionHistoryLimit => 'Manifest limit';
+
+  @override
+  String get steamVersionHistoryHint =>
+      'Historical files may be incomplete. Installation requires every package to pass verification.';
+
+  @override
+  String get steamVersionRefreshLocal => 'Refresh local status';
+
+  @override
+  String get steamVersionStartSteam => 'Start Steam';
+
+  @override
+  String get steamVersionDetails => 'Version details';
+
+  @override
+  String get steamVersionDownloadedVerified =>
+      'All client packages passed verification';
+
+  @override
+  String get steamVersionStopSteam => 'Close Steam before installation';
+
+  @override
+  String get steamVersionBackupBefore => 'Back up client files before applying';
+
+  @override
+  String get steamVersionWaybackSettings => 'Wayback and cache';
+
+  @override
+  String get steamVersionWaybackAddress => 'Wayback address';
+
+  @override
+  String get steamVersionWaybackHint =>
+      'Defaults to web.archive.org. You can enter a custom Wayback address.';
+
+  @override
+  String get steamVersionWaybackInvalid =>
+      'Enter a complete HTTPS address without credentials or query parameters.';
+
+  @override
+  String steamVersionCacheHit(String stamp) {
+    return 'Reusing cached historical manifest: $stamp';
+  }
+
+  @override
+  String steamVersionCacheSaved(String stamp) {
+    return 'Historical manifest cached: $stamp';
+  }
+
+  @override
+  String get steamVersionCacheHint =>
+      'The built-in catalogue provides initial choices. Refresh the version library to discover new releases. History indexes are cached for 24 hours; selected manifests are fetched on demand and saved.';
+
+  @override
+  String get steamVersionForceHistory => 'Force refresh history index';
+
+  @override
+  String get steamVersionWaybackDefault => 'Restore default address';
+
+  @override
+  String get steamVersionRefreshCatalog => 'Refresh version library';
+
+  @override
+  String get steamVersionBuiltin => 'Built-in catalogue';
+
+  @override
+  String get steamVersionManifestPending => 'Manifest not loaded';
+
+  @override
+  String get steamVersionLoadManifest => 'Load version manifest';
+
+  @override
+  String steamVersionSnapshot(String date) {
+    return 'Historical snapshot $date';
+  }
 }

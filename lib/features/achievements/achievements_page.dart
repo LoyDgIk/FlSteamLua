@@ -512,8 +512,11 @@ class _AchievementsPageState extends State<AchievementsPage> {
           snapshot.achievements.any((item) => (item.permission & 3) == 0);
       return ui.CommonScaffold(
         title: context.l10n.achievements,
+        isLoading: busy,
         backAction: service.isSaving
             ? null
+            : widget.selectedGame != null
+            ? () => Navigator.of(context).maybePop()
             : () => setState(() => _editorOpen = false),
         searchState: _searchState,
         searchHint: _segment == 0
@@ -644,7 +647,6 @@ class _AchievementsPageState extends State<AchievementsPage> {
                 ),
               ),
             ),
-            if (busy) const ui.CommonProgressBar(value: null, height: 2),
             if (service.error != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

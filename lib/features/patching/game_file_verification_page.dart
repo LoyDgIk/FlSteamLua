@@ -98,6 +98,7 @@ class _GameFileVerificationPageState extends State<GameFileVerificationPage> {
         : _visibleFiles(result);
     return ui.CommonScaffold(
       title: texts.gameFileVerification,
+      isLoading: _busy,
       searchState: _searchState,
       searchHint: texts.searchFiles,
       actions: [
@@ -138,28 +139,6 @@ class _GameFileVerificationPageState extends State<GameFileVerificationPage> {
               ),
             ],
           ),
-          if (_busy)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: ui.CommonCard(
-                inert: true,
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      texts.verifyGameFiles,
-                      style: ui.AppTextStyle.subheadline.of(
-                        context,
-                        emphasized: true,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const ui.CommonProgressBar(value: null),
-                  ],
-                ),
-              ),
-            ),
           if (result != null) ...[
             Padding(
               padding: const EdgeInsets.only(top: 12),

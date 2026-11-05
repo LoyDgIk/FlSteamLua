@@ -51,11 +51,11 @@ void main() {
     await services.settings.set('language', 'en');
     await services.settings.set('coverCdn', 'direct');
     await write(
-      p.join(steam, 'config', 'stplug-in', '10.lua'),
+      p.join(steam, 'config', 'lua', '10.lua'),
       'addappid(10)\nsetManifestid(11,"123456789",0)',
     );
     await write(
-      p.join(steam, 'config', 'stplug-in', 'Disable', '20.lua'),
+      p.join(steam, 'config', 'lua', 'Disable', '20.lua'),
       'addappid(20)',
     );
     for (final id in [20, 30]) {
@@ -154,7 +154,7 @@ void main() {
       expect(visibleIds(tester), {10, 20});
       final grid = tester.widget<GridView>(find.byType(GridView));
       expect((grid.padding! as EdgeInsets).top, ui.pageContentTopInset);
-      expect(find.byTooltip('Set Lua library folder'), findsOneWidget);
+      expect(find.byTooltip('Set Lua library folder'), findsNothing);
       expect(
         find.ancestor(
           of: find.byKey(const ValueKey('library-more-menu')),
@@ -352,7 +352,7 @@ void main() {
       );
       await settle(tester);
       expect(find.byType(TicketPage), findsOneWidget);
-      expect(find.text('Authorization tickets'), findsWidgets);
+      expect(find.text('Ticket management'), findsWidgets);
       expect(find.text('AppID 480'), findsWidgets);
       await tester.pumpWidget(const SizedBox.shrink());
     },

@@ -13,6 +13,8 @@ class LineChart extends StatefulWidget {
     required this.minScale,
     required this.color,
     required this.baselineRatio,
+    this.barValues = const [],
+    this.barColor,
   }) : assert(capacity > 1),
        assert(minScale > 0);
 
@@ -22,6 +24,8 @@ class LineChart extends StatefulWidget {
   final double minScale;
   final Color color;
   final double baselineRatio;
+  final List<double> barValues;
+  final Color? barColor;
 
   @override
   State<LineChart> createState() => _LineChartState();
@@ -63,6 +67,8 @@ class _LineChartState extends State<LineChart> {
           minScale: widget.minScale,
           color: widget.color,
           baselineRatio: widget.baselineRatio,
+          barValues: widget.barValues,
+          barColor: widget.barColor ?? widget.color,
         ),
       ),
     ),
@@ -133,6 +139,8 @@ class _LineChartPainter extends CustomPainter {
     required this.minScale,
     required this.color,
     required this.baselineRatio,
+    required this.barValues,
+    required this.barColor,
   }) : _strokePaint = Paint()
          ..color = color
          ..strokeWidth = _strokeWidth
@@ -148,6 +156,8 @@ class _LineChartPainter extends CustomPainter {
   final double minScale;
   final Color color;
   final double baselineRatio;
+  final List<double> barValues;
+  final Color barColor;
   final Paint _strokePaint;
 
   @override
@@ -191,7 +201,25 @@ class _LineChartPainter extends CustomPainter {
       ..color = color.withValues(alpha: color.a * _fillOpacity);
     canvas
       ..save()
-      ..clipRect(Offset.zero & size)
+      ..clipRect(Offset.zero & size);
+    if (barValues.isNotEmpty) {
+      final count = math.min(barValues.length, capacity);
+      final barStep = size.width / capacity;
+      final barWidth = barStep * .64;
+      final barPaint = Paint()..color = barColor;
+      for (var index = 0; index < count; index++) {
+        final value = barValues[barValues.length - count + index];
+        final height =
+            (value / top).clamp(0.0, 1.0) * (baseline - _strokeWidth);
+        final x =
+            (capacity - count + index) * barStep + (barStep - barWidth) / 2;
+        canvas.drawRect(
+          Rect.fromLTWH(x, baseline - height, barWidth, height),
+          barPaint,
+        );
+      }
+    }
+    canvas
       ..drawPath(area, fillPaint)
       ..drawPath(line, _strokePaint)
       ..restore();
@@ -203,5 +231,7 @@ class _LineChartPainter extends CustomPainter {
       oldDelegate.capacity != capacity ||
       oldDelegate.minScale != minScale ||
       oldDelegate.color != color ||
-      oldDelegate.baselineRatio != baselineRatio;
+      oldDelegate.baselineRatio != baselineRatio ||
+      oldDelegate.barValues != barValues ||
+      oldDelegate.barColor != barColor;
 }

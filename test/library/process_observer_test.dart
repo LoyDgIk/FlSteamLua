@@ -88,7 +88,9 @@ void main() {
       snapshot = [];
       await library.refreshRunningProcesses();
       expect(library.games.single.isRunning, isFalse);
-      expect(library.games.single.lastPlayed, isNotNull);
+      expect(library.games.single.lastPlayed, isNull);
+      expect(library.games.single.playtimeMinutes, isNull);
+      expect(await File(paths.file('data/library.json')).exists(), isFalse);
     },
   );
 

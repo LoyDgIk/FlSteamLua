@@ -29,16 +29,22 @@ class CommonCircleLoading extends StatefulWidget {
 }
 
 class CommonProgressBar extends StatelessWidget {
-  const CommonProgressBar({super.key, required this.value, this.height = 4});
+  const CommonProgressBar({
+    super.key,
+    required this.value,
+    this.height = 4,
+    this.color,
+  });
 
   final double? value;
   final double height;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final progress = value?.clamp(0.0, 1.0);
     if (progress == null) {
-      return _IndeterminateProgressBar(height: height);
+      return _IndeterminateProgressBar(height: height, color: color);
     }
     return TweenAnimationBuilder<double>(
       tween: Tween(end: progress),
@@ -57,7 +63,9 @@ class CommonProgressBar extends StatelessWidget {
                 child: FractionallySizedBox(
                   widthFactor: animated,
                   heightFactor: 1,
-                  child: ColoredBox(color: context.colorScheme.primary),
+                  child: ColoredBox(
+                    color: color ?? context.colorScheme.primary,
+                  ),
                 ),
               ),
             ],
@@ -69,9 +77,10 @@ class CommonProgressBar extends StatelessWidget {
 }
 
 class _IndeterminateProgressBar extends StatefulWidget {
-  const _IndeterminateProgressBar({required this.height});
+  const _IndeterminateProgressBar({required this.height, this.color});
 
   final double height;
+  final Color? color;
 
   @override
   State<_IndeterminateProgressBar> createState() =>
@@ -114,8 +123,9 @@ class _IndeterminateProgressBarState extends State<_IndeterminateProgressBar>
             painter: _IndeterminateProgressPainter(
               progress: _controller.value,
               animated: !reducedMotion,
-              color: context.colorScheme.primary,
-              trackColor: context.colorScheme.primary.withValues(alpha: .18),
+              color: widget.color ?? context.colorScheme.primary,
+              trackColor: (widget.color ?? context.colorScheme.primary)
+                  .withValues(alpha: .18),
             ),
           ),
         ),

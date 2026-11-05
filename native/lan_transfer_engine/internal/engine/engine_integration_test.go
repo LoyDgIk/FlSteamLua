@@ -119,6 +119,10 @@ func TestLoopbackTransfer(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(library, "steamapps", "appmanifest_999.acf")); err != nil {
 		t.Fatal(err)
 	}
+	metrics := receiver.sessionSnapshot(offer.SessionID)
+	if metrics.NetworkBytes != 11 || metrics.DiskBytes != 11 || metrics.InstalledBytes != 11 || metrics.InstalledFiles != 1 || metrics.TotalFiles != 1 {
+		t.Fatalf("new-install telemetry differs from actual TLS payload and file writes: %+v", metrics)
+	}
 }
 
 func TestDeltaUsesExistingInstalledChunks(t *testing.T) {
@@ -174,7 +178,9 @@ func TestDeltaUsesExistingInstalledChunks(t *testing.T) {
 	}
 	sum := sha256.Sum256([]byte("payload.bin"))
 	fileID := hex.EncodeToString(sum[:])[:24]
-	chunkID := "f-" + fileID + "-0-11"
+	chunkSum := sha1.Sum(payload)
+	chunkSHA := hex.EncodeToString(chunkSum[:])
+	chunkID := "f-" + chunkSHA
 	transferPlan := &model.Plan{
 		ID: "delta-plan", AppID: 998, GameName: "Delta", InstallDir: "Delta",
 		SourceAppManifest: acf, CreatedAt: time.Now().Unix(),
@@ -183,7 +189,7 @@ func TestDeltaUsesExistingInstalledChunks(t *testing.T) {
 			Category: "extra", Selected: true, SourcePath: target,
 			Chunks: []model.FileChunkRef{{ChunkIndex: 0, Offset: 0, Size: 11}},
 		}},
-		Chunks: []model.Chunk{{ID: chunkID, Size: 11}},
+		Chunks: []model.Chunk{{ID: chunkID, Size: 11, SHA1: chunkSHA}},
 	}
 	sender.mu.Lock()
 	sender.plans[transferPlan.ID] = transferPlan
@@ -209,6 +215,10 @@ func TestDeltaUsesExistingInstalledChunks(t *testing.T) {
 	runtime.mu.Unlock()
 	if cached != 1 {
 		t.Fatalf("expected existing chunk to be reused, cached=%d", cached)
+	}
+	metrics := receiver.sessionSnapshot(offer.SessionID)
+	if metrics.NetworkBytes != 0 || metrics.DiskBytes != 0 || metrics.InstalledBytes != 11 || metrics.InstalledFiles != 1 || metrics.TotalFiles != 1 {
+		t.Fatalf("unchanged delta telemetry counted network or disk work: %+v", metrics)
 	}
 }
 

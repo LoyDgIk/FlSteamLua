@@ -113,7 +113,7 @@ void main() {
   const game = GameEntry(
     appId: 440,
     name: 'Fixture Adventure',
-    luaPath: 'C:/FixtureSteam/config/stplug-in/440.lua',
+    luaPath: 'C:/FixtureSteam/config/lua/440.lua',
   );
 
   setUp(() async {
@@ -140,6 +140,34 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
   }
+
+  testWidgets(
+    'playtime displays Steam minutes as hours and preserves unknown',
+    (tester) async {
+      largeView(tester);
+      services.fakeLibrary.replace(game.copyWith(playtimeMinutes: 1247));
+      await tester.pumpWidget(
+        app(
+          GameDetailPage(
+            services: services,
+            game: game,
+            onDestination: (_, _) {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('20.8 hours'), findsOneWidget);
+
+      services.fakeLibrary.replace(game.copyWith(playtimeMinutes: 0));
+      await tester.pump();
+      expect(find.text('0 minutes'), findsOneWidget);
+
+      services.fakeLibrary.replace(game);
+      await tester.pump();
+      expect(find.text('0 minutes'), findsNothing);
+      expect(find.text('Not recorded'), findsNWidgets(2));
+    },
+  );
 
   testWidgets(
     'ownership status stays hidden and local actions survive Store error',

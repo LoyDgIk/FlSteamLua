@@ -307,7 +307,9 @@ void main() {
   testWidgets(
     'browsing preserves edits and switching games asks before discarding',
     (tester) async {
-      await mount(tester, selectedGame: games.first);
+      await mount(tester);
+      await tester.tap(find.byKey(const ValueKey('achievement-game-10')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('achievement-unlock-all')));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(BackButton));

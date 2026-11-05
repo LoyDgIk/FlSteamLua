@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import 'dart:async';
 import 'dart:collection';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,10 @@ import 'icons/icons.dart';
 import 'shape.dart';
 import 'surface.dart';
 import 'typography.dart';
+import 'localization.dart';
+import 'dialogs.dart';
+import '../core/task_center.dart';
+import '../features/cloud/remote/remote_store.dart';
 
 const _actionMinDuration = Duration(seconds: 6);
 const _maxBufferedMessages = 8;
@@ -371,8 +376,54 @@ void showAppFeedback(
 void showAppSuccess(BuildContext context, String text) =>
     showAppFeedback(context, text, level: MessageLevel.success);
 
-void showAppError(BuildContext context, Object error) =>
-    showAppFeedback(context, '$error', level: MessageLevel.error);
+String appErrorText(BuildContext context, Object error) {
+  final texts = context.l10n;
+  if (error is TaskCancelled) return texts.operationCancelled;
+  if (error is SocketException || error is TimeoutException) {
+    return texts.connectionFailedRetry;
+  }
+  if (error is FileSystemException) return texts.fileOperationFailedHint;
+  if (error is RemoteStoreException) {
+    return switch (error.statusCode) {
+      401 || 403 => texts.remoteCredentialsRejected,
+      404 => texts.remoteLocationMissing,
+      _ => texts.remoteOperationFailedHint,
+    };
+  }
+  final message = error is FormatException
+      ? error.message
+      : error is StateError
+      ? error.message
+      : '$error';
+  // Localized validation messages keep their actionable wording. Technical
+  // exceptions remain available through Details instead of becoming UI copy.
+  if (error is String || RegExp(r'[\u4e00-\u9fff]').hasMatch(message)) {
+    return message;
+  }
+  return error is FormatException
+      ? texts.invalidInputHint
+      : texts.operationFailedDetails;
+}
+
+void showAppError(BuildContext context, Object error) {
+  final text = appErrorText(context, error);
+  final details = '$error';
+  showAppFeedback(
+    context,
+    text,
+    level: error is TaskCancelled ? MessageLevel.info : MessageLevel.error,
+    actionState: error is TaskCancelled || text == details
+        ? null
+        : MessageActionState(
+            actionText: context.l10n.details,
+            action: () => AppDialogs.alert(
+              context,
+              title: context.l10n.operationFailed,
+              message: details,
+            ),
+          ),
+  );
+}
 
 class _MessageEntry {
   const _MessageEntry({

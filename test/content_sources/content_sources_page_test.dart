@@ -14,6 +14,12 @@ import 'package:fl_steam_lua/ui/ui.dart' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class _FixtureManifests extends ManifestSourceService {
+  _FixtureManifests({required super.paths});
+  @override
+  bool supportsTest(String sourceId) => sourceId != 'third';
+}
+
 class _Registry extends ContentSourceRegistry {
   _Registry({
     required super.manifests,
@@ -79,7 +85,7 @@ void main() {
     directory = await Directory.systemTemp.createTemp('content-page-test-');
     final paths = AppPaths(directory.path);
     settings = SettingsStore(paths);
-    manifests = ManifestSourceService(paths: paths);
+    manifests = _FixtureManifests(paths: paths);
     keys = KeyCacheService(paths: paths, settings: settings);
     registry = _Registry(
       manifests: manifests,

@@ -75,6 +75,24 @@ try {
         "--dart-define=APP_VERSION=$version"
     )
     Invoke-Checked -Program 'flutter' -Arguments $buildArguments
+    Push-Location -LiteralPath (Join-Path $projectRoot 'native\lan_transfer_engine')
+    $previousCgo = $env:CGO_ENABLED
+    try {
+        $env:CGO_ENABLED = '0'
+        if (!$SkipChecks) {
+            Invoke-Checked -Program 'go' -Arguments @('test', './...')
+            Invoke-Checked -Program 'go' -Arguments @('vet', './...')
+        }
+        Invoke-Checked -Program 'go' -Arguments @(
+            'build', '-trimpath',
+            '-ldflags', '-s -w -H=windowsgui',
+            '-o', (Join-Path $releaseDirectory 'lan_transfer_engine.exe'),
+            './cmd/lan_transfer_engine'
+        )
+    } finally {
+        $env:CGO_ENABLED = $previousCgo
+        Pop-Location
+    }
     if (!$SkipChecks) {
         $previousQuickJs = $env:FLUTTER_QJS_NEXT_LIBRARY
         try {
@@ -106,24 +124,6 @@ try {
             $env:FLUTTER_QJS_NEXT_LIBRARY = $previousQuickJs
         }
     }
-    Push-Location -LiteralPath (Join-Path $projectRoot 'native\lan_transfer_engine')
-    $previousCgo = $env:CGO_ENABLED
-    try {
-        $env:CGO_ENABLED = '0'
-        if (!$SkipChecks) {
-            Invoke-Checked -Program 'go' -Arguments @('test', './...')
-            Invoke-Checked -Program 'go' -Arguments @('vet', './...')
-        }
-        Invoke-Checked -Program 'go' -Arguments @(
-            'build', '-trimpath',
-            '-ldflags', '-s -w -H=windowsgui',
-            '-o', (Join-Path $releaseDirectory 'lan_transfer_engine.exe'),
-            './cmd/lan_transfer_engine'
-        )
-    } finally {
-        $env:CGO_ENABLED = $previousCgo
-        Pop-Location
-    }
     Invoke-Checked -Program 'dart' -Arguments @('--suppress-analytics', 'compile', 'exe', 'bin\steam_worker.dart', '-o', (Join-Path $releaseDirectory 'steam_worker.exe'))
     Invoke-Checked -Program $cmakeCommand -Arguments @('-S', $bridgeSource, '-B', $bridgeBuild, '-A', 'x64')
     Invoke-Checked -Program $cmakeCommand -Arguments @('--build', $bridgeBuild, '--config', 'Release')
@@ -149,7 +149,7 @@ try {
         (Join-Path $projectRoot 'packaging\windows\FlSteamLua.iss')
     )
     $sourceZip = Join-Path $outputDirectory "FlSteamLua-$version-source.zip"
-    $sourceFiles = & git ls-files --cached --others --exclude-standard -- .github .gitignore .metadata AGENTS.md CHANGELOG.md LICENSE README.md THIRD-PARTY-NOTICES.md pubspec.yaml pubspec.lock analysis_options.yaml lib assets bin docs native packaging scripts test windows
+    $sourceFiles = & git ls-files --cached --others --exclude-standard -- .github .gitignore .metadata AGENTS.md CHANGELOG.md LICENSE README.md THIRD-PARTY-NOTICES.md pubspec.yaml pubspec.lock analysis_options.yaml l10n.yaml lib assets bin docs native packaging scripts test windows
     $sourceFiles = @(
         $sourceFiles | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf }
     )

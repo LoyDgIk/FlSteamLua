@@ -186,6 +186,10 @@ void main() {
       expect(service.saves, hasLength(2));
       expect(service.saves.map((s) => s.accountId).toSet(), {'123', '456'});
       expect(service.saves.every((s) => s.appId == 440 && !s.isRemote), isTrue);
+      expect(service.saves.every((s) => !s.detailsLoaded), isTrue);
+      for (final save in service.saves) {
+        await service.inspectSave(save);
+      }
       expect(service.saves.fold<int>(0, (sum, s) => sum + s.size), 6);
       expect(service.status.remoteSyncConfigured, isFalse);
     },
@@ -220,20 +224,16 @@ void main() {
     expect(await file.readAsString(), 'current');
   });
 
-  test('restore keeps previous directory adjacent to target', () async {
+  test('restore keeps previous content as a managed snapshot', () async {
     final file = await save('123/440/slot.dat', 'first');
     final backup = await service.backup(440);
     await file.writeAsString('current');
     await service.restore(backup);
-    final siblings = await Directory(
-      p.join(service.syncPath, '123'),
-    ).list().toList();
-    final previous = siblings
-        .whereType<Directory>()
-        .where((d) => p.basename(d.path).startsWith('440.before-restore-'))
-        .single;
+    final previous = (await service.backups(
+      appId: 440,
+    )).where((v) => v.reason == 'beforeRestore').single;
     expect(
-      await File(p.join(previous.path, 'slot.dat')).readAsString(),
+      await File(p.join(previous.path, '0', 'slot.dat')).readAsString(),
       'current',
     );
     expect(await file.readAsString(), 'first');
@@ -259,15 +259,16 @@ void main() {
           jsonDecode(await config.readAsString()) as Map<String, dynamic>;
       value['other_native_key'] = 42;
       await config.writeAsString(jsonEncode(value));
-      // Configure only the contract here; refresh will fail at the mocked endpoint.
+      // Saving credentials does not depend on the remote connection.
+      await service.configureProvider('s3', {
+        'endpoint': 'https://s3.example.test',
+        'bucket': 'saves',
+        'region': 'test-1',
+        'access_key_id': 'user',
+        'secret_access_key': 'secret',
+      });
       await expectLater(
-        service.configureProvider('s3', {
-          'endpoint': 'https://s3.example.test',
-          'bucket': 'saves',
-          'region': 'test-1',
-          'access_key_id': 'user',
-          'secret_access_key': 'secret',
-        }),
+        service.refresh(),
         throwsA(isA<RemoteStoreException>()),
       );
       final raw = await File(service.credentials.path('s3')).readAsBytes();
@@ -301,6 +302,7 @@ void main() {
     await toml.writeAsString(
       '# keep\n[manifest]\nfailover = true\n[cloud]\n# keep cloud\nenabled = false\n[other]\nvalue = 7\n',
     );
+    await other.installPlugin();
     await other.enableRedirect();
     final result = await toml.readAsString();
     expect(result, contains('# keep cloud'));
@@ -338,7 +340,7 @@ void main() {
       configDirectory: service.configDirectory,
       credentialCodec: codec,
     );
-    await expectLater(other.enableRedirect(), throwsFormatException);
+    await expectLater(other.installPlugin(), throwsFormatException);
     expect(
       await File(p.join(settings.steamPath, 'cloud_redirect.dll')).exists(),
       isFalse,
@@ -370,7 +372,9 @@ void main() {
         'access_key_id': 'test',
         'secret_access_key': 'secret',
       });
+      await other.refresh();
       expect(other.saves.single.isRemote, isTrue);
+      await other.inspectSave(other.saves.single);
       expect(other.saves.single.fileCount, 1);
       final destination = p.join(temp.path, 'download');
       await other.download(other.saves.single, destination);
@@ -388,6 +392,128 @@ void main() {
         'remote progress',
       );
       other.dispose();
+    },
+  );
+  test(
+    'remote mode scans native cache and preserves independent sync flags',
+    () async {
+      final config = File(p.join(service.configDirectory, 'config.json'));
+      await config.writeAsString(
+        jsonEncode({
+          'provider': 'folder',
+          'sync_path': service.syncPath,
+          'sync_achievements': false,
+          'sync_playtime': true,
+        }),
+      );
+      final cached = File(
+        p.join(
+          settings.steamPath,
+          'cloud_redirect',
+          'storage',
+          '123',
+          '440',
+          'slot.sav',
+        ),
+      );
+      await cached.parent.create(recursive: true);
+      await cached.writeAsString('cache');
+      final other = CloudService(
+        paths: paths,
+        settings: settings,
+        configDirectory: service.configDirectory,
+        credentialCodec: codec,
+        remoteStore: _MemoryRemoteStore({}),
+      );
+      await other.configureProvider('webdav', {
+        'url': 'https://fixture.test',
+        'auth': 'none',
+      });
+      await other.refresh();
+      final local = other.saves.single;
+      expect(local.location, CloudSaveLocation.cache);
+      expect(local.path, cached.parent.path);
+      expect(other.status.syncAchievements, isFalse);
+      expect(other.status.syncPlaytime, isTrue);
+      await expectLater(other.upload(local), throwsArgumentError);
+      other.dispose();
+    },
+  );
+
+  test(
+    'existing plugin enables offline in real TOML without altering example or metadata gates',
+    () async {
+      final example = File(
+        p.join(settings.steamPath, 'opensteamtool.example.toml'),
+      );
+      await example.writeAsString('[cloud]\nenabled = false\n');
+      await File(
+        p.join(settings.steamPath, 'cloud_redirect.dll'),
+      ).writeAsBytes([77, 90]);
+      final other = CloudService(
+        paths: paths,
+        settings: settings,
+        configDirectory: service.configDirectory,
+        credentialCodec: codec,
+        client: MockClient(
+          (_) async => throw StateError('no network for enable'),
+        ),
+      );
+      await other.enableRedirect();
+      expect(other.status.enabled, isTrue);
+      expect(other.status.pluginInstalled, isTrue);
+      expect(
+        await File(
+          p.join(settings.steamPath, 'opensteamtool.toml'),
+        ).readAsString(),
+        contains('enabled = true'),
+      );
+      expect(await example.readAsString(), '[cloud]\nenabled = false\n');
+      final saved =
+          jsonDecode(
+                await File(
+                  p.join(service.configDirectory, 'config.json'),
+                ).readAsString(),
+              )
+              as Map;
+      expect(saved.containsKey('sync_achievements'), isFalse);
+      expect(saved.containsKey('sync_playtime'), isFalse);
+      other.dispose();
+    },
+  );
+
+  test(
+    'row deletion affects only its account and location and can restore it',
+    () async {
+      final selected = await save('123/440/slot.sav', 'selected');
+      final otherAccount = await save('456/440/slot.sav', 'retain');
+      final cached = File(
+        p.join(
+          settings.steamPath,
+          'cloud_redirect',
+          'storage',
+          '123',
+          '440',
+          'slot.sav',
+        ),
+      );
+      await cached.parent.create(recursive: true);
+      await cached.writeAsString('retain cache');
+      await service.refresh();
+      final row = service.saves.firstWhere(
+        (s) => s.accountId == '123' && s.location == CloudSaveLocation.folder,
+      );
+      final preview = await service.previewDelete(440, selection: row);
+      expect(
+        p.normalize(preview.targets.single.path),
+        p.normalize(selected.parent.path),
+      );
+      final backup = await service.delete(preview);
+      expect(await selected.exists(), isFalse);
+      expect(await otherAccount.readAsString(), 'retain');
+      expect(await cached.readAsString(), 'retain cache');
+      await service.restore(backup);
+      expect(await selected.readAsString(), 'selected');
     },
   );
 }

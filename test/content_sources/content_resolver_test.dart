@@ -22,6 +22,7 @@ class _Registry implements ContentSourceRegistry {
     String sourceId,
     int appId, {
     required Set<ContentCapability> requestedCapabilities,
+    ({int depotId, String manifestId})? manifestRequest,
     Set<int> dlcIds = const {},
     bool pinManifests = false,
     bool refreshMetadata = true,

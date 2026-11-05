@@ -314,6 +314,7 @@ class _GoldbergPageState extends State<GoldbergPage> {
     final configKey = ValueKey(_formRevision);
     return ui.CommonScaffold(
       title: texts.goldbergSettings,
+      isLoading: _busy,
       actions: [
         IconButton(
           tooltip: texts.saveConfiguration,
@@ -335,12 +336,6 @@ class _GoldbergPageState extends State<GoldbergPage> {
           28 + MediaQuery.paddingOf(context).bottom,
         ),
         children: [
-          if (_busy)
-            ui.CommonCard(
-              inert: true,
-              padding: const EdgeInsets.all(14),
-              child: const ui.CommonProgressBar(value: null),
-            ),
           ui.generateSection(
             title: texts.goldbergEmulator,
             items: [

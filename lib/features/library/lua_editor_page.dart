@@ -162,6 +162,7 @@ class _LuaEditorPageState extends State<LuaEditorPage> {
         const SingleActivator(LogicalKeyboardKey.keyS, control: true): _save,
       },
       child: ui.CommonScaffold(
+        isLoading: _saving,
         title:
             '${context.l10n.editLua} · ${widget.game.name}${_dirty ? ' *' : ''}',
         backAction: _close,
@@ -254,16 +255,12 @@ class _LuaEditorPageState extends State<LuaEditorPage> {
                 'AppID ${widget.game.appId} · ${widget.game.luaPath}',
               ),
               const SizedBox(height: 16),
-              if (_saving)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: ui.CommonProgressBar(value: null, height: 2),
-                ),
               if (_error != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: ui.CommonCard(
                     isError: true,
+                    inert: true,
                     padding: const EdgeInsets.all(14),
                     child: Row(
                       children: [

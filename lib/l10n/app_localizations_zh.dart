@@ -12,6 +12,64 @@ class AppLocalizationsZh extends AppLocalizations {
   String get languageName => '中文';
 
   @override
+  String get quickStart => '快速开始';
+
+  @override
+  String get quickStartSkip => '跳过引导';
+
+  @override
+  String get quickStartBack => '上一步';
+
+  @override
+  String get quickStartNext => '下一步';
+
+  @override
+  String get quickStartEnter => '进入应用';
+
+  @override
+  String get quickStartAppearance => '语言与外观';
+
+  @override
+  String get quickStartFolders => 'Steam 与 Lua';
+
+  @override
+  String get quickStartPrepare => '准备使用';
+
+  @override
+  String get quickStartAppearanceTitle => '从你喜欢的样子开始';
+
+  @override
+  String get quickStartAppearanceHint => '选择语言、配色和侧栏样式，调整会即时生效。';
+
+  @override
+  String get quickStartFoldersTitle => '连接你的游戏库';
+
+  @override
+  String get quickStartFoldersHint => '选择 Steam 安装目录，并确认新 Lua 文件的保存位置。';
+
+  @override
+  String get quickStartPrepareTitle => '按需配置，即可出发';
+
+  @override
+  String get quickStartPrepareHint => '按需要配置内核与内容来源。之后随时可以从设置重新打开快速开始。';
+
+  @override
+  String get quickStartMoreAppearance => '更多外观设置';
+
+  @override
+  String get quickStartNetworkHint => '代理与下载镜像';
+
+  @override
+  String quickStartSources(int count) {
+    return '已启用 $count 个已配置来源';
+  }
+
+  @override
+  String quickStartStep(int current, int total) {
+    return '$current / $total';
+  }
+
+  @override
   String get updateKeySubscriptions => '更新密钥订阅';
 
   @override
@@ -66,7 +124,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dlcAnalysis => 'DLC 管理';
 
   @override
-  String get keySubscriptionsOfflineLua => '密钥订阅与离线生成';
+  String get keySubscriptionsOfflineLua => '获取 Lua / 清单';
 
   @override
   String get gameToolsAndVersionManagement => '游戏工具与版本管理';
@@ -111,13 +169,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get getLuaManifests => '获取 Lua / 清单';
 
   @override
-  String get addToLibrary => '添加到库';
+  String get addToLibrary => '添加到 Lua 库';
 
   @override
   String get openGameFolder => '打开游戏目录';
 
   @override
   String get playtime => '游玩时长';
+
+  @override
+  String playtimeHours(String hours) {
+    return '$hours 小时';
+  }
 
   @override
   String minutes(String playtimeMinutes) {
@@ -146,7 +209,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cloudSaves => '云存档';
 
   @override
-  String get backUpSyncAndRestoreProgress => '备份、同步与恢复进度';
+  String get backUpSyncAndRestoreProgress => '查看存档位置与备份记录';
 
   @override
   String get gameManagement => '游戏管理';
@@ -158,7 +221,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get luaRecord => 'Lua 记录';
 
   @override
-  String get enabledTakesEffectAfterRestartingSteam => '已启用，Steam 重启后生效';
+  String get enabledTakesEffectAfterRestartingSteam => '已启用，核心可自动重新加载';
 
   @override
   String get disabledFileIsPreserved => '已停用，保留文件';
@@ -504,7 +567,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tasks => '任务';
 
   @override
-  String get clearCompleted => '清除已完成';
+  String get clearCompleted => '清除已结束任务';
 
   @override
   String get allClear => '没有正在处理的任务';
@@ -697,10 +760,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get refreshCloudSaves => '刷新云存档';
 
   @override
-  String get localSaveRedirection => '本地存档重定向';
+  String get localSaveRedirection => '存档重定向';
 
   @override
-  String get enabledRestartSteamAfterChanges => '已启用；更改后需重启 Steam';
+  String get enabledRestartSteamAfterChanges => '配置已启用；修改后需重启 Steam';
 
   @override
   String get disabledEnablingDownloadsAndVerifiesTheCloudredirectDll =>
@@ -718,7 +781,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get configureRedirection => '设置存档重定向';
 
   @override
-  String get localSaveFolder => '本地存档目录';
+  String get localSaveFolder => '文件夹提供方目录';
 
   @override
   String get remoteStorage => '远端存储';
@@ -727,7 +790,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get configured => '已配置';
 
   @override
-  String get remoteSyncIsNotConfigured => '未启用远端同步';
+  String get remoteSyncIsNotConfigured => '未配置远端存储';
 
   @override
   String get configure => '配置';
@@ -785,7 +848,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appData => '应用数据';
 
   @override
-  String get lanTransferCache => '局域网传输缓存';
+  String get lanTransferCache => '传输暂存';
 
   @override
   String get cleanup => '清理';
@@ -861,13 +924,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openFolder => '打开目录';
 
   @override
-  String get backUpThisGame => '备份此游戏';
+  String get backUpThisGame => '备份所选存档位置';
 
   @override
-  String get downloadToFolder => '下载到目录';
+  String get downloadToFolder => '导出原始仓库';
 
   @override
-  String get uploadToRemote => '上传到远端';
+  String get uploadToRemote => '复制文件夹仓库到远端';
 
   @override
   String get previewDeletion => '删除预览';
@@ -893,10 +956,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backUpSaves => '备份存档';
 
   @override
-  String get downloadSaves => '下载存档';
+  String get downloadSaves => '导出存档仓库';
 
   @override
-  String get uploadSaves => '上传存档';
+  String get uploadSaves => '复制存档仓库';
 
   @override
   String get remoteFilesWithTheSameNamesWillBeReplacedCloseTheGameFirst =>
@@ -906,10 +969,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get prepareDeletionPreview => '读取删除预览';
 
   @override
-  String get deleteThisGameSSaves => '删除此游戏的存档';
+  String get deleteThisGameSSaves => '删除所选账号与位置的存档';
 
   @override
-  String get aCompleteBackupIsCreatedBeforeDeleting => '将先创建完整备份，再删除以下位置：';
+  String get aCompleteBackupIsCreatedBeforeDeleting => '将先备份以下所选位置，再删除：';
 
   @override
   String get backupLocation => '备份位置';
@@ -1275,7 +1338,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get gameManagement2 => '游戏管理工具';
 
   @override
-  String get patchSettings => '补丁设置';
+  String get patchSettings => '补丁工具';
 
   @override
   String get patchSettingsDescription => '校验游戏文件、管理 Goldberg 并下载网络补丁。';
@@ -1312,8 +1375,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get goldbergSettingsFooter => '仅提供标准化的 Goldberg 部署；其他补丁包保持手动处理。';
 
   @override
-  String get authorizationTicketDescription =>
-      '导入 tickets.txt，校验 AppID 与票据长度，仅在明确操作时写入 Steam。';
+  String get authorizationTicketDescription => '导入并校验票据，默认保留现有授权身份。';
 
   @override
   String get matchingLua => '对应 Lua';
@@ -1557,7 +1619,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '查询目标 Steam App，获取账号已授权的仓库密钥，生成 Lua 文件并可选下载清单。账号必须真实拥有该游戏。';
 
   @override
-  String get denuvoTicketExtraction => 'D加密授权提取';
+  String get denuvoTicketExtraction => 'D 加密票据提取';
 
   @override
   String get denuvoTicketExtractionDescription =>
@@ -1585,7 +1647,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notSignedIn => '未登录';
 
   @override
-  String get luaLoginDescription => '打开 Steam 账号页登录或切换账号。';
+  String get luaLoginDescription => '提取时会尝试使用本机 Steam 会话，也可打开账号页登录。';
 
   @override
   String get appIdForExtraction => '游戏 AppID';
@@ -1603,7 +1665,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get extractionOptions => '提取选项';
 
   @override
-  String get copyAchievements => '复制成就数据';
+  String get copyAchievements => '附带本地成就缓存';
 
   @override
   String get extractionResult => '提取结果';
@@ -1642,7 +1704,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ticketExtractionOptions => '票据选项';
 
   @override
-  String get extractDenuvoTicket => '提取授权';
+  String get extractDenuvoTicket => '提取票据';
 
   @override
   String get openAuthorizationPage => '打开授权页面';
@@ -1840,17 +1902,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importGoldbergConfiguration => '导入 Goldberg 配置';
 
   @override
-  String get authorizationTickets => '授权资料';
+  String get authorizationTickets => '票据管理';
 
   @override
   String get authorization => '授权';
 
   @override
-  String get denuvoAuthorization => 'D加密授权';
+  String get denuvoAuthorization => 'D 加密票据管理';
 
   @override
   String get denuvoAuthorizationDescription =>
-      '为本机已登录的 Steam 账号提取、校验、备份并写入 AppTicket 与 ETicket。';
+      '提取、备份并管理 AppTicket 与 ETicket，授权身份由用户明确选择。';
 
   @override
   String
@@ -1867,7 +1929,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get applyToSteam => '写入 Steam';
 
   @override
-  String get saveTicketBackup => '保存授权资料';
+  String get saveTicketBackup => '保存加密票据备份';
 
   @override
   String get encryptedBackup => '加密备份';
@@ -1897,14 +1959,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get validateTicketFile => '校验授权资料';
 
   @override
-  String get applySteamTicket => '写入 Steam 授权';
+  String get applySteamTicket => '应用票据';
 
   @override
   String get thisReplacesExistingAppticketAndEticketValuesForThisGame =>
-      '将替换此游戏现有的 AppTicket 和 ETicket。';
+      '将备份并替换此游戏的两张票据，默认保留缓存授权身份。';
 
   @override
-  String get applyTicket => '写入授权资料';
+  String get applyTicket => '写入票据';
 
   @override
   String get exportPlaintextTicket => '导出明文授权';
@@ -1993,7 +2055,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get startWhenTheCurrentUserSignsInToWindows => '当前用户登录 Windows 后启动。';
 
   @override
-  String get broadcastPlayStatusToFriends => '好友游玩广播';
+  String get broadcastPlayStatusToFriends => 'Lua 游戏好友广播';
 
   @override
   String
@@ -2562,7 +2624,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get processAllSupportedFilesInAFolder => '处理目录中的全部可转换文件';
 
   @override
-  String get manifestMonitoring => '清单监听与修复';
+  String get manifestMonitoring => '清单请求监听';
 
   @override
   String get fetchMissingManifestsRequestedBySteam => '跟随 Steam 下载请求补充缺失清单';
@@ -2726,13 +2788,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sourceConfigured => '已配置';
 
   @override
-  String get sourceNotTested => '尚未测试';
+  String get sourceNotTested => '已配置，尚未测试';
 
   @override
   String get sourceNeverUpdated => '尚未更新';
 
   @override
-  String get noContentSources => '没有匹配的内容源';
+  String get noContentSources => '尚未添加内容源';
 
   @override
   String get contentImport => '添加到 Lua 库';
@@ -2783,7 +2845,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invalidUrl => '请输入 HTTP 或 HTTPS URL';
 
   @override
-  String get invalidUpdateInterval => '请输入非负整数';
+  String get invalidUpdateInterval => '请输入 0–8760 之间的整数。';
 
   @override
   String get sourceTestSucceeded => '测试成功';
@@ -2978,10 +3040,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get luaFolder => 'Lua 文件夹';
 
   @override
-  String get leaveEmptyToUseTheKernelConfigurationOrConfigLua =>
-      '留空时读取内核配置，或使用 config/stplug-in';
-
-  @override
   String get saveAndRefreshLibrary => '保存并刷新游戏库';
 
   @override
@@ -3070,7 +3128,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get automaticRefreshUpdateChecksFriendPresenceStartupAndOfflineMode =>
-      '自动刷新、更新检查、好友广播、开机启动与离线模式。';
+      '自动刷新、更新检查、开机启动与离线模式。';
 
   @override
   String get downloadsKernelAndAccount => '下载、内核与账号';
@@ -3641,7 +3699,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get releaseAnnouncement => '更新公告';
 
   @override
-  String get manifestSettings => '清单配置';
+  String get manifestSettings => '清单请求码配置';
 
   @override
   String get manifestProvider => '清单服务器';
@@ -3650,7 +3708,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get manifestModeBuiltIn => '内置服务器';
 
   @override
-  String get manifestModeCustom => '自定义服务器';
+  String get manifestModeCustom => '自定义服务器（经本应用）';
 
   @override
   String get manifestModeLocalProxy => '本地代理';
@@ -3678,10 +3736,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get manifestLocalProxyDescription =>
-      '启动本机回环服务器，从所选内容源解析清单请求码，并以纯文本返回给内核。';
+      '从所选脚本源获取当前 DepotID/GID 的请求码，需保持本应用运行。脚本失败时核心仍可尝试内置源。';
 
   @override
-  String get manifestCustomHint => '地址中需包含 depotId 和 gid 占位符';
+  String get manifestCustomHint =>
+      '地址须含 gid 或 manifestId 占位符，可使用 appId、depotId。需保持本应用运行；失败时核心可尝试内置源。';
 
   @override
   String get steamClientDataChannel => 'Steam 客户端版本数据渠道';
@@ -3690,16 +3749,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get channelRepository => '数据仓库';
 
   @override
-  String get channelName => '渠道';
+  String get channelName => 'Git 分支';
 
   @override
   String get channelFormat => '仓库格式';
 
   @override
-  String get channelFormatBranch => '分支格式';
+  String get channelFormatBranch => 'pattern / ipc 独立分支';
 
   @override
-  String get channelFormatDirectory => '目录格式';
+  String get channelFormatDirectory => '同一分支下的 pattern / ipc 目录';
 
   @override
   String get defaultRepository => '默认';
@@ -3712,7 +3771,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get localTemporaryBuildDescription =>
-      '仅在 Steam 更新后、所有在线数据渠道都不可用时使用。生成的文件只适用于当前 Steam 客户端版本。';
+      '使用内置特征扫描当前 Steam 文件，匹配完整时生成临时配置。无法保证适配未知的新版本。';
 
   @override
   String get localBuildTitle => '本地临时构建';
@@ -4053,12 +4112,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get managePatchesAndLicenses => '应用补丁并管理许可配置。';
 
   @override
-  String get setLuaDirectory => '设置 Lua 库目录';
-
-  @override
-  String get luaDirectoryUpdated => 'Lua 库目录已更新，游戏库已刷新。';
-
-  @override
   String get kernelDownloadsAndNetwork => '内核、下载与网络';
 
   @override
@@ -4172,10 +4225,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lanReject => '拒绝';
 
   @override
-  String get lanRememberDevice => '记住此设备';
+  String get lanRememberDevice => '信任此设备并自动接收';
 
   @override
-  String get lanAcceptAndRemember => '接受并记住';
+  String get lanAcceptAndRemember => '接受并信任';
 
   @override
   String get lanContentToTransfer => '传输内容';
@@ -4205,6 +4258,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lanNetworkSpeed => '网络';
 
   @override
+  String get lanDiskWriteSpeed => '磁盘写入';
+
+  @override
+  String get lanDownloadProgress => '正在下载数据';
+
+  @override
+  String get lanUploadProgress => '正在发送数据';
+
+  @override
+  String get lanInstallProgress => '正在安装文件';
+
+  @override
+  String lanNetworkTransferred(String bytes) {
+    return '实际网络传输：$bytes';
+  }
+
+  @override
   String get lanPeakSpeed => '峰值';
 
   @override
@@ -4221,6 +4291,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lanResume => '恢复传输';
+
+  @override
+  String get lanRetryTransfer => '重试传输';
 
   @override
   String get lanCancelTransfer => '取消传输';
@@ -4304,13 +4377,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lanCachedChunks => '缓存命中块';
 
   @override
-  String get lanChunkCache => '块缓存';
+  String get lanChunkCache => '传输暂存';
 
   @override
-  String get lanClearChunkCache => '清理块缓存';
+  String get lanChunkCacheDescription => '保留未完成的游戏传输数据，供断点续传使用。';
 
   @override
-  String get lanChunkCacheCleared => '块缓存已清理。';
+  String get lanClearChunkCache => '清理传输暂存';
+
+  @override
+  String get lanClearChunkCacheConfirmation => '清理未完成的传输数据？清理后恢复这些任务需要重新传输。';
+
+  @override
+  String get lanChunkCacheCleared => '传输暂存已清理。';
 
   @override
   String get lanManualAddressInvalid => '请输入有效的 IPv4 地址或主机名。';
@@ -4357,4 +4436,805 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noDownloadedManifests => 'Steam depotcache 中没有找到此游戏的清单文件。';
+
+  @override
+  String get luaDirectories => 'Lua 目录';
+
+  @override
+  String get addLuaDirectory => '添加 Lua 目录';
+
+  @override
+  String get luaDirectoryAlreadyAdded => '此目录已在列表中。';
+
+  @override
+  String get defaultLuaWriteDirectory => '默认写入';
+
+  @override
+  String get luaDirectoriesSaved => 'Lua 目录已保存到内核配置，游戏库已刷新。';
+
+  @override
+  String get coreLuaDirectory => '固定目录';
+
+  @override
+  String get remove => '移除';
+
+  @override
+  String get configurationEnabled => '配置已启用';
+
+  @override
+  String get cloudPluginCache => '插件本地缓存';
+
+  @override
+  String get cloudFolderRepository => '文件夹仓库';
+
+  @override
+  String get cloudConfigurationSavedRestart => '配置已保存；请重启 Steam 后使用。';
+
+  @override
+  String get cloudConfigurationRestartDescription =>
+      '此设置在 Steam 启动时加载。配置已启用不代表插件已加载或同步完成。';
+
+  @override
+  String get cloudMetadataSync => '成就与时长同步';
+
+  @override
+  String get cloudSyncAchievements => '同步成就与统计';
+
+  @override
+  String get cloudSyncPlaytime => '同步游玩时长';
+
+  @override
+  String get cloudRepositoryDescription =>
+      '这里管理 CloudRedirect 仓库与缓存。导出保留哈希对象及元数据；游戏存档恢复由 Steam 内的插件同步完成。';
+
+  @override
+  String get manifestConfigurationSaved =>
+      '清单请求码配置已保存。重启 Steam 应用脚本切换；自定义与本地代理模式需保持本应用运行。';
+
+  @override
+  String get kernelChannelDescription =>
+      '保存同时更新核心自动获取渠道与手动下载来源。已有缓存继续使用，新版本指纹在下次 Steam 启动时使用该渠道。';
+
+  @override
+  String get onlineFixRealAppIdDescription =>
+      '支线内核可在黑屏或加载异常时尝试保留真实 AppID；需要 Spacewar AppID 的游戏继续使用上方参数。';
+
+  @override
+  String get luaPresenceDescription =>
+      '控制 Lua 游戏的好友广播，不改变 Steam 全局隐私。需要支持 presence 配置的支线内核；停更主线不支持此项。';
+
+  @override
+  String get customLuaDirectories => '自定义目录';
+
+  @override
+  String get noCustomLuaDirectories => '暂无自定义目录';
+
+  @override
+  String get luaDirectoriesSort => '目录排序';
+
+  @override
+  String get currentSteamLoginAccount => '当前 Steam 登录账号';
+
+  @override
+  String get ticketOwnerAccount => '票据所属账号';
+
+  @override
+  String get cachedAuthorizationIdentity => '此游戏缓存的授权身份';
+
+  @override
+  String get ticketIdentityNotSet => '未设置';
+
+  @override
+  String get ticketAccountUnavailable => '未登录或暂无法读取';
+
+  @override
+  String get applyTicketPreserveIdentity => '应用票据，保留现有身份';
+
+  @override
+  String syncAuthorizationIdentity(String steamId) {
+    return '同时将授权身份设为 $steamId';
+  }
+
+  @override
+  String get ticketIdentitySaveWarning => '修改授权身份可能影响按 SteamID 分目录的游戏存档。';
+
+  @override
+  String get ticketCachedIdentityWarning =>
+      '缓存授权身份与票据所属账号不一致。保留现有身份可能影响授权；是否完成授权需要实际启动游戏验证。';
+
+  @override
+  String get ticketIdentityWarningLabel => '身份差异';
+
+  @override
+  String get ticketApplyBackupDescription =>
+      '应用前加密备份旧 AppTicket、ETicket 和 SteamID。默认只替换两张票据。';
+
+  @override
+  String get ticketWrittenVerified => '票据已写入并校验';
+
+  @override
+  String get restorePreApplyCredentials => '恢复应用前凭据';
+
+  @override
+  String get ticketRestoreCompleteSet =>
+      '恢复此备份中的两张票据和 SteamID；原本不存在的值会删除。关联 Lua 也会恢复，当前凭据另存为加密备份。';
+
+  @override
+  String get ticketCredentialsRestored => '应用前凭据已整组恢复并校验';
+
+  @override
+  String get ticketLuaCleanup => 'Lua 中待移除的票据语句';
+
+  @override
+  String ticketLuaRemovalCount(String count) {
+    return '发现 $count 条旧票据语句';
+  }
+
+  @override
+  String get ticketLuaCleanupDescription => '本次确认将先备份 Lua，再移除以上语句，避免核心热加载旧票据。';
+
+  @override
+  String get ticketStopSteamForLua => '为避免 Lua 热加载覆盖凭据，确认后将先退出 Steam；完成后可手动重启。';
+
+  @override
+  String get ticketPreviewChanged => '凭据已在预览后改变，请重新确认。';
+
+  @override
+  String get ticketLuaChanged => 'Lua 已在预览或备份后改变，未覆盖当前文件。请重新检查。';
+
+  @override
+  String get ticketInvalidBackup => '凭据备份格式无效。';
+
+  @override
+  String get ticketWriteNotVerified => '凭据读回校验失败，已尝试恢复原值。';
+
+  @override
+  String get ticketRollbackIncomplete => '操作失败且未能完整回滚，请使用加密备份恢复整组凭据与 Lua。';
+
+  @override
+  String get ticketOperationBusy => '另一项凭据操作尚未完成。';
+
+  @override
+  String get ticketLuaManualCleanup =>
+      'Lua 中票据调用不是可直接移除的独立语句，请先在 Lua 编辑器处理后再应用。';
+
+  @override
+  String get copyAchievementsHint => '只复制本地缓存文件，不会迁移已解锁的成就。';
+
+  @override
+  String lanAutomaticReceiveHint(String path) {
+    return '以后自动接收到：$path。可在设备菜单中忘记此设备。';
+  }
+
+  @override
+  String get noInstalledGamesToTransfer => '没有可传输的已安装游戏';
+
+  @override
+  String get installGameBeforeTransfer => '先安装游戏，再刷新游戏库。';
+
+  @override
+  String get noAdditionalFiles => '没有附加文件';
+
+  @override
+  String sourceNeedsConfiguration(String name) {
+    return '$name · 未配置';
+  }
+
+  @override
+  String get configureManifestSource => '配置所选清单来源';
+
+  @override
+  String sourceTestPassed(String name) {
+    return '$name 测试通过。';
+  }
+
+  @override
+  String get fileWillBeBackedUpAndReplaced => '将备份并替换';
+
+  @override
+  String get fileExistsChooseReplace => '文件已存在，请确认是否备份并替换';
+
+  @override
+  String luaImportReady(String game) {
+    return '已将“$game”的配置写入 Lua 库，可前往 Steam 安装。';
+  }
+
+  @override
+  String get httpsUrlRequired => '请输入有效的 HTTPS 地址。';
+
+  @override
+  String get subscriptionAutoUpdateScope => '对所有订阅生效；开启后按各自间隔更新。';
+
+  @override
+  String get subscriptionIntervalDescription => '间隔为 0 时仅手动更新。自动更新需要开启上方开关。';
+
+  @override
+  String get sourceOutputType => '获取内容';
+
+  @override
+  String get sourceArchiveOutput => '清单压缩包';
+
+  @override
+  String get sourceCredentialHint => '前往来源网站登录，在账号设置中获取此凭据。';
+
+  @override
+  String get sourceOutputHint => 'Lua 获取配置文本；清单压缩包获取来源提供的文件包。';
+
+  @override
+  String get sourceProviderHint => '选择该服务使用的清单来源。';
+
+  @override
+  String get sourceGameNameHint => '仅用于来源服务记录，可以留空。';
+
+  @override
+  String get sourceDepotManifestHint =>
+      'Depot ID 与 Manifest ID 配套填写；留空时尝试按游戏获取。';
+
+  @override
+  String get openSourceWebsite => '打开来源网站';
+
+  @override
+  String get luaDirectoryRemoved => '已移除目录配置，目录内的文件保留。';
+
+  @override
+  String get undo => '撤销';
+
+  @override
+  String get bearerToken => '访问令牌';
+
+  @override
+  String fillRequiredFields(String fields) {
+    return '请填写：$fields。';
+  }
+
+  @override
+  String get cloudAddressInvalid => '请输入完整的 HTTPS 地址；使用 HTTP 时需开启“允许 HTTP”。';
+
+  @override
+  String get cloudTimeoutInvalid => '超时应为 0–300 秒。';
+
+  @override
+  String get connectionFailedRetry => '连接未完成，请检查网络后重试。';
+
+  @override
+  String get fileOperationFailedHint => '文件操作未完成，请检查目录权限、磁盘空间及文件占用。';
+
+  @override
+  String get remoteCredentialsRejected => '远端拒绝访问，请检查账号凭据和目录权限。';
+
+  @override
+  String get remoteLocationMissing => '远端位置不存在，请检查配置的地址或目录。';
+
+  @override
+  String get remoteOperationFailedHint => '远端操作未完成，请检查连接或查看详情。';
+
+  @override
+  String get invalidInputHint => '内容格式不正确，请检查填写项或导入文件。';
+
+  @override
+  String get operationFailedDetails => '操作未完成，可查看详情了解原因。';
+
+  @override
+  String get steamLocalSave => 'Steam 本地存档';
+
+  @override
+  String selectBackupProvider(String provider) {
+    return '此备份包含 $provider 的远端数据，请先切换到该存储类型。';
+  }
+
+  @override
+  String get steamUpdateChecks => 'Steam 更新检查';
+
+  @override
+  String get steamForcedUpdates => 'Steam 强制更新';
+
+  @override
+  String get blockedSetting => '已阻止';
+
+  @override
+  String get allowedSetting => '已允许';
+
+  @override
+  String get confirmApplyTickets => '确认应用票据';
+
+  @override
+  String get reviewExtractedTickets => '查看并应用此票据';
+
+  @override
+  String get extractTrainerBeforeBinding => '压缩包需先解压，再选择修改器程序绑定游戏。';
+
+  @override
+  String get testAndUpdateSubscription => '测试并更新订阅';
+
+  @override
+  String get cloudOperationBusy => '请等待当前存档操作完成。';
+
+  @override
+  String get cloudInvalidBackup => '备份记录无效。';
+
+  @override
+  String get cloudBackupChecksumFailed => '备份校验失败，未写入存档。';
+
+  @override
+  String get cloudPinnedBackup => '请先取消固定再删除备份。';
+
+  @override
+  String get cloudInvalidRetention => '保留数量和容量必须为非负整数。';
+
+  @override
+  String get cloudBackupTargetUnknown => '此备份缺少存储身份，不能恢复到远程仓库。';
+
+  @override
+  String get cloudBackupTargetChanged => '存储位置或账号已变化，请重新选择并检查目标。';
+
+  @override
+  String get cloudSyncActiveOnly => '先将此存储设为同步目标，才能拉取到插件缓存。';
+
+  @override
+  String get cloudSteamMustStop => '请关闭 Steam 和游戏后继续。';
+
+  @override
+  String get cloudInstallPluginFirst => '请先安装 CloudRedirect 插件。';
+
+  @override
+  String get cloudSyncMetadataMissing => '仓库缺少有效的同步元数据。';
+
+  @override
+  String get cloudSyncNotVerified => '核心未确认同步完成。已保留操作前备份，请检查任务记录。';
+
+  @override
+  String get cloudCurrentStorage => '当前核心配置';
+
+  @override
+  String get cloudFolderAbsolute => '请选择绝对路径的存档目录。';
+
+  @override
+  String get cloudCredentialsRequired => '请填写所选认证方式需要的凭据。';
+
+  @override
+  String get cloudUnknownStorage => '存储类型无效。';
+
+  @override
+  String get cloudAuthorizeFirst => '请先在此表单中登录授权。';
+
+  @override
+  String get cloudAccountLookupFailed => '无法读取授权账号身份。';
+
+  @override
+  String get cloudWriteProbeFailed => '测试文件回读校验失败。';
+
+  @override
+  String get cloudStorageNameRequired => '请输入存储名称。';
+
+  @override
+  String get cloudActiveStorageDelete => '当前同步目标不能删除，请先切换目标。';
+
+  @override
+  String get cloudDisableBeforeDisconnect => '请先停用重定向，再断开当前目标。';
+
+  @override
+  String get cloudStorages => '存储管理';
+
+  @override
+  String get cloudAddStorage => '添加存储';
+
+  @override
+  String get cloudStorageName => '存储名称';
+
+  @override
+  String get cloudActivate => '设为同步目标';
+
+  @override
+  String get cloudActiveTarget => '同步目标';
+
+  @override
+  String get cloudBrowse => '浏览存档';
+
+  @override
+  String get cloudBrowsing => '正在浏览';
+
+  @override
+  String get cloudDuplicate => '复制配置';
+
+  @override
+  String get cloudSortStorages => '存储排序';
+
+  @override
+  String get cloudStorageSaved => '存储已保存';
+
+  @override
+  String get cloudStorageRemoved => '移除本地配置及凭据，远程文件保留。';
+
+  @override
+  String get cloudStorageActivated => '同步目标已更新；下次 Steam 启动时生效。';
+
+  @override
+  String get cloudTestRead => '测试读取';
+
+  @override
+  String get cloudTestWrite => '测试写入与清理';
+
+  @override
+  String get cloudTestWriteHint => '会创建临时测试文件，回读校验后删除。';
+
+  @override
+  String get cloudReadVerified => '读取已验证';
+
+  @override
+  String get cloudWriteVerified => '读写已验证';
+
+  @override
+  String get cloudNotTested => '尚未测试';
+
+  @override
+  String get cloudDiscardDraft => '放弃未保存的更改？';
+
+  @override
+  String get cloudPendingRestart => '待 Steam 重启';
+
+  @override
+  String get cloudCoreReady => '核心文件就绪';
+
+  @override
+  String get cloudCoreMissing => '核心或加载入口未就绪';
+
+  @override
+  String get cloudNotRuntimeVerified => '尚未验证运行状态';
+
+  @override
+  String get cloudLastChecked => '最近检查';
+
+  @override
+  String get cloudAllAccounts => '全部账号';
+
+  @override
+  String get cloudAccountFilter => '账号筛选';
+
+  @override
+  String get cloudLocationFilter => '位置筛选';
+
+  @override
+  String get cloudAllLocations => '全部位置';
+
+  @override
+  String get cloudDetails => '存档详情';
+
+  @override
+  String get cloudLoadFiles => '查看文件清单';
+
+  @override
+  String get cloudPull => '拉取到插件缓存';
+
+  @override
+  String get cloudPullHint => '由 CloudRedirect 拉取所选游戏；先备份现有缓存。完成后仍需启动游戏验证读取。';
+
+  @override
+  String get cloudSyncVerified => '核心同步已完成，缓存元数据已校验';
+
+  @override
+  String get cloudCompare => '比较仓库清单';
+
+  @override
+  String get cloudLocalOnly => '仅本地';
+
+  @override
+  String get cloudRemoteOnly => '仅远程';
+
+  @override
+  String get cloudChangedFiles => '内容或元数据不同';
+
+  @override
+  String get cloudManifestEqual => '仓库清单一致';
+
+  @override
+  String get cloudCompareHint => '按文件清单比较；不以修改时间推断同步完成。';
+
+  @override
+  String get cloudExportRepository => '导出仓库副本';
+
+  @override
+  String get cloudExportHint => '导出哈希对象与元数据，目标目录必须为空。';
+
+  @override
+  String get cloudPreOperationBackup => '操作前自动备份';
+
+  @override
+  String get cloudConfirmOperation => '确认存档操作';
+
+  @override
+  String get cloudStopAndContinue => '关闭 Steam 并继续';
+
+  @override
+  String get cloudBackupDetails => '备份详情';
+
+  @override
+  String get cloudBackupNote => '备注';
+
+  @override
+  String get cloudBackupPinned => '固定保留';
+
+  @override
+  String get cloudVerifyBackup => '校验备份';
+
+  @override
+  String get cloudBackupVerified => '备份校验通过';
+
+  @override
+  String get cloudRetention => '清理备份';
+
+  @override
+  String get cloudRetentionCount => '每游戏保留份数';
+
+  @override
+  String get cloudRetentionSize => '每游戏容量上限（MiB）';
+
+  @override
+  String get cloudRetentionHint => '0 表示不限；固定备份不参与清理。确认清单后才删除。';
+
+  @override
+  String get cloudNothingToClean => '没有待清理的备份';
+
+  @override
+  String get cloudBackupManual => '手动备份';
+
+  @override
+  String get cloudBackupBeforeDelete => '删除前';
+
+  @override
+  String get cloudBackupBeforeRestore => '恢复前';
+
+  @override
+  String get cloudBackupBeforeUpload => '上传前';
+
+  @override
+  String get cloudBackupBeforeSync => '拉取前';
+
+  @override
+  String get cloudDestination => '目标位置';
+
+  @override
+  String get cloudRepositoryCopy => '复制到同步目标';
+
+  @override
+  String get cloudGameAccount => '游戏 / 账号';
+
+  @override
+  String get cloudTargetChangedDuringOperation => '操作期间目标发生变化，已停止。';
+
+  @override
+  String get cloudExportNotEmpty => '请选择空目录；现有文件未被覆盖。';
+
+  @override
+  String get cloudNoRestoreTargets => '备份没有可恢复的位置。';
+
+  @override
+  String get cloudRestartForSettings => '设置已保存，运行状态需在 Steam 重启后确认。';
+
+  @override
+  String get cloudLoadFailedRetained => '刷新失败，保留上次列表';
+
+  @override
+  String get cloudDisconnectConfirm => '移除此存储的本地授权凭据；远程文件保留。';
+
+  @override
+  String get cloudNoFiles => '没有文件';
+
+  @override
+  String get steamVersionTitle => 'Steam 版本管理';
+
+  @override
+  String get steamVersionDescription => '浏览历史版本、校验下载、安装与回退 Steam 客户端';
+
+  @override
+  String get steamVersionBusy => '请等待当前版本操作完成。';
+
+  @override
+  String get steamVersionInvalidCatalog => '版本清单无效或不完整。';
+
+  @override
+  String get steamVersionManifestMismatch => '清单的架构或版本与请求不符。';
+
+  @override
+  String get steamVersionInvalidFilter => '日期使用 YYYYMMDD，起始日期不能晚于结束日期。';
+
+  @override
+  String steamVersionDownloading(String file) {
+    return '正在下载并校验 $file';
+  }
+
+  @override
+  String steamVersionDownloadProgress(
+    String file,
+    String received,
+    String total,
+  ) {
+    return '$file · $received/$total 字节';
+  }
+
+  @override
+  String get steamVersionRangeInvalid => '服务器返回的续传范围不匹配。';
+
+  @override
+  String get steamVersionChecksumFailed => '文件大小或 SHA-256 校验失败。';
+
+  @override
+  String steamVersionPackageInvalid(String file) {
+    return '包缺失或校验失败：$file';
+  }
+
+  @override
+  String get steamVersionSameImport => '该目录已在版本下载库中。';
+
+  @override
+  String get steamVersionStaging => '正在临时目录安装并核对版本';
+
+  @override
+  String get steamVersionInstallUnverified => '未能确认目标版本安装完成；未应用到 Steam。';
+
+  @override
+  String get steamVersionLinkedPath => '版本文件中包含不支持的链接。';
+
+  @override
+  String steamVersionApplying(String current, String total) {
+    return '正在应用客户端文件 $current/$total';
+  }
+
+  @override
+  String get steamVersionTargetRequired =>
+      '请选择含 steam.exe 的 Steam 目录，或用于全新安装的空目录。';
+
+  @override
+  String get steamVersionInvalidBackup => '客户端备份无效。';
+
+  @override
+  String get steamVersionBackupTargetChanged => '此备份属于其他 Steam 目录。';
+
+  @override
+  String get steamVersionLatest => '同步官方最新';
+
+  @override
+  String get steamVersionHistory => '更新历史索引';
+
+  @override
+  String get steamVersionImport => '导入已下载版本';
+
+  @override
+  String get steamVersionCurrent => '当前客户端';
+
+  @override
+  String get steamVersionUnknown => '尚未识别版本';
+
+  @override
+  String get steamVersionTarget => '安装目录';
+
+  @override
+  String get steamVersionEmpty => '没有已缓存的版本';
+
+  @override
+  String get steamVersionOfficial => '官方 CDN';
+
+  @override
+  String get steamVersionArchive => 'Wayback 存档';
+
+  @override
+  String get steamVersionLocal => '本地导入';
+
+  @override
+  String get steamVersionPackages => '客户端包';
+
+  @override
+  String get steamVersionReady => '已下载';
+
+  @override
+  String steamVersionPartial(String current, String total) {
+    return '已下载 $current/$total 个包';
+  }
+
+  @override
+  String get steamVersionDownload => '下载并校验';
+
+  @override
+  String get steamVersionVerify => '重新校验下载';
+
+  @override
+  String get steamVersionInstall => '安装此版本';
+
+  @override
+  String get steamVersionInstallHint =>
+      '先在临时目录完成离线安装；替换前备份客户端文件，失败时恢复。游戏、账号配置、Lua 和插件保留。更新行为沿用“设置 → Steam 更新控制”。';
+
+  @override
+  String get steamVersionInstalled => '客户端文件已应用并核对版本；请启动 Steam 验证运行。';
+
+  @override
+  String get steamVersionDeleteDownload => '删除本地下载包，保留版本目录记录和客户端备份。';
+
+  @override
+  String get steamVersionBackups => '客户端备份';
+
+  @override
+  String get steamVersionRestoreHint => '恢复该次操作前的客户端文件；先备份当前状态。';
+
+  @override
+  String get steamVersionArchitecture => '客户端架构';
+
+  @override
+  String get steamVersionStartDate => '起始日期';
+
+  @override
+  String get steamVersionEndDate => '结束日期';
+
+  @override
+  String get steamVersionHistoryLimit => '最多获取清单数';
+
+  @override
+  String get steamVersionHistoryHint => '历史文件可能未被完整存档；只有所有包通过校验后才能安装。';
+
+  @override
+  String get steamVersionRefreshLocal => '刷新本机状态';
+
+  @override
+  String get steamVersionStartSteam => '启动 Steam';
+
+  @override
+  String get steamVersionDetails => '版本详情';
+
+  @override
+  String get steamVersionDownloadedVerified => '所有客户端包已通过校验';
+
+  @override
+  String get steamVersionStopSteam => '关闭 Steam 后继续安装';
+
+  @override
+  String get steamVersionBackupBefore => '操作前自动备份客户端文件';
+
+  @override
+  String get steamVersionWaybackSettings => 'Wayback 与缓存';
+
+  @override
+  String get steamVersionWaybackAddress => 'Wayback 地址';
+
+  @override
+  String get steamVersionWaybackHint =>
+      '默认使用 web.archive.org，可填写自定义 Wayback 地址。';
+
+  @override
+  String get steamVersionWaybackInvalid => '请输入不含账号信息、查询参数的完整 HTTPS 地址。';
+
+  @override
+  String steamVersionCacheHit(String stamp) {
+    return '复用历史清单缓存：$stamp';
+  }
+
+  @override
+  String steamVersionCacheSaved(String stamp) {
+    return '历史清单已缓存：$stamp';
+  }
+
+  @override
+  String get steamVersionCacheHint =>
+      '内置目录提供首次可选版本。刷新版本库会发现新增版本；历史索引缓存 24 小时，选中版本的包清单按需获取并保存。';
+
+  @override
+  String get steamVersionForceHistory => '强制刷新历史索引';
+
+  @override
+  String get steamVersionWaybackDefault => '恢复默认地址';
+
+  @override
+  String get steamVersionRefreshCatalog => '刷新版本库';
+
+  @override
+  String get steamVersionBuiltin => '内置版本目录';
+
+  @override
+  String get steamVersionManifestPending => '待获取清单';
+
+  @override
+  String get steamVersionLoadManifest => '获取版本清单';
+
+  @override
+  String steamVersionSnapshot(String date) {
+    return '历史快照 $date';
+  }
 }

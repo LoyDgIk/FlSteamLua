@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"sync"
+	"time"
 
 	"flsteamlua/lan_transfer_engine/internal/identity"
 	"flsteamlua/lan_transfer_engine/internal/protocol"
@@ -14,12 +15,38 @@ type peerConn struct {
 	fingerprint string
 	readMu      sync.Mutex
 	writeMu     sync.Mutex
+	readAhead   *peerFrameRead
+}
+
+type peerFrameRead struct {
+	done  chan struct{}
+	frame protocol.Frame
+	err   error
 }
 
 func (c *peerConn) read() (protocol.Frame, error) {
 	c.readMu.Lock()
 	defer c.readMu.Unlock()
+	if ahead := c.readAhead; ahead != nil {
+		c.readAhead = nil
+		<-ahead.done
+		return ahead.frame, ahead.err
+	}
 	return protocol.ReadFrame(c.conn)
+}
+
+// Read one frame while an offer awaits a decision. The next read consumes the
+// same result, so accepting an offer cannot lose its already-arriving PlanStart.
+func (c *peerConn) prefetchFrame() *peerFrameRead {
+	c.readMu.Lock()
+	defer c.readMu.Unlock()
+	ahead := &peerFrameRead{done: make(chan struct{})}
+	c.readAhead = ahead
+	go func() {
+		ahead.frame, ahead.err = protocol.ReadFrame(c.conn)
+		close(ahead.done)
+	}()
+	return ahead
 }
 
 func (c *peerConn) write(frame protocol.Frame) error {
@@ -36,6 +63,12 @@ func (c *peerConn) writeChunk(index uint32, data []byte) error {
 
 func (c *peerConn) close() {
 	_ = c.conn.Close()
+}
+
+func (c *peerConn) stop(reason string) {
+	_ = c.conn.SetWriteDeadline(time.Now().Add(time.Second))
+	_ = c.write(protocol.Frame{Type: protocol.FrameCancel, Payload: protocol.EncodeError(reason)})
+	c.close()
 }
 
 func (e *Engine) performServerHello(conn *tls.Conn) (*peerConn, error) {

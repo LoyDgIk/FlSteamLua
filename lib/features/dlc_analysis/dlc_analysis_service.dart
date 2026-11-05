@@ -1,5 +1,6 @@
 // Functional adaptation of Fluent-Steam-Lua DlcAnalysisService (zlib).
 // The source notice is retained in assets/licenses/Fluent-Steam-Lua-zlib.txt.
+import '../library/lua_directories.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -281,18 +282,8 @@ class DlcAnalysisService {
       }
       return file.path;
     }
-    final configured = settings.get<String>('luaPath', '');
-    if (configured.isEmpty && settings.steamPath.isEmpty) return null;
-    final roots = configured.isNotEmpty
-        ? [
-            p.isAbsolute(configured)
-                ? configured
-                : p.join(settings.steamPath, configured),
-          ]
-        : [
-            p.join(settings.steamPath, 'config', 'stplug-in'),
-            p.join(settings.steamPath, 'config', 'lua'),
-          ];
+    if (settings.steamPath.isEmpty) return null;
+    final roots = LuaDirectories(settings.steamPath).loadOrder.reversed;
     for (final root in roots) {
       for (final candidate in [
         p.join(root, '$appId.lua'),

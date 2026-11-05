@@ -12,21 +12,37 @@ import '../achievements/achievement_service.dart';
 import '../patching/ticket_page.dart';
 import '../steam_protocol/steam_protocol_service.dart';
 import 'manifest_monitor.dart';
+import '../kernel/kernel_service.dart';
+import '../network/network_preferences.dart';
 import 'online/online_pages.dart';
 import 'online/online_services.dart';
 import 'steam_extraction_pages.dart';
 import 'tool_pages.dart';
 import 'tools_service.dart';
+import '../library/library_service.dart';
+import '../steam_versions/steam_version_service.dart';
+import '../steam_versions/steam_versions_page.dart';
 
 class ToolsController {
   ToolsController({
     required AppPaths appPaths,
     required SettingsStore settings,
     required TaskCenter tasks,
+    required KernelService kernel,
+    required LibraryService library,
   }) : service = ToolsService(paths: appPaths, settings: settings),
-       downloader = ManifestCdnDownloader(),
+       _manifestClient = NetworkHttpClient(settings: settings),
        trainers = TrainerService(paths: appPaths, settings: settings),
        onlineFix = OnlineFixService(paths: appPaths) {
+    versions = SteamVersionService(
+      paths: appPaths,
+      settings: settings,
+      library: library,
+    );
+    downloader = ManifestCdnDownloader(
+      resolveCode: kernel.fetchManifestCode,
+      client: _manifestClient,
+    );
     monitor = ManifestMonitor(
       tasks: tasks,
       download: (request, task) async {
@@ -36,7 +52,9 @@ class ToolsController {
   }
 
   final ToolsService service;
-  final ManifestCdnDownloader downloader;
+  late final SteamVersionService versions;
+  final NetworkHttpClient _manifestClient;
+  late final ManifestCdnDownloader downloader;
   final TrainerService trainers;
   final OnlineFixService onlineFix;
   late final ManifestMonitor monitor;
@@ -49,8 +67,10 @@ class ToolsController {
   }
 
   void dispose() {
+    versions.dispose();
     monitor.dispose();
     downloader.dispose();
+    _manifestClient.close();
     service.dispose();
     trainers.dispose();
     onlineFix.dispose();
@@ -79,12 +99,13 @@ class ToolsPage extends StatefulWidget {
     required this.tasks,
     this.selectedGame,
     this.games = const [],
-    this.controller,
+    required this.controller,
     this.lanTransfer,
     this.steam,
     this.achievements,
     this.destinations = const [],
     this.onGameChanged,
+    this.onChooseGame,
   });
 
   final AppPaths appPaths;
@@ -92,12 +113,13 @@ class ToolsPage extends StatefulWidget {
   final TaskCenter tasks;
   final GameEntry? selectedGame;
   final List<GameEntry> games;
-  final ToolsController? controller;
+  final ToolsController controller;
   final LanTransferService? lanTransfer;
   final SteamProtocolService? steam;
   final AchievementService? achievements;
   final List<ToolDestination> destinations;
   final VoidCallback? onGameChanged;
+  final VoidCallback? onChooseGame;
 
   @override
   State<ToolsPage> createState() => _ToolsPageState();
@@ -125,19 +147,7 @@ class _ToolsPageState extends State<ToolsPage> {
   @override
   void initState() {
     super.initState();
-    _controller =
-        widget.controller ??
-        ToolsController(
-          appPaths: widget.appPaths,
-          settings: widget.settings,
-          tasks: widget.tasks,
-        );
-  }
-
-  @override
-  void dispose() {
-    if (widget.controller == null) _controller.dispose();
-    super.dispose();
+    _controller = widget.controller;
   }
 
   void _push(Widget page) => Navigator.of(context).push(
@@ -209,6 +219,7 @@ class _ToolsPageState extends State<ToolsPage> {
           subtitle: context.l10n.authorizationTicketDescription,
           onPressed: () => _push(
             TicketPage(
+              settings: widget.settings,
               paths: widget.appPaths,
               tasks: widget.tasks,
               game: game,
@@ -334,6 +345,17 @@ class _ToolsPageState extends State<ToolsPage> {
       ],
       _ToolGroup.maintenance => [
         _ToolEntry(
+          glyph: ui.AppGlyphs.layers,
+          title: context.l10n.steamVersionTitle,
+          subtitle: context.l10n.steamVersionDescription,
+          onPressed: () => _push(
+            SteamVersionsPage(
+              service: _controller.versions,
+              tasks: widget.tasks,
+            ),
+          ),
+        ),
+        _ToolEntry(
           glyph: ui.AppGlyphs.verified,
           title: context.l10n.diagnostics,
           subtitle: context.l10n.steamPathClientAndDataDirectories,
@@ -401,6 +423,14 @@ class _ToolsPageState extends State<ToolsPage> {
                     '${selectedGame.isInstalled ? ' · ${context.l10n.installed}' : ''}',
                   ),
                   trailing: ui.MetaChip(label: context.l10n.game),
+                ),
+              if (widget.onChooseGame != null)
+                ui.DecorationListItem(
+                  key: const ValueKey('tools-choose-game'),
+                  leading: const ui.GlyphIcon(ui.AppGlyphs.profiles),
+                  title: Text(context.l10n.chooseAGame),
+                  onPressed: widget.onChooseGame,
+                  trailing: const ui.GlyphIcon(ui.AppGlyphs.chevronForward),
                 ),
               for (final entry in game) _ToolRow(entry: entry),
             ],

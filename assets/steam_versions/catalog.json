@@ -1,0 +1,477 @@
+{
+  "updatedAt": "2026-11-06",
+  "versions": [
+    {
+      "snapshot": "20261023074848",
+      "build": "1792618285",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20261023074848id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20261014102820",
+      "build": "1791918634",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20261014102820id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20261006145653",
+      "build": "1788652215",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20261006145653id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260630145938",
+      "build": "1782533657",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260630145938id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260611123103",
+      "build": "1781041600",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260611123103id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260602073902",
+      "build": "1780352834",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260602073902id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260528081318",
+      "build": "1779918128",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260528081318id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260523081714",
+      "build": "1779486452",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260523081714id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260510115300",
+      "build": "1778281814",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260510115300id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260506143902",
+      "build": "1778003620",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260506143902id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "snapshot": "20260430114655",
+      "build": "1777411435",
+      "arch": "win64",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260430114655id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "arch": "win64",
+      "build": "1773426488",
+      "snapshot": "20260314103120",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260314103120id_/http://media.steampowered.com/client/steam_client_win64"
+    },
+    {
+      "arch": "win32",
+      "build": "1769731672",
+      "snapshot": "20260310091440",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260310091440id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20260122074724",
+      "build": "1769025840",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20260122074724id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20251122131734",
+      "build": "1763795278",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20251122131734id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20251118083007",
+      "build": "1763422420",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20251118083007id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20251006072943",
+      "build": "1759461205",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20251006072943id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20251003030544",
+      "build": "1757650573",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20251003030544id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20250910074132",
+      "build": "1757452101",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250910074132id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20250701090002",
+      "build": "1751317518",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250701090002id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20250521085614",
+      "build": "1747701111",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250521085614id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20250429100546",
+      "build": "1745269938",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250429100546id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20250401193354",
+      "build": "1743469403",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250401193354id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20250311093241",
+      "build": "1737514353",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250311093241id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20250129125321",
+      "build": "1737505969",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250129125321id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20250123105918",
+      "build": "1737404083",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20250123105918id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20241204072114",
+      "build": "1733265492",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20241204072114id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20241113093224",
+      "build": "1731433018",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20241113093224id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20241107150153",
+      "build": "1730853027",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20241107150153id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240918104445",
+      "build": "1726604483",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240918104445id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240913122103",
+      "build": "1726088054",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240913122103id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240717082107",
+      "build": "1721173382",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240717082107id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240621083816",
+      "build": "1718904662",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240621083816id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240619085500",
+      "build": "1718751621",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240619085500id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240614090842",
+      "build": "1718305227",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240614090842id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240521073345",
+      "build": "1716242052",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240521073345id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240517103907",
+      "build": "1715891371",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240517103907id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240514121236",
+      "build": "1715635533",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240514121236id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240508075352",
+      "build": "1714854927",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240508075352id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "snapshot": "20240308104109",
+      "build": "1709846872",
+      "arch": "win32",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240308104109id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240229082406",
+      "build": "1709168962",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240229082406id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240227211905",
+      "build": "1708985249",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240227211905id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240113112425",
+      "build": "1705108172",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240113112425id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20240111223616",
+      "build": "1704936806",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20240111223616id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20231212190321",
+      "build": "1702079146",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20231212190321id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20231130095245",
+      "build": "1701289036",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20231130095245id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20231116205033",
+      "build": "1700160213",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20231116205033id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20231031200154",
+      "build": "1698777785",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20231031200154id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20231026162438",
+      "build": "1698260427",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20231026162438id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230930002005",
+      "build": "1696019606",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230930002005id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230912101259",
+      "build": "1694466342",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230912101259id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230801221717",
+      "build": "1690583737",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230801221717id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230711162631",
+      "build": "1689034492",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230711162631id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230622105532",
+      "build": "1687386907",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230622105532id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230616094017",
+      "build": "1686880776",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230616094017id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230615094110",
+      "build": "1686779606",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230615094110id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230531113527",
+      "build": "1685488080",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230531113527id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230429120402",
+      "build": "1682708537",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230429120402id_/http://media.steampowered.com/client/steam_client_win32"
+    },
+    {
+      "arch": "win32",
+      "snapshot": "20230428150517",
+      "build": "1682573004",
+      "manifest": "",
+      "source": "builtin",
+      "url": "https://web.archive.org/web/20230428150517id_/http://media.steampowered.com/client/steam_client_win32"
+    }
+  ]
+}

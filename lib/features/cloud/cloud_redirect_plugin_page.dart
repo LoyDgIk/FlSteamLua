@@ -9,7 +9,7 @@ import '../../core/task_center.dart';
 import '../../ui/context.dart';
 import '../../ui/localization.dart';
 import '../../ui/ui.dart' as ui;
-import '../steam/steam_close_action.dart';
+import 'cloud_workflows.dart';
 import 'cloud_service.dart';
 
 class CloudRedirectPluginPage extends StatefulWidget {
@@ -37,11 +37,14 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _load();
+    });
   }
 
   Future<void> _load() async {
     try {
+      await widget.service.refresh(includeRemote: false);
       final status = await widget.service.inspectPlugin();
       if (mounted) setState(() => _status = status);
     } catch (error) {
@@ -54,26 +57,38 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
     Future<void> Function(TaskContext? task) action, {
     bool announce = true,
     bool requiresStoppedSteam = false,
+    String? explanation,
+    bool backup = false,
   }) async {
-    final steam = widget.steamProcess;
-    if (requiresStoppedSteam &&
-        steam != null &&
-        !await confirmAndStopSteam(context, steam)) {
-      return;
-    }
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
+      if (requiresStoppedSteam &&
+          !await confirmCloudOperation(
+            context,
+            title: title,
+            details: [(context.l10n.path, _status?.path ?? '')],
+            steam: widget.steamProcess,
+            stopSteam: true,
+            backup: backup,
+            explanation: explanation,
+          )) {
+        return;
+      }
+      if (!mounted) return;
       final tasks = widget.tasks;
       if (tasks == null) {
-        await action(null);
+        await widget.service.runMutation(() => action(null));
       } else {
-        await tasks.run(title, (task) => action(task));
+        await tasks.run(
+          title,
+          (task) => widget.service.runMutation(() => action(task)),
+        );
       }
       if (mounted && announce) {
-        ui.showAppSuccess(context, context.l10n.operationCompleted);
+        ui.showAppSuccess(context, context.l10n.cloudConfigurationSavedRestart);
       }
       await _load();
     } on TaskCancelled {
@@ -87,13 +102,17 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
 
   Future<void> _installOrUpdate() => _run(
     context.l10n.installOrUpdatePlugin,
-    (task) => widget.service.enableRedirect(context: task),
+    (task) => widget.service.installPlugin(context: task),
     requiresStoppedSteam: true,
+    backup: _status?.installed == true,
   );
 
   Future<void> _toggle(bool enabled) async {
     if (enabled && !(_status?.installed ?? false)) {
-      await _installOrUpdate();
+      await _run(context.l10n.enableSaveRedirection, (task) async {
+        await widget.service.installPlugin(context: task);
+        await widget.service.enableRedirect();
+      }, requiresStoppedSteam: true);
       return;
     }
     if (enabled) {
@@ -111,20 +130,52 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
     }
   }
 
-  Future<void> _remove() async {
-    final localeText = context.l10n;
-    final confirmed = await ui.AppDialogs.confirm(
-      context,
-      title: localeText.removeCloudRedirectPlugin,
-      message: localeText.removeCloudRedirectPluginDescription,
-      confirmText: localeText.uninstall,
-      destructive: true,
-    );
-    if (confirmed != true) return;
-    await _run(
-      localeText.uninstall,
-      (task) => widget.service.removePlugin(context: task),
-      requiresStoppedSteam: true,
+  Future<void> _remove() => _run(
+    context.l10n.removeCloudRedirectPlugin,
+    (task) => widget.service.removePlugin(context: task),
+    requiresStoppedSteam: true,
+    explanation: context.l10n.removeCloudRedirectPluginDescription,
+    backup: true,
+  );
+
+  void _details() {
+    final status = _status!;
+    ui.showModalSideSheet(
+      context: context,
+      builder: (_) => ui.SideSheetScaffold(
+        title: context.l10n.details,
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            ui.SideSheetScaffold.headerHeight + 16,
+            16,
+            24,
+          ),
+          children: [
+            ui.generateSection(
+              items: [
+                ui.DecorationListItem(
+                  title: Text(context.l10n.path),
+                  subtitle: SelectableText(status.path),
+                ),
+                ui.DecorationListItem(
+                  title: Text(context.l10n.fileSizeLabel),
+                  subtitle: Text(_size(status.size)),
+                ),
+                if (status.modifiedAt != null)
+                  ui.DecorationListItem(
+                    title: Text(context.l10n.updatedLabel),
+                    subtitle: Text('${status.modifiedAt!.toLocal()}'),
+                  ),
+                ui.DecorationListItem(
+                  title: Text(context.l10n.openFolder),
+                  onPressed: _openFolder,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -159,7 +210,7 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
           )
         : status.enabled
         ? (
-            context.l10n.enabled,
+            context.l10n.configurationEnabled,
             scheme.primaryContainer,
             scheme.onPrimaryContainer,
           )
@@ -187,11 +238,6 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
           onPressed: _busy ? null : _load,
           icon: const ui.GlyphIcon(ui.AppGlyphs.refresh),
         ),
-        IconButton(
-          tooltip: context.l10n.installOrUpdatePlugin,
-          onPressed: _busy ? null : _installOrUpdate,
-          icon: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
-        ),
       ],
       body: ListView(
         padding: EdgeInsets.fromLTRB(
@@ -206,6 +252,7 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
               padding: const EdgeInsets.only(bottom: 12),
               child: ui.CommonCard(
                 isError: true,
+                inert: true,
                 padding: const EdgeInsets.all(14),
                 child: SelectableText(_error!),
               ),
@@ -216,7 +263,10 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
               ui.DecorationListItem(
                 leading: const ui.GlyphIcon(ui.AppGlyphs.layers),
                 title: Text(context.l10n.cloudRedirectPlugin),
-                subtitle: Text(context.l10n.cloudRedirectPluginDescription),
+                subtitle: Text(
+                  status?.version ?? context.l10n.cloudNotRuntimeVerified,
+                ),
+                onPressed: status?.installed == true ? _details : null,
                 trailing: status == null
                     ? const ui.CommonCircleLoading(size: 18)
                     : _stateChip(context, status),
@@ -227,9 +277,7 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
                   title: Text(context.l10n.localSaveRedirection),
                   subtitle: Text(
                     status.installed
-                        ? context
-                              .l10n
-                              .downloadCloudredirectAndUpdateSteamFilesAndKernelConfigurationRestartSteamAfterwards
+                        ? context.l10n.cloudConfigurationRestartDescription
                         : context.l10n.installOrUpdatePlugin,
                   ),
                   onPressed: _busy || !status.installed
@@ -237,29 +285,9 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
                       : () => _toggle(!status.enabled),
                   trailing: ui.CommonSwitch(
                     value: status.enabled,
-                    onChanged: _busy ? null : _toggle,
+                    onChanged: _busy || !status.installed ? null : _toggle,
                   ),
                 ),
-              if (status != null && status.installed) ...[
-                ui.DecorationListItem(
-                  leading: const ui.GlyphIcon(ui.AppGlyphs.resources),
-                  title: Text(context.l10n.path),
-                  subtitle: SelectableText(status.path),
-                ),
-                ui.DecorationListItem(
-                  leading: const ui.GlyphIcon(ui.AppGlyphs.layers),
-                  title: Text(context.l10n.fileSizeLabel),
-                  trailing: Text(_size(status.size)),
-                ),
-                if (status.modifiedAt != null)
-                  ui.DecorationListItem(
-                    leading: const ui.GlyphIcon(ui.AppGlyphs.clock),
-                    title: Text(context.l10n.updatedLabel),
-                    trailing: Text(
-                      status.modifiedAt!.toLocal().toString().split('.').first,
-                    ),
-                  ),
-              ],
             ],
           ),
           ui.generateSection(
@@ -269,10 +297,42 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
                 leading: const ui.GlyphIcon(ui.AppGlyphs.wrench),
                 title: Text(context.l10n.openSteamtoolCore),
                 subtitle: Text(
-                  status?.enabled == true
-                      ? context.l10n.enabledRestartSteamAfterChanges
-                      : context.l10n.disabled,
+                  widget.service.status.coreReady
+                      ? context.l10n.cloudCoreReady
+                      : context.l10n.cloudCoreMissing,
                 ),
+              ),
+            ],
+          ),
+          ui.generateSection(
+            title: context.l10n.cloudMetadataSync,
+            footer: context.l10n.cloudConfigurationRestartDescription,
+            items: [
+              ui.FormRowSwitch(
+                title: context.l10n.cloudSyncAchievements,
+                value: widget.service.status.syncAchievements,
+                onChanged: _busy
+                    ? null
+                    : (value) => _run(
+                        context.l10n.save,
+                        (_) => widget.service.setMetadataSync(
+                          achievements: value,
+                          playtime: widget.service.status.syncPlaytime,
+                        ),
+                      ),
+              ),
+              ui.FormRowSwitch(
+                title: context.l10n.cloudSyncPlaytime,
+                value: widget.service.status.syncPlaytime,
+                onChanged: _busy
+                    ? null
+                    : (value) => _run(
+                        context.l10n.save,
+                        (_) => widget.service.setMetadataSync(
+                          achievements: widget.service.status.syncAchievements,
+                          playtime: value,
+                        ),
+                      ),
               ),
             ],
           ),
@@ -283,17 +343,6 @@ class _CloudRedirectPluginPageState extends State<CloudRedirectPluginPage> {
                 leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
                 title: Text(context.l10n.installOrUpdatePlugin),
                 onPressed: _busy ? null : _installOrUpdate,
-                trailing: const ui.GlyphIcon(
-                  ui.AppGlyphs.chevronForward,
-                  size: 18,
-                ),
-              ),
-              ui.DecorationListItem(
-                leading: const ui.GlyphIcon(ui.AppGlyphs.resources),
-                title: Text(context.l10n.openFolder),
-                onPressed: _busy || status == null || status.path.isEmpty
-                    ? null
-                    : _openFolder,
                 trailing: const ui.GlyphIcon(
                   ui.AppGlyphs.chevronForward,
                   size: 18,

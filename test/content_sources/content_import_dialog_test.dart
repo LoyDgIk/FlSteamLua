@@ -280,7 +280,11 @@ void main() {
       expect(tasks.tasks.first.status, TaskStatus.failed);
       expect(find.byType(LocalContentImportDialog), findsOneWidget);
       expect(
-        find.textContaining('Fixture commit failure'),
+        tasks.tasks.first.error.toString(),
+        contains('Fixture commit failure'),
+      );
+      expect(
+        find.textContaining('The operation could not finish'),
         findsAtLeastNWidgets(1),
       );
       expect(tester.takeException(), isNull);

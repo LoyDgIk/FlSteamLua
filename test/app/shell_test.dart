@@ -21,6 +21,7 @@ void main() {
   setUp(() async {
     root = await Directory.systemTemp.createTemp('fl-shell-');
     services = AppServices(AppPaths(root.path));
+    await services.settings.set('quickStartDismissed', true);
     await services.settings.set('coverCdn', 'direct');
   });
   tearDown(() async {
@@ -276,6 +277,25 @@ void main() {
           .selectedIndex,
       0,
     );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('dashboard library actions retarget the retained library page', (
+    tester,
+  ) async {
+    await mount(tester);
+    await tapSidebar(tester, '库');
+    await tapSidebar(tester, '面板主页');
+    tester.widget<DashboardPage>(find.byType(DashboardPage)).onLibraryTab!(1);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(tester.widget<LibraryPage>(find.byType(LibraryPage)).initialTab, 1);
+    await tapSidebar(tester, '面板主页');
+    tester.widget<DashboardPage>(find.byType(DashboardPage)).onLibraryTab!(0);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(tester.widget<LibraryPage>(find.byType(LibraryPage)).initialTab, 0);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });

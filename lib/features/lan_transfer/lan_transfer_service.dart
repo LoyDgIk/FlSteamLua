@@ -34,6 +34,7 @@ class LanTransferService extends ChangeNotifier {
   final List<TransferSession> _sessions = [];
   final List<LanTransferOffer> _offers = [];
   final Map<String, TaskContext> _sessionTasks = {};
+  Future<void>? _initFuture;
   bool _initialized = false;
   bool _discovering = false;
   bool _receiveEnabled = false;
@@ -71,21 +72,36 @@ class LanTransferService extends ChangeNotifier {
     ),
   );
 
-  Future<void> initialize() async {
-    if (_initialized) return;
+  Future<void> initializeIfReceiving() async {
+    if (settings.lanTransferEnabled) await initialize();
+  }
+
+  Future<void> initialize() {
+    if (_initialized) return Future.value();
+    return _initFuture ??= _initialize().whenComplete(() {
+      _initFuture = null;
+    });
+  }
+
+  Future<void> _initialize() async {
     await paths.initialize();
     _engineEvents ??= _engine.events.listen(_engineEvent);
     await _engine.start(paths.file(p.join('data', 'lan_transfer_engine')));
     await _configure();
-    _initialized = true;
+    await _syncSessions();
     if (settings.lanTransferEnabled) {
-      await ensureStarted();
+      await _startDiscovery();
     }
+    _initialized = true;
     _emit();
   }
 
   Future<void> ensureStarted() async {
-    if (!_initialized) await initialize();
+    await initialize();
+    if (!_discovering) await _startDiscovery();
+  }
+
+  Future<void> _startDiscovery() async {
     await _engine.request('discovery.start', const {});
     _discovering = true;
     _emit();
@@ -122,6 +138,7 @@ class LanTransferService extends ChangeNotifier {
       'installPath': game.installPath ?? '',
       'libraryPath': game.libraryPath ?? '',
       'luaPath': game.luaPath,
+      'luaEnabled': game.luaEnabled,
       'coverUrl': game.coverUrl,
       'sizeOnDisk': game.sizeOnDisk,
     }, timeout: const Duration(minutes: 5));
@@ -129,6 +146,7 @@ class LanTransferService extends ChangeNotifier {
   }
 
   Future<void> discardPlan(String planId) async {
+    if (_disposed || _shuttingDown) return;
     await _engine.request('plan.discard', {'planId': planId});
   }
 
@@ -217,6 +235,7 @@ class LanTransferService extends ChangeNotifier {
   }
 
   Future<({int bytes, int files})> chunkCacheStats() async {
+    await initialize();
     final result = _map(await _engine.request('cache.stats', const {}));
     return (
       bytes: (result['bytes'] as num?)?.toInt() ?? 0,
@@ -225,6 +244,7 @@ class LanTransferService extends ChangeNotifier {
   }
 
   Future<void> clearChunkCache() async {
+    await initialize();
     await _engine.request('cache.clear', const {});
     _emit();
   }
@@ -259,6 +279,10 @@ class LanTransferService extends ChangeNotifier {
   Future<void> shutdown() async {
     _shuttingDown = true;
     await _engine.close();
+  }
+
+  Future<void> refreshDirectories() async {
+    if (_initialized) await _configure();
   }
 
   Future<void> _configure() async {
@@ -329,16 +353,35 @@ class LanTransferService extends ChangeNotifier {
   }
 
   void _upsertSession(TransferSession session) {
+    if (session.status != TransferSessionStatus.waitingForApproval) {
+      _offers.removeWhere((item) => item.sessionId == session.id);
+    }
     final index = _sessions.indexWhere((item) => item.id == session.id);
     if (index < 0) {
+      session.speedSamples.add(session.speed);
+      session.diskSpeedSamples.add(session.diskSpeed);
+      session.sampleRevision = 1;
       _sessions.add(session);
     } else {
       final previous = _sessions[index];
       session.speedSamples
         ..addAll(previous.speedSamples)
         ..add(session.speed);
-      if (session.speedSamples.length > 72) {
-        session.speedSamples.removeRange(0, session.speedSamples.length - 72);
+      session.diskSpeedSamples
+        ..addAll(previous.diskSpeedSamples)
+        ..add(session.diskSpeed);
+      session.sampleRevision = previous.sampleRevision + 1;
+      if (session.speedSamples.length > lanTransferHistoryCapacity) {
+        session.speedSamples.removeRange(
+          0,
+          session.speedSamples.length - lanTransferHistoryCapacity,
+        );
+      }
+      if (session.diskSpeedSamples.length > lanTransferHistoryCapacity) {
+        session.diskSpeedSamples.removeRange(
+          0,
+          session.diskSpeedSamples.length - lanTransferHistoryCapacity,
+        );
       }
       _sessions[index] = session;
     }
@@ -395,12 +438,22 @@ class LanTransferService extends ChangeNotifier {
     try {
       await _engine.start(paths.file(p.join('data', 'lan_transfer_engine')));
       await _configure();
+      await _syncSessions();
       if (_receiveEnabled) await ensureStarted();
       _networkError = null;
     } catch (error) {
       _networkError = '$error';
     }
     _emit();
+  }
+
+  Future<void> _syncSessions() async {
+    final result = _map(await _engine.request('session.list', const {}));
+    final values = result['sessions'];
+    if (values is! List) return;
+    for (final value in values.whereType<Map>()) {
+      _upsertSession(transferSessionFromEngine(value.cast<String, dynamic>()));
+    }
   }
 
   void _upsertPeer(LanPeer peer) {

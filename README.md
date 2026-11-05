@@ -6,6 +6,7 @@
 
 ## 功能
 
+- 首次进入提供可跳过的快速开始引导，语言、外观与基础配置即时生效，设置中可再次打开；更新日志支持 Markdown，中文说明在前、英文在后。
 - 自动识别 Steam 安装路径，按 AppID 合并本机安装记录与 Lua，支持搜索、收藏、导入、启动和 Lua 启停。安装、Lua 配置和账号拥有状态相互独立。
 - Steam 商店搜索、分类、详情与 DLC；统一内容源管理订阅、JS 与本地导入，入库必选 Lua 来源、可选清单来源，预览后备份提交。购买及游戏本体安装交给 Steam。
 - 独立 Dart 工作进程和 Windows 原生接口处理成就、统计及授权票据，修改先预览再保存并读回确认。
@@ -13,7 +14,7 @@
 - QuickJS 内容源、显式 Lua/清单 ID/清单文件能力、Steam 登录与资料提取、独立订阅缓存和离线 Lua 生成、DLC 仓库分析。订阅没有全局激活状态，每次操作明确指定来源。
 - 内核包下载/导入/切换/备份恢复；Lua/VDF 转换、版本固定、修改器绑定、OnlineFix、通用补丁与 Goldberg 配置。
 - 全局任务、独立页面栈、明暗主题、ARB 国际化、键盘导航、托盘和单实例。已识别或绑定的游戏进程可从 Steam/快捷方式启动并触发修改器联动。
-- 局域网传输使用独立 `lan_transfer_engine.exe`：Go 负责设备发现、双向 TLS、manifest/chunk 计划、16 路调度、差量位图、断点恢复和安装；Dart 只负责界面与用户确认。
+- 局域网传输按需启动独立 `lan_transfer_engine.exe`，开启接收时随应用常驻。Go 负责设备发现、双向 TLS、manifest/chunk 计划、16 个在途块调度、内容校验、差量重建、断点恢复和安装；Dart 负责界面与用户确认。
 
 ## 运行
 
@@ -24,9 +25,9 @@ flutter pub get
 flutter run -d windows
 ```
 
-应用数据保存在 `%LOCALAPPDATA%\FlSteamLua`。首次启动直接读取当前 Steam 安装、账户和游戏库；不迁移旧应用配置或历史记录。敏感缓存、会话和凭证使用当前 Windows 用户的 DPAPI 加密。
+应用数据保存在 `%LOCALAPPDATA%\FlSteamLua`。首次启动读取当前 Steam 安装、账户和游戏库，并显示快速开始引导；不迁移旧应用配置或历史记录。敏感缓存、会话和凭证使用当前 Windows 用户的 DPAPI 加密。
 
-成就和票据功能需要同目录下的 `steam_worker.exe`、`steam_bridge.dll`；局域网传输需要 `lan_transfer_engine.exe`。发行脚本会构建并打包三者。开发时可先执行发行构建，或参照 `scripts/build-release.ps1` 的 Go、worker 与 native 构建命令。应用不调用原 WPF 程序，不需要 .NET 后台。
+成就和票据功能需要同目录下的 `steam_worker.exe`、`steam_bridge.dll`；局域网传输需要 `lan_transfer_engine.exe`，原生云存档同步使用 `cloud_sync_worker.exe`。发行脚本会构建并打包这些组件。开发时可先执行发行构建，或参照 `scripts/build-release.ps1` 的 Go、worker 与 native 构建命令。应用不调用原 WPF 程序，不需要 .NET 后台。
 
 ## 检查与打包
 

@@ -58,7 +58,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Patch settings'), findsOneWidget);
+      expect(find.text('Patch tools'), findsNWidgets(2));
       expect(find.text('Game file verification'), findsOneWidget);
       expect(find.text('Game patch download'), findsOneWidget);
       expect(find.text('Goldberg settings'), findsOneWidget);

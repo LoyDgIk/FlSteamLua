@@ -145,6 +145,7 @@ class _ScriptSourceEditorPageState extends State<ScriptSourceEditorPage> {
         const SingleActivator(LogicalKeyboardKey.keyS, control: true): _save,
       },
       child: ui.CommonScaffold(
+        isLoading: _saving,
         title:
             '${context.l10n.editScript} · ${widget.title}${_dirty ? ' *' : ''}',
         backAction: _close,
@@ -202,14 +203,10 @@ class _ScriptSourceEditorPageState extends State<ScriptSourceEditorPage> {
                     .copyWith(color: context.colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 12),
-              if (_saving)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: ui.CommonProgressBar(value: null, height: 2),
-                ),
               if (_error != null) ...[
                 ui.CommonCard(
                   isError: true,
+                  inert: true,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: SelectableText(_error!),

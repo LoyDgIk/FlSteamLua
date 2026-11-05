@@ -179,6 +179,9 @@ class ManifestSourceService extends ChangeNotifier {
     await temp.rename(paths.file('data/manifest-sources.json'));
   }
 
+  bool supportsTest(String sourceId) =>
+      RegExp(r'\bfunction\s+test\s*\(').hasMatch(_source(sourceId).script);
+
   Future<ManifestTestResult> testSource(
     String sourceId, {
     Map<String, String>? values,
@@ -190,7 +193,7 @@ class ManifestSourceService extends ChangeNotifier {
     late ManifestTestResult result;
     try {
       final params = _parameters(source, selected);
-      if (!RegExp(r'\bfunction\s+test\s*\(').hasMatch(source.script)) {
+      if (!supportsTest(sourceId)) {
         result = const ManifestTestResult(
           success: false,
           message: 'This source does not provide a connection test',
@@ -257,6 +260,7 @@ class ManifestSourceService extends ChangeNotifier {
     TaskContext? task,
     Map<String, String>? values,
     Set<ContentCapability>? requestedCapabilities,
+    ({int depotId, String manifestId})? manifestRequest,
   }) async {
     if (appId <= 0) throw ArgumentError.value(appId, 'appId');
     final source = _source(sourceId);
@@ -266,6 +270,10 @@ class ManifestSourceService extends ChangeNotifier {
       ..['requestedCapabilities'] = requestedCapabilities
           ?.map((value) => value.name)
           .toList();
+    if (manifestRequest != null) {
+      params['depotid'] = manifestRequest.depotId;
+      params['gid'] = manifestRequest.manifestId;
+    }
     final logs = <String>[];
     task?.report('Connecting to ${source.name}');
     try {

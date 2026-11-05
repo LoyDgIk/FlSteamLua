@@ -12,8 +12,8 @@ import '../../platform/desktop/startup_registration.dart';
 import '../../platform/desktop/update_service.dart';
 import '../library/kv1.dart';
 import '../library/library_service.dart';
+import '../library/lua_directories.dart';
 import '../network/network_preferences.dart';
-import 'friend_presence_settings.dart';
 import '../../ui/localization.dart';
 
 typedef PreferencesTimerFactory =
@@ -29,7 +29,6 @@ class PreferencesController extends ChangeNotifier {
     required this.tasks,
     this.currentVersion = appVersion,
     StartupRegistration? startup,
-    FriendPresenceSettings? presence,
     PreferencesTimerFactory? periodicTimer,
     PreferencesUpdateFactory? updateFactory,
     Future<void> Function()? libraryRefresh,
@@ -37,7 +36,6 @@ class PreferencesController extends ChangeNotifier {
     this.watchFiles = true,
     bool? supportsStartup,
   }) : _startup = startup ?? StartupRegistration(),
-       _presence = presence ?? FriendPresenceSettings(),
        _periodic = periodicTimer ?? Timer.periodic,
        _updateFactory =
            updateFactory ??
@@ -58,7 +56,6 @@ class PreferencesController extends ChangeNotifier {
   final bool watchFiles;
   final Future<void> Function()? keyCacheUpdateDue;
   final StartupRegistration _startup;
-  final FriendPresenceSettings _presence;
   final PreferencesTimerFactory _periodic;
   final PreferencesUpdateFactory _updateFactory;
   final Future<void> Function() _libraryRefresh;
@@ -82,7 +79,6 @@ class PreferencesController extends ChangeNotifier {
 
   bool? startupEnabled;
   bool? offlineEnabled;
-  bool? friendBroadcastEnabled;
   ApplicationRelease? updateRelease;
   Object? updateError;
   DateTime? updateCheckedAt;
@@ -188,10 +184,11 @@ class PreferencesController extends ChangeNotifier {
       if (root != null && root.isNotEmpty) {
         targets[p.join(root, 'config')] = false;
         targets[p.join(root, 'steamapps')] = false;
-        targets[p.join(root, 'config', 'stplug-in')] = true;
+        for (final path in LuaDirectories(root).loadOrder) {
+          targets[path] = true;
+        }
+        targets[root] = false;
       }
-      final customLua = settings.get<String>('luaPath', '');
-      if (customLua.isNotEmpty) targets[customLua] = true;
       for (final game in library.games) {
         if (game.libraryPath != null) {
           targets[p.join(game.libraryPath!, 'steamapps')] = false;
@@ -340,12 +337,6 @@ class PreferencesController extends ChangeNotifier {
         : library.steamPath;
     if (root != null && root.isNotEmpty) {
       try {
-        friendBroadcastEnabled = await _presence.read(root);
-      } catch (error) {
-        friendBroadcastEnabled = null;
-        errors.add('$error');
-      }
-      try {
         final file = File(p.join(root, 'config', 'loginusers.vdf'));
         if (await file.exists()) {
           final values = Kv1.parse(await file.readAsString());
@@ -367,7 +358,6 @@ class PreferencesController extends ChangeNotifier {
         errors.add('$error');
       }
     } else {
-      friendBroadcastEnabled = null;
       offlineEnabled = null;
     }
     platformError = errors.isEmpty ? null : errors.join('\n');
@@ -397,24 +387,6 @@ class PreferencesController extends ChangeNotifier {
     ) async {
       await library.setOfflineMode(enabled);
       offlineEnabled = enabled;
-      _emit();
-    });
-  }
-
-  Future<void> setFriendBroadcastEnabled(bool enabled) async {
-    final root = settings.steamPath.isNotEmpty
-        ? settings.steamPath
-        : library.steamPath;
-    if (root == null || root.isEmpty) {
-      throw StateError(
-        localizationsFor(settings.language).selectTheSteamFolderFirst,
-      );
-    }
-    await tasks.run(localizationsFor(settings.language).setFriendPresence, (
-      _,
-    ) async {
-      await _presence.write(root, enabled);
-      friendBroadcastEnabled = await _presence.read(root);
       _emit();
     });
   }

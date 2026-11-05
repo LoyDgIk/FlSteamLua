@@ -10,6 +10,11 @@ import 'shape.dart';
 import 'surface.dart';
 import 'typography.dart';
 
+// Same input cache as FlClash manager/theme_manager.dart. Theme composition
+// contains state properties that make freshly built ThemeData unequal, so an
+// unrelated settings notification would otherwise trigger ThemeCrossFade.
+final _appThemes = <Brightness, ({Object inputs, ThemeData theme})>{};
+
 ThemeData buildAppTheme({
   Brightness brightness = Brightness.light,
   Color seedColor = const Color(0xff007aff),
@@ -17,22 +22,33 @@ ThemeData buildAppTheme({
   bool pureBlack = false,
   String? fontFamily,
 }) {
+  final locales = [
+    const Locale('zh'),
+    ...WidgetsBinding.instance.platformDispatcher.locales,
+  ];
+  final inputs = (
+    seedColor,
+    colorStyle,
+    pureBlack,
+    fontFamily,
+    defaultTargetPlatform,
+    locales.join(','),
+  );
+  final cached = _appThemes[brightness];
+  if (cached != null && cached.inputs == inputs) return cached.theme;
   final colors = seededColorScheme(
     seedColor: seedColor,
     brightness: brightness,
     style: colorStyle,
   ).toPureBlack(pureBlack);
-  return ThemeData(
+  final theme = ThemeData(
     useMaterial3: true,
     brightness: brightness,
     colorScheme: colors,
     fontFamily: fontFamily,
     fontFamilyFallback: appFontFamilyFallback(
       platform: defaultTargetPlatform,
-      locales: [
-        const Locale('zh'),
-        ...WidgetsBinding.instance.platformDispatcher.locales,
-      ],
+      locales: locales,
     ),
     extensions: [
       if (brightness == Brightness.dark) ElevatedColorScheme(colors.elevated),
@@ -42,6 +58,8 @@ ThemeData buildAppTheme({
       waitDuration: Duration(milliseconds: 450),
     ),
   ).withAppShapes.withAppSurfaces.withAppTypography;
+  _appThemes[brightness] = (inputs: inputs, theme: theme);
+  return theme;
 }
 
 class CommonMinFilledButtonTheme extends StatelessWidget {

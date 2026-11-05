@@ -1,6 +1,26 @@
 {
   "@@locale": "en",
   "languageName": "English",
+  "quickStart": "Quick start",
+  "quickStartSkip": "Skip setup",
+  "quickStartBack": "Back",
+  "quickStartNext": "Next",
+  "quickStartEnter": "Enter app",
+  "quickStartAppearance": "Appearance",
+  "quickStartFolders": "Game folders",
+  "quickStartPrepare": "Get ready",
+  "quickStartAppearanceTitle": "Make it yours",
+  "quickStartAppearanceHint": "Choose your language, colors and sidebar. Changes appear immediately.",
+  "quickStartFoldersTitle": "Connect your library",
+  "quickStartFoldersHint": "Choose your Steam installation and the folder where new Lua files will be saved.",
+  "quickStartPrepareTitle": "Ready when you are",
+  "quickStartPrepareHint": "Set up the core and content sources as needed. You can return to quick start from Settings at any time.",
+  "quickStartMoreAppearance": "More appearance settings",
+  "quickStartNetworkHint": "Proxy and download mirrors",
+  "quickStartSources": "{count} configured sources enabled",
+  "@quickStartSources": { "placeholders": { "count": { "type": "int" } } },
+  "quickStartStep": "{current} / {total}",
+  "@quickStartStep": { "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } } },
   "@languageName": {
     "description": "The native name of this language, shown in the language picker."
   },
@@ -34,7 +54,7 @@
   "trainers": "Trainers",
   "onlineFixes": "Online fixes",
   "dlcAnalysis": "DLC management",
-  "keySubscriptionsOfflineLua": "Key subscriptions & offline Lua",
+  "keySubscriptionsOfflineLua": "Get Lua / manifests",
   "gameToolsAndVersionManagement": "Game tools and version management",
   "installOrRestorePatches": "Install or restore patches",
   "extractAccountGameData": "Extract account game data",
@@ -49,9 +69,17 @@
   "play": "Play",
   "installWithSteam": "Install with Steam",
   "getLuaManifests": "Get Lua / manifests",
-  "addToLibrary": "Add to library",
+  "addToLibrary": "Add to Lua library",
   "openGameFolder": "Open game folder",
   "playtime": "Playtime",
+  "playtimeHours": "{hours} hours",
+  "@playtimeHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
   "minutes": "{playtimeMinutes} minutes",
   "@minutes": {
     "placeholders": {
@@ -67,11 +95,11 @@
   "achievements": "Achievements",
   "viewAndManageGameAchievements": "View and manage game achievements",
   "cloudSaves": "Cloud saves",
-  "backUpSyncAndRestoreProgress": "Back up, sync and restore progress",
+  "backUpSyncAndRestoreProgress": "View save locations and backups",
   "gameManagement": "Game management",
   "trainersMultiplayerAndMore": "Trainers, multiplayer and more",
   "luaRecord": "Lua record",
-  "enabledTakesEffectAfterRestartingSteam": "Enabled; takes effect after restarting Steam",
+  "enabledTakesEffectAfterRestartingSteam": "Enabled; the core can reload this Lua automatically",
   "disabledFileIsPreserved": "Disabled; file is preserved",
   "changeLuaState": "Change Lua state",
   "aboutThisGame": "About this game",
@@ -241,7 +269,7 @@
   "dropToImportLuaManifestsOrArchives": "Drop to import Lua, manifests or archives",
   "owned": "Owned",
   "tasks": "Tasks",
-  "clearCompleted": "Clear completed",
+  "clearCompleted": "Clear finished tasks",
   "allClear": "All clear",
   "downloadsImportsAndBackupsWillAppearHere": "Downloads, imports and backups will appear here.",
   "cancelling": "Cancelling…",
@@ -338,16 +366,16 @@
   "configureLocalRedirectionAndRemoteStorageSeparately": "Configure local redirection and remote storage separately.",
   "refresh": "Refresh",
   "refreshCloudSaves": "Refresh cloud saves",
-  "localSaveRedirection": "Local save redirection",
-  "enabledRestartSteamAfterChanges": "Enabled; restart Steam after changes",
+  "localSaveRedirection": "Save redirection",
+  "enabledRestartSteamAfterChanges": "Enabled in configuration; restart Steam after changes",
   "disabledEnablingDownloadsAndVerifiesTheCloudredirectDll": "Disabled; enabling downloads and verifies the CloudRedirect DLL",
   "enableSaveRedirection": "Enable save redirection",
   "downloadCloudredirectAndUpdateSteamFilesAndKernelConfigurationRestartSteamAfterwards": "Download CloudRedirect and update Steam files and kernel configuration. Restart Steam afterwards.",
   "configureRedirection": "Configure redirection",
-  "localSaveFolder": "Local save folder",
+  "localSaveFolder": "Folder-provider directory",
   "remoteStorage": "Remote storage",
   "configured": "Configured",
-  "remoteSyncIsNotConfigured": "Remote sync is not configured",
+  "remoteSyncIsNotConfigured": "Remote storage is not configured",
   "configure": "Configure",
   "testCloudConnection": "Test cloud connection",
   "testConnection": "Test connection",
@@ -366,7 +394,7 @@
   "appCache": "Cache",
   "logs": "Logs",
   "appData": "App data",
-  "lanTransferCache": "LAN transfer cache",
+  "lanTransferCache": "Transfer staging",
   "cleanup": "Cleanup",
   "clearCache": "Clear cache",
   "clearCacheDescription": "Remove covers, cached metadata, key caches, and LAN transfer chunks.",
@@ -397,9 +425,9 @@
   "local": "Local",
   "files": "files",
   "openFolder": "Open folder",
-  "backUpThisGame": "Back up this game",
-  "downloadToFolder": "Download to folder",
-  "uploadToRemote": "Upload to remote",
+  "backUpThisGame": "Back up selected save location",
+  "downloadToFolder": "Export raw repository",
+  "uploadToRemote": "Copy folder repository to remote",
   "previewDeletion": "Preview deletion",
   "confirm": "Confirm",
   "chooseSaveFolder": "Choose save folder",
@@ -407,12 +435,12 @@
   "closeSteamAndAllGamesThenChooseAnEmptyFolderCurrentSavesWillBeCopiedToTheNewFolderAnd": "Close Steam and all games, then choose an empty folder. Current saves will be copied to the new folder and the originals retained. Existing destination files will not be overwritten. Restart Steam when finished.",
   "setSaveFolder": "Set save folder",
   "backUpSaves": "Back up saves",
-  "downloadSaves": "Download saves",
-  "uploadSaves": "Upload saves",
+  "downloadSaves": "Export save repository",
+  "uploadSaves": "Copy save repository",
   "remoteFilesWithTheSameNamesWillBeReplacedCloseTheGameFirst": "Remote files with the same names will be replaced. Close the game first.",
   "prepareDeletionPreview": "Prepare deletion preview",
-  "deleteThisGameSSaves": "Delete this game’s saves",
-  "aCompleteBackupIsCreatedBeforeDeleting": "A complete backup is created before deleting:",
+  "deleteThisGameSSaves": "Delete saves at the selected account and location",
+  "aCompleteBackupIsCreatedBeforeDeleting": "Back up and then delete the selected locations:",
   "backupLocation": "Backup location",
   "saveBackups": "Save backups",
   "noBackupsYet": "No backups yet",
@@ -552,7 +580,7 @@
   "testingSourcesViewOrCancelTheOperationInGlobalTasksNavigationKeepsItRunning": "Testing sources. View or cancel the operation in global tasks; navigation keeps it running.",
   "failed": "Failed",
   "gameManagement2": "Game management",
-  "patchSettings": "Patch settings",
+  "patchSettings": "Patch tools",
   "patchSettingsDescription": "Verify game files, manage Goldberg and download network patches.",
   "patchTools": "Patch tools",
   "patchToolsDescription": "Patch archives are not installed generically. Inspect game files against Steam manifests or use the network patch downloader.",
@@ -564,7 +592,7 @@
   "goldbergSettings": "Goldberg settings",
   "goldbergDescription": "Download, deploy and configure the Goldberg emulator for this game.",
   "goldbergSettingsFooter": "Only the standardized Goldberg deployment is automated. Generic patch archives remain manual.",
-  "authorizationTicketDescription": "Import tickets.txt, validate its AppID and payload lengths, then apply the ticket only when explicitly requested.",
+  "authorizationTicketDescription": "Import and verify tickets while preserving the existing authorization identity by default.",
   "matchingLua": "Matching Lua",
   "matchingLuaFound": "A matching Lua file was found for this game.",
   "matchingLuaMissing": "No matching Lua file was found. The ticket can still be applied.",
@@ -756,13 +784,13 @@
   "localSteamLoginUnavailable": "No usable local Steam login was found. Start Steam and sign in, or use the manual login below.",
   "realOwnershipRequiredNotice": "Real ownership is required: only use extraction for games you personally own. This app does not verify purchases.",
   "notSignedIn": "Not signed in",
-  "luaLoginDescription": "Open the Steam account page to sign in or change account.",
+  "luaLoginDescription": "Extraction will try the local Steam session. You can also sign in from the account page.",
   "appIdForExtraction": "Game AppID",
   "outputDirectory": "Output directory",
   "useDefaultOutputDirectory": "Use the application downloads directory",
   "extractionTarget": "Extraction target",
   "extractionOptions": "Extraction options",
-  "copyAchievements": "Copy achievements data",
+  "copyAchievements": "Include local achievement cache",
   "extractionResult": "Extraction result",
   "extractingLua": "Extracting Lua for AppID {appId}",
   "@extractingLua": {
@@ -797,7 +825,7 @@
     }
   },
   "ticketExtractionOptions": "Ticket options",
-  "extractDenuvoTicket": "Extract ticket",
+  "extractDenuvoTicket": "Extract tickets",
   "openAuthorizationPage": "Open authorization page",
   "patchesRestore": "Patches & restore",
   "tickets": "Tickets",
@@ -858,15 +886,15 @@
   "importConfiguration": "Import configuration",
   "existingConfigurationWillBeBackedUpBeforeReplacementContinue": "Existing configuration will be backed up before replacement. Continue?",
   "importGoldbergConfiguration": "Import Goldberg configuration",
-  "authorizationTickets": "Authorization tickets",
+  "authorizationTickets": "Ticket management",
   "authorization": "Authorization",
-  "denuvoAuthorization": "Denuvo authorization",
-  "denuvoAuthorizationDescription": "Extract, validate, back up and apply AppTicket and ETicket data for your locally signed-in Steam account.",
+  "denuvoAuthorization": "Denuvo ticket management",
+  "denuvoAuthorizationDescription": "Extract, back up and manage AppTicket and ETicket. Changing authorization identity requires an explicit selection.",
   "importedTicketsTxtFilesAreCheckedForAppidAndPayloadLengthsLocalBackupsUseCurrentUserW": "Imported tickets.txt files are checked for AppID and payload lengths. Local backups use current-user Windows DPAPI; the Steam registry changes only when you apply a ticket.",
   "importTicketsTxt": "Import tickets.txt",
   "importOneTicketFileAtATime": "Import one tickets.txt file at a time.",
   "applyToSteam": "Apply to Steam",
-  "saveTicketBackup": "Save ticket backup",
+  "saveTicketBackup": "Save encrypted ticket backup",
   "encryptedBackup": "Encrypted backup",
   "exportPlaintextFile": "Export plaintext file",
   "encryptedBackups": "Encrypted backups",
@@ -876,9 +904,9 @@
   "deleteEncryptedBackup": "Delete encrypted backup",
   "deleteTicketBackup": "Delete ticket backup",
   "validateTicketFile": "Validate ticket file",
-  "applySteamTicket": "Apply Steam ticket",
-  "thisReplacesExistingAppticketAndEticketValuesForThisGame": "This replaces existing AppTicket and ETicket values for this game.",
-  "applyTicket": "Apply ticket",
+  "applySteamTicket": "Apply tickets",
+  "thisReplacesExistingAppticketAndEticketValuesForThisGame": "Back up and replace the two tickets for this game, preserving its cached authorization identity by default.",
+  "applyTicket": "Write tickets",
   "exportPlaintextTicket": "Export plaintext ticket",
   "exportTicket": "Export ticket",
   "configureTheReleaseRepositoryForThisFlutterApplicationFirst": "Configure the release repository for this Flutter application first.",
@@ -918,7 +946,7 @@
   "launchFlsteamluaAtSignIn": "Launch FlSteamLua at sign-in",
   "readTheCurrentStateWithTheRefreshButton": "Read the current state with the refresh button.",
   "startWhenTheCurrentUserSignsInToWindows": "Start when the current user signs in to Windows.",
-  "broadcastPlayStatusToFriends": "Broadcast play status to friends",
+  "broadcastPlayStatusToFriends": "Friend presence for Lua games",
   "allowTheKernelToShowPlayStatusToSteamFriendsThroughSpacewarDisableToHideTheseBroadcas": "Allow the kernel to show play status to Steam friends through Spacewar. Disable to hide these broadcasts.",
   "broadcastStateHasNotBeenReadYet": "Broadcast state has not been read yet.",
   "steamOfflineMode": "Steam offline mode",
@@ -1128,7 +1156,7 @@
   "convertLuaVdfAndAcfFilesToASeparateOutputFolder": "Convert Lua, VDF and ACF files to a separate output folder",
   "convertAFolder": "Convert a folder",
   "processAllSupportedFilesInAFolder": "Process all supported files in a folder",
-  "manifestMonitoring": "Manifest monitoring",
+  "manifestMonitoring": "Manifest request monitoring",
   "fetchMissingManifestsRequestedBySteam": "Fetch missing manifests requested by Steam",
   "manifestVersionPins": "Manifest version pins",
   "installedManifestsLatestPublicManifestsOrUnpin": "Installed manifests, latest public manifests or unpin",
@@ -1182,9 +1210,9 @@
   "deleteSourceConfirm": "Delete this content source and its local configuration?",
   "sourceConfigurationRequired": "Setup required",
   "sourceConfigured": "Configured",
-  "sourceNotTested": "Not tested",
+  "sourceNotTested": "Configured; not tested yet",
   "sourceNeverUpdated": "Not updated",
-  "noContentSources": "No matching content sources",
+  "noContentSources": "No content sources yet",
   "contentImport": "Add to Lua library",
   "luaContentSource": "Lua content source",
   "manifestContentSource": "Manifest source (optional)",
@@ -1201,7 +1229,7 @@
   "sourceEnabled": "Enable this content source",
   "requiredField": "Required",
   "invalidUrl": "Enter an HTTP or HTTPS URL",
-  "invalidUpdateInterval": "Enter a non-negative integer",
+  "invalidUpdateInterval": "Enter a whole number from 0 to 8760.",
   "sourceTestSucceeded": "Test succeeded",
   "sourceUpdateComplete": "Update complete",
   "includeDlc": "Include DLC",
@@ -1270,7 +1298,6 @@
   "steamInstallationFolder": "Steam installation folder",
   "theFolderContainingSteamExe": "The folder containing steam.exe",
   "luaFolder": "Lua folder",
-  "leaveEmptyToUseTheKernelConfigurationOrConfigLua": "Leave empty to use the kernel configuration or config/stplug-in",
   "saveAndRefreshLibrary": "Save and refresh library",
   "appearanceAndInteraction": "Appearance and interaction",
   "theme": "Theme",
@@ -1299,7 +1326,7 @@
   "startSteam": "Start Steam",
   "stopSteam": "Close Steam",
   "restartSteam": "Restart Steam",
-  "automaticRefreshUpdateChecksFriendPresenceStartupAndOfflineMode": "Automatic refresh, update checks, friend presence, startup and offline mode.",
+  "automaticRefreshUpdateChecksFriendPresenceStartupAndOfflineMode": "Automatic refresh, update checks, startup and offline mode.",
   "downloadsKernelAndAccount": "Downloads, kernel and account",
   "manageSubscriptionsScriptsAndTheirLuaManifestIdAndManifestFileCapabilities": "Manage subscriptions, scripts and their Lua, manifest ID and manifest file capabilities.",
   "kernelManager": "Kernel manager",
@@ -1552,10 +1579,10 @@
   "lastPush": "Last push",
   "kernelLocalNoUpdates": "Local kernel packages do not check for updates",
   "releaseAnnouncement": "Release notes",
-  "manifestSettings": "Manifest settings",
+  "manifestSettings": "Manifest request codes",
   "manifestProvider": "Manifest provider",
   "manifestModeBuiltIn": "Built-in provider",
-  "manifestModeCustom": "Custom server",
+  "manifestModeCustom": "Custom server (through this app)",
   "manifestModeLocalProxy": "Local proxy",
   "manifestUrlTemplate": "Manifest URL template",
   "manifestHeader": "Request header",
@@ -1564,18 +1591,18 @@
   "manifestRequestCodes": "Manifest request codes",
   "noManifestCodeSources": "No enabled content source can provide manifest request codes",
   "selectAtLeastOneManifestCodeSource": "Select at least one manifest request-code source",
-  "manifestLocalProxyDescription": "Run a loopback server that resolves the selected content sources and returns a plain manifest request code to the kernel.",
-  "manifestCustomHint": "Use depotId and gid placeholders in the URL",
+  "manifestLocalProxyDescription": "Resolve the current depot/GID through the selected scripts while this app stays running. The core may still use a built-in source if scripts fail.",
+  "manifestCustomHint": "Include a gid or manifestId placeholder; appId and depotId are optional. Keep this app running; the core can fall back to a built-in source.",
   "steamClientDataChannel": "Steam client data channel",
   "channelRepository": "Data repository",
-  "channelName": "Channel",
+  "channelName": "Git branch",
   "channelFormat": "Repository format",
-  "channelFormatBranch": "Branch format",
-  "channelFormatDirectory": "Directory format",
+  "channelFormatBranch": "Separate pattern / ipc branches",
+  "channelFormatDirectory": "Pattern / ipc directories in one branch",
   "defaultRepository": "Default",
   "customRepository": "Custom repository",
   "localTemporaryBuild": "Local emergency build",
-  "localTemporaryBuildDescription": "Use only after a Steam update when every online data channel is unavailable. The generated files apply only to the current Steam client build.",
+  "localTemporaryBuildDescription": "Scan the current Steam files using bundled signatures and write temporary metadata only when matches are complete. Unknown builds may not be supported.",
   "localBuildTitle": "Local emergency build",
   "localBuildIdleDescription": "Read the installed Steam DLLs and generate temporary signature files for this exact Steam build.",
   "localBuildSteamDlls": "Steam DLLs",
@@ -1823,8 +1850,6 @@
   "openLogsAndBackups": "Open log and backup folders",
   "dlcAnalysisDescription": "Manage DLC records, compare Steam depot metadata with Lua, and preview additions.",
   "managePatchesAndLicenses": "Apply patches and manage license configuration.",
-  "setLuaDirectory": "Set Lua library folder",
-  "luaDirectoryUpdated": "Lua library folder updated and the library was refreshed.",
   "kernelDownloadsAndNetwork": "Kernel, downloads and network",
   "conversionResults": "Conversion results",
   "noMatchingManifestsFound": "No matching manifests were found.",
@@ -1881,8 +1906,8 @@
   },
   "lanAccept": "Accept",
   "lanReject": "Reject",
-  "lanRememberDevice": "Remember this device",
-  "lanAcceptAndRemember": "Accept and remember",
+  "lanRememberDevice": "Trust this device and receive automatically",
+  "lanAcceptAndRemember": "Accept and trust",
   "lanContentToTransfer": "Content to transfer",
   "lanOfficialFiles": "Official game files",
   "lanModifiedFiles": "Modified game files",
@@ -1892,12 +1917,25 @@
   "lanExtrasWarning": "Additional files may include mods, patches or saves stored inside the game folder. Select only what the receiver needs.",
   "lanNoManifestWarning": "No local depot manifest was found. Official files cannot be identified automatically, so every game file requires manual selection.",
   "lanNetworkSpeed": "Network",
+  "lanDiskWriteSpeed": "Disk writes",
+  "lanDownloadProgress": "Downloading data",
+  "lanUploadProgress": "Sending data",
+  "lanInstallProgress": "Installing files",
+  "lanNetworkTransferred": "Transferred over the network: {bytes}",
+  "@lanNetworkTransferred": {
+    "placeholders": {
+      "bytes": {
+        "type": "String"
+      }
+    }
+  },
   "lanPeakSpeed": "Peak",
   "lanProgress": "Transferring game data",
   "lanRemainingTime": "Time remaining",
   "lanPause": "Pause transfer",
   "lanPaused": "Paused",
   "lanResume": "Resume transfer",
+  "lanRetryTransfer": "Retry transfer",
   "lanCancelTransfer": "Cancel transfer",
   "lanWaitingApproval": "Waiting for the receiver to approve",
   "lanWaitingSteam": "Downloaded. Close Steam on the receiving PC to finish installation.",
@@ -1925,9 +1963,11 @@
   "lanRefreshDevices": "Refresh devices",
   "lanChunkProgress": "Chunk progress",
   "lanCachedChunks": "Cached chunks",
-  "lanChunkCache": "Chunk cache",
-  "lanClearChunkCache": "Clear chunk cache",
-  "lanChunkCacheCleared": "Chunk cache cleared.",
+  "lanChunkCache": "Transfer staging",
+  "lanChunkCacheDescription": "Unfinished game data kept for resuming transfers.",
+  "lanClearChunkCache": "Clear transfer staging",
+  "lanClearChunkCacheConfirmation": "Clear unfinished transfer data? Resuming these transfers will require retransmission.",
+  "lanChunkCacheCleared": "Transfer staging cleared.",
   "lanManualAddressInvalid": "Enter a valid IPv4 address or host name.",
   "more": "More",
   "screenshots": "Screenshots",
@@ -1955,5 +1995,379 @@
       }
     }
   },
-  "noDownloadedManifests": "No manifest files were found for this game in Steam depotcache."
+  "noDownloadedManifests": "No manifest files were found for this game in Steam depotcache.",
+  "luaDirectories": "Lua directories",
+  "addLuaDirectory": "Add Lua directory",
+  "luaDirectoryAlreadyAdded": "This directory is already listed.",
+  "defaultLuaWriteDirectory": "Default write directory",
+  "luaDirectoriesSaved": "Lua directories saved to the core configuration and library refreshed.",
+  "coreLuaDirectory": "Fixed directory",
+  "remove": "Remove",
+  "configurationEnabled": "Enabled in configuration",
+  "cloudPluginCache": "Plugin local cache",
+  "cloudFolderRepository": "Folder repository",
+  "cloudConfigurationSavedRestart": "Configuration saved. Restart Steam to apply it.",
+  "cloudConfigurationRestartDescription": "Steam loads this configuration at startup. Enabling it does not confirm that the plugin is loaded or sync has completed.",
+  "cloudMetadataSync": "Achievement and playtime sync",
+  "cloudSyncAchievements": "Sync achievements and statistics",
+  "cloudSyncPlaytime": "Sync playtime",
+  "cloudRepositoryDescription": "Manage CloudRedirect repositories and caches here. Exports preserve hashed objects and metadata; the plugin inside Steam restores saves through synchronization.",
+  "manifestConfigurationSaved": "Request-code configuration saved. Restart Steam to apply script changes; custom and local proxy modes require this app to stay running.",
+  "kernelChannelDescription": "Saving updates both the core automatic source and manual downloads. Existing cached files remain in use; new build fingerprints use this source on the next Steam startup.",
+  "onlineFixRealAppIdDescription": "On the maintained fork, try keeping the real AppID for black-screen or loading issues. Games requiring the Spacewar AppID should use the option above.",
+  "luaPresenceDescription": "Controls friend presence for Lua games, without changing Steam-wide privacy. Requires a fork with presence support; the discontinued mainline does not support it.",
+  "customLuaDirectories": "Custom directories",
+  "noCustomLuaDirectories": "No custom directories",
+  "luaDirectoriesSort": "Directory order",
+  "currentSteamLoginAccount": "Current Steam account",
+  "ticketOwnerAccount": "Ticket owner",
+  "cachedAuthorizationIdentity": "Cached authorization identity for this game",
+  "ticketIdentityNotSet": "Not set",
+  "ticketAccountUnavailable": "Not signed in or unavailable",
+  "applyTicketPreserveIdentity": "Apply tickets, preserve identity",
+  "syncAuthorizationIdentity": "Also set authorization identity to {steamId}",
+  "ticketIdentitySaveWarning": "Changing the authorization identity may affect game saves stored in SteamID-specific directories.",
+  "ticketCachedIdentityWarning": "The cached authorization identity differs from the ticket owner. Preserving it may affect authorization; only starting the game can confirm authorization.",
+  "ticketIdentityWarningLabel": "Identity mismatch",
+  "ticketApplyBackupDescription": "Back up the previous AppTicket, ETicket and SteamID with encryption before applying. By default, only the two tickets are replaced.",
+  "ticketWrittenVerified": "Tickets written and verified",
+  "restorePreApplyCredentials": "Restore previous credentials",
+  "ticketRestoreCompleteSet": "Restore both tickets and SteamID from this backup, deleting values that were originally absent. Restore associated Lua files too and save the current credentials in an encrypted backup.",
+  "ticketCredentialsRestored": "Previous credential set restored and verified",
+  "ticketLuaCleanup": "Ticket statements to remove from Lua",
+  "ticketLuaRemovalCount": "Found {count} old ticket statements",
+  "ticketLuaCleanupDescription": "Confirming backs up the Lua files and removes these statements before applying, preventing the core from reloading old tickets.",
+  "ticketStopSteamForLua": "Steam will close after confirmation to prevent Lua hot reload from overwriting credentials. Restart it manually afterwards.",
+  "ticketPreviewChanged": "Credentials changed after the preview. Review them again.",
+  "ticketLuaChanged": "Lua changed after the preview or backup. The current file was not overwritten; review it again.",
+  "ticketInvalidBackup": "Invalid credential backup.",
+  "ticketWriteNotVerified": "Credential read-back verification failed; restoration of the previous values was attempted.",
+  "ticketRollbackIncomplete": "The operation failed and rollback was incomplete. Restore the full credential set and Lua files from the encrypted backup.",
+  "ticketOperationBusy": "Another credential operation is still running.",
+  "@syncAuthorizationIdentity": {
+    "placeholders": {
+      "steamId": {
+        "type": "String"
+      }
+    }
+  },
+  "@ticketLuaRemovalCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketLuaManualCleanup": "The Lua ticket call is not a removable stand-alone statement. Edit it in the Lua editor before applying.",
+  "copyAchievementsHint": "Copies local cache files only; unlocked achievements are not transferred.",
+  "lanAutomaticReceiveHint": "Future transfers will be accepted into: {path}. Use the device menu to forget this device.",
+  "@lanAutomaticReceiveHint": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "noInstalledGamesToTransfer": "No installed games to transfer",
+  "installGameBeforeTransfer": "Install a game, then refresh the library.",
+  "noAdditionalFiles": "No additional files",
+  "sourceNeedsConfiguration": "{name} · Needs configuration",
+  "@sourceNeedsConfiguration": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "configureManifestSource": "Configure selected manifest source",
+  "sourceTestPassed": "{name} passed the test.",
+  "@sourceTestPassed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fileWillBeBackedUpAndReplaced": "Will be backed up and replaced",
+  "fileExistsChooseReplace": "File exists; confirm backup and replacement",
+  "luaImportReady": "Lua configuration for “{game}” is saved. You can now open Steam to install it.",
+  "@luaImportReady": {
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "httpsUrlRequired": "Enter a valid HTTPS URL.",
+  "subscriptionAutoUpdateScope": "Applies to all subscriptions; each uses its own update interval.",
+  "subscriptionIntervalDescription": "An interval of 0 means manual updates only. Enable automatic updates above to use the interval.",
+  "sourceOutputType": "Content to retrieve",
+  "sourceArchiveOutput": "Manifest archive",
+  "sourceCredentialHint": "Sign in on the source website and obtain this credential from account settings.",
+  "sourceOutputHint": "Lua retrieves configuration text; the archive option retrieves the source’s manifest package.",
+  "sourceProviderHint": "Choose the manifest provider used by this service.",
+  "sourceGameNameHint": "Used only by the source service; leave blank if unnecessary.",
+  "sourceDepotManifestHint": "Enter Depot ID and Manifest ID together, or leave both blank to request the game package.",
+  "openSourceWebsite": "Open source website",
+  "luaDirectoryRemoved": "Directory removed from configuration. Its files are kept.",
+  "undo": "Undo",
+  "bearerToken": "Bearer token",
+  "fillRequiredFields": "Complete these required fields: {fields}.",
+  "@fillRequiredFields": {
+    "placeholders": {
+      "fields": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudAddressInvalid": "Enter a complete HTTPS URL, or enable Allow HTTP to use an HTTP URL.",
+  "cloudTimeoutInvalid": "Timeout must be from 0 to 300 seconds.",
+  "connectionFailedRetry": "Could not connect. Check your network and try again.",
+  "fileOperationFailedHint": "Could not access the files. Check folder permissions, disk space, and whether a file is in use.",
+  "remoteCredentialsRejected": "Remote access was denied. Check your credentials and folder permissions.",
+  "remoteLocationMissing": "The remote location was not found. Check the configured address or folder.",
+  "remoteOperationFailedHint": "The remote operation could not finish. Check the connection or open Details.",
+  "invalidInputHint": "The content format is invalid. Check the form or imported file.",
+  "operationFailedDetails": "The operation could not finish. Open Details for the cause.",
+  "steamLocalSave": "Steam local saves",
+  "selectBackupProvider": "This backup includes remote data from {provider}. Select that storage provider before restoring.",
+  "@selectBackupProvider": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "steamUpdateChecks": "Steam update checks",
+  "steamForcedUpdates": "Steam forced updates",
+  "blockedSetting": "Blocked",
+  "allowedSetting": "Allowed",
+  "confirmApplyTickets": "Confirm ticket application",
+  "reviewExtractedTickets": "Review and apply these tickets",
+  "extractTrainerBeforeBinding": "Extract this archive first, then select the trainer executable to bind it to a game.",
+  "testAndUpdateSubscription": "Test and update subscription",
+  "cloudOperationBusy": "Wait for the current save operation to finish.",
+  "cloudInvalidBackup": "Invalid backup record.",
+  "cloudBackupChecksumFailed": "Backup checksum failed. Saves were not overwritten.",
+  "cloudPinnedBackup": "Unpin the backup before deleting it.",
+  "cloudInvalidRetention": "Retention count and size must be nonnegative integers.",
+  "cloudBackupTargetUnknown": "This backup has no storage identity and cannot be restored remotely.",
+  "cloudBackupTargetChanged": "Storage location or account has changed. Review the destination.",
+  "cloudSyncActiveOnly": "Activate this storage before pulling to the plugin cache.",
+  "cloudSteamMustStop": "Close Steam and games before continuing.",
+  "cloudInstallPluginFirst": "Install the CloudRedirect plugin first.",
+  "cloudSyncMetadataMissing": "Repository sync metadata is missing or invalid.",
+  "cloudSyncNotVerified": "The core did not confirm synchronization. The pre-operation backup is retained; check the task log.",
+  "cloudCurrentStorage": "Current core configuration",
+  "cloudFolderAbsolute": "Choose an absolute save-folder path.",
+  "cloudCredentialsRequired": "Enter credentials for the selected authentication method.",
+  "cloudUnknownStorage": "Invalid storage type.",
+  "cloudAuthorizeFirst": "Authorize an account in this form first.",
+  "cloudAccountLookupFailed": "Could not read the authorized account identity.",
+  "cloudWriteProbeFailed": "Test-file readback verification failed.",
+  "cloudStorageNameRequired": "Enter a storage name.",
+  "cloudActiveStorageDelete": "Switch the active sync target before removing it.",
+  "cloudDisableBeforeDisconnect": "Disable redirection before disconnecting the active target.",
+  "cloudStorages": "Storage management",
+  "cloudAddStorage": "Add storage",
+  "cloudStorageName": "Storage name",
+  "cloudActivate": "Use for synchronization",
+  "cloudActiveTarget": "Sync target",
+  "cloudBrowse": "Browse saves",
+  "cloudBrowsing": "Browsing",
+  "cloudDuplicate": "Duplicate configuration",
+  "cloudSortStorages": "Storage order",
+  "cloudStorageSaved": "Storage saved",
+  "cloudStorageRemoved": "Remove local configuration and credentials. Remote files are retained.",
+  "cloudStorageActivated": "Sync target updated; it takes effect on the next Steam launch.",
+  "cloudTestRead": "Test reading",
+  "cloudTestWrite": "Test writing and cleanup",
+  "cloudTestWriteHint": "Creates a temporary test file, verifies it, then deletes it.",
+  "cloudReadVerified": "Reading verified",
+  "cloudWriteVerified": "Reading and writing verified",
+  "cloudNotTested": "Not tested",
+  "cloudDiscardDraft": "Discard unsaved changes?",
+  "cloudPendingRestart": "Pending Steam restart",
+  "cloudCoreReady": "Core files ready",
+  "cloudCoreMissing": "Core or loader not ready",
+  "cloudNotRuntimeVerified": "Runtime not verified",
+  "cloudLastChecked": "Last checked",
+  "cloudAllAccounts": "All accounts",
+  "cloudAccountFilter": "Account filter",
+  "cloudLocationFilter": "Location filter",
+  "cloudAllLocations": "All locations",
+  "cloudDetails": "Save details",
+  "cloudLoadFiles": "View files",
+  "cloudPull": "Pull to plugin cache",
+  "cloudPullHint": "CloudRedirect pulls this game after backing up its cache. Launch the game afterward to verify save loading.",
+  "cloudSyncVerified": "Core sync completed; cache metadata verified",
+  "cloudCompare": "Compare repository manifests",
+  "cloudLocalOnly": "Local only",
+  "cloudRemoteOnly": "Remote only",
+  "cloudChangedFiles": "Different content or metadata",
+  "cloudManifestEqual": "Repository manifests match",
+  "cloudCompareHint": "Compares file manifests; timestamps do not establish sync completion.",
+  "cloudExportRepository": "Export repository copy",
+  "cloudExportHint": "Exports hashed objects and metadata. The destination must be empty.",
+  "cloudPreOperationBackup": "Automatic pre-operation backup",
+  "cloudConfirmOperation": "Confirm save operation",
+  "cloudStopAndContinue": "Close Steam and continue",
+  "cloudBackupDetails": "Backup details",
+  "cloudBackupNote": "Note",
+  "cloudBackupPinned": "Keep pinned",
+  "cloudVerifyBackup": "Verify backup",
+  "cloudBackupVerified": "Backup verified",
+  "cloudRetention": "Clean up backups",
+  "cloudRetentionCount": "Backups to keep per game",
+  "cloudRetentionSize": "Size limit per game (MiB)",
+  "cloudRetentionHint": "0 means unlimited. Pinned backups are excluded. Files are deleted only after reviewing the list.",
+  "cloudNothingToClean": "No backups to clean up",
+  "cloudBackupManual": "Manual backup",
+  "cloudBackupBeforeDelete": "Before deletion",
+  "cloudBackupBeforeRestore": "Before restore",
+  "cloudBackupBeforeUpload": "Before upload",
+  "cloudBackupBeforeSync": "Before pull",
+  "cloudDestination": "Destination",
+  "cloudRepositoryCopy": "Copy to sync target",
+  "cloudGameAccount": "Game / account",
+  "cloudTargetChangedDuringOperation": "The destination changed during the operation. Stopped.",
+  "cloudExportNotEmpty": "Choose an empty directory. Existing files were not overwritten.",
+  "cloudNoRestoreTargets": "The backup has no restore locations.",
+  "cloudRestartForSettings": "Settings saved. Verify runtime behavior after restarting Steam.",
+  "cloudLoadFailedRetained": "Refresh failed; previous results retained",
+  "cloudDisconnectConfirm": "Remove this storage’s local credentials. Remote files are retained.",
+  "cloudNoFiles": "No files",
+  "steamVersionTitle": "Steam client versions",
+  "steamVersionDescription": "Browse, verify, install and restore Steam client versions",
+  "steamVersionBusy": "Wait for the current version operation to finish.",
+  "steamVersionInvalidCatalog": "The version catalogue is invalid or incomplete.",
+  "steamVersionManifestMismatch": "The manifest architecture or build does not match the request.",
+  "steamVersionInvalidFilter": "Use YYYYMMDD dates; the start date must not exceed the end date.",
+  "steamVersionDownloading": "Downloading and verifying {file}",
+  "@steamVersionDownloading": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "steamVersionDownloadProgress": "{file} · {received}/{total} bytes",
+  "@steamVersionDownloadProgress": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      },
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "steamVersionRangeInvalid": "The server returned an incorrect resume range.",
+  "steamVersionChecksumFailed": "File size or SHA-256 verification failed.",
+  "steamVersionPackageInvalid": "Missing or invalid package: {file}",
+  "@steamVersionPackageInvalid": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "steamVersionSameImport": "This directory is already in the version library.",
+  "steamVersionStaging": "Installing and verifying the version in a temporary directory",
+  "steamVersionInstallUnverified": "The target installation could not be verified; it was not applied to Steam.",
+  "steamVersionLinkedPath": "Version files contain an unsupported link.",
+  "steamVersionApplying": "Applying client file {current}/{total}",
+  "@steamVersionApplying": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "steamVersionTargetRequired": "Choose a Steam directory containing steam.exe, or an empty directory for a new installation.",
+  "steamVersionInvalidBackup": "Invalid client backup.",
+  "steamVersionBackupTargetChanged": "This backup belongs to a different Steam directory.",
+  "steamVersionLatest": "Sync official releases",
+  "steamVersionHistory": "Update history index",
+  "steamVersionImport": "Import downloaded version",
+  "steamVersionCurrent": "Current client",
+  "steamVersionUnknown": "Version not identified",
+  "steamVersionTarget": "Installation directory",
+  "steamVersionEmpty": "No cached versions",
+  "steamVersionOfficial": "Official CDN",
+  "steamVersionArchive": "Wayback archive",
+  "steamVersionLocal": "Local import",
+  "steamVersionPackages": "Client packages",
+  "steamVersionReady": "Downloaded",
+  "steamVersionPartial": "{current}/{total} packages downloaded",
+  "@steamVersionPartial": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "steamVersionDownload": "Download and verify",
+  "steamVersionVerify": "Verify downloads",
+  "steamVersionInstall": "Install this version",
+  "steamVersionInstallHint": "Installs offline in a temporary directory, then backs up and replaces client files with rollback on failure. Games, account settings, Lua and plugins are retained. Update behavior follows Settings → Steam update control.",
+  "steamVersionInstalled": "Client files applied and version checked. Start Steam to verify runtime behavior.",
+  "steamVersionDeleteDownload": "Delete local download packages while retaining the catalogue entry and client backups.",
+  "steamVersionBackups": "Client backups",
+  "steamVersionRestoreHint": "Restore client files from before this operation, after backing up the current state.",
+  "steamVersionArchitecture": "Client architecture",
+  "steamVersionStartDate": "Start date",
+  "steamVersionEndDate": "End date",
+  "steamVersionHistoryLimit": "Manifest limit",
+  "steamVersionHistoryHint": "Historical files may be incomplete. Installation requires every package to pass verification.",
+  "steamVersionRefreshLocal": "Refresh local status",
+  "steamVersionStartSteam": "Start Steam",
+  "steamVersionDetails": "Version details",
+  "steamVersionDownloadedVerified": "All client packages passed verification",
+  "steamVersionStopSteam": "Close Steam before installation",
+  "steamVersionBackupBefore": "Back up client files before applying",
+  "steamVersionWaybackSettings": "Wayback and cache",
+  "steamVersionWaybackAddress": "Wayback address",
+  "steamVersionWaybackHint": "Defaults to web.archive.org. You can enter a custom Wayback address.",
+  "steamVersionWaybackInvalid": "Enter a complete HTTPS address without credentials or query parameters.",
+  "steamVersionCacheHit": "Reusing cached historical manifest: {stamp}",
+  "@steamVersionCacheHit": {
+    "placeholders": {
+      "stamp": {
+        "type": "String"
+      }
+    }
+  },
+  "steamVersionCacheSaved": "Historical manifest cached: {stamp}",
+  "@steamVersionCacheSaved": {
+    "placeholders": {
+      "stamp": {
+        "type": "String"
+      }
+    }
+  },
+  "steamVersionCacheHint": "The built-in catalogue provides initial choices. Refresh the version library to discover new releases. History indexes are cached for 24 hours; selected manifests are fetched on demand and saved.",
+  "steamVersionForceHistory": "Force refresh history index",
+  "steamVersionWaybackDefault": "Restore default address",
+  "steamVersionRefreshCatalog": "Refresh version library",
+  "steamVersionBuiltin": "Built-in catalogue",
+  "steamVersionManifestPending": "Manifest not loaded",
+  "steamVersionLoadManifest": "Load version manifest",
+  "steamVersionSnapshot": "Historical snapshot {date}",
+  "@steamVersionSnapshot": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

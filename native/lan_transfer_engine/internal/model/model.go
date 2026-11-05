@@ -36,6 +36,7 @@ type GameInput struct {
 	InstallPath string `json:"installPath"`
 	LibraryPath string `json:"libraryPath"`
 	LuaPath     string `json:"luaPath"`
+	LuaEnabled  bool   `json:"luaEnabled"`
 	CoverURL    string `json:"coverUrl"`
 	SizeOnDisk  int64  `json:"sizeOnDisk"`
 }
@@ -97,6 +98,7 @@ type PlanSummary struct {
 	InstallDir        string        `json:"installDir"`
 	CoverURL          string        `json:"coverUrl"`
 	LuaEnabled        bool          `json:"luaEnabled"`
+	LuaAvailable      bool          `json:"luaAvailable"`
 	ManifestAvailable bool          `json:"manifestAvailable"`
 	SelectedBytes     int64         `json:"selectedBytes"`
 	OfficialBytes     int64         `json:"officialBytes"`
@@ -142,6 +144,12 @@ type Session struct {
 	Status           string  `json:"status"`
 	TotalBytes       int64   `json:"totalBytes"`
 	TransferredBytes int64   `json:"transferredBytes"`
+	NetworkBytes     int64   `json:"networkBytes"`
+	DiskBytes        int64   `json:"diskBytes"`
+	DiskSpeed        float64 `json:"diskSpeed"`
+	InstalledBytes   int64   `json:"installedBytes"`
+	InstalledFiles   int     `json:"installedFiles"`
+	TotalFiles       int     `json:"totalFiles"`
 	Speed            float64 `json:"speed"`
 	PeakSpeed        float64 `json:"peakSpeed"`
 	Message          string  `json:"message"`

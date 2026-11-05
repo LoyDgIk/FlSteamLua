@@ -13,18 +13,21 @@ class CredentialCodec {
 }
 
 class CloudCredentialStore {
-  CloudCredentialStore(this.directory, this.codec);
+  CloudCredentialStore(this.directory, this.codec, {this.overrides = const {}});
   final String directory;
   final CredentialCodec codec;
+  final Map<String, String> overrides;
 
-  String path(String provider) => p.join(directory, switch (provider) {
-    'gdrive' => 'google_tokens.json',
-    'onedrive' => 'onedrive_tokens.json',
-    'r2' => 'r2_credentials.json',
-    's3' => 's3_credentials.json',
-    'webdav' => 'webdav_credentials.json',
-    _ => throw ArgumentError.value(provider, 'provider'),
-  });
+  String path(String provider) =>
+      overrides[provider] ??
+      p.join(directory, switch (provider) {
+        'gdrive' => 'google_tokens.json',
+        'onedrive' => 'onedrive_tokens.json',
+        'r2' => 'r2_credentials.json',
+        's3' => 's3_credentials.json',
+        'webdav' => 'webdav_credentials.json',
+        _ => throw ArgumentError.value(provider, 'provider'),
+      });
 
   Future<Map<String, dynamic>?> read(String provider) async {
     final file = File(path(provider));

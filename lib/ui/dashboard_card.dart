@@ -682,12 +682,16 @@ class DashboardIconButton extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     this.selected = false,
+    this.icon,
+    this.iconSize = 18,
   });
 
   final Glyph glyph;
   final String tooltip;
   final VoidCallback? onPressed;
   final bool selected;
+  final Widget? icon;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -705,8 +709,9 @@ class DashboardIconButton extends StatelessWidget {
       child: IconButton(
         tooltip: tooltip,
         onPressed: onPressed,
-        iconSize: 18,
+        iconSize: iconSize,
         style: IconButton.styleFrom(
+          padding: icon == null ? null : EdgeInsets.zero,
           minimumSize: const Size.square(40),
           fixedSize: const Size.square(40),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -723,7 +728,7 @@ class DashboardIconButton extends StatelessWidget {
             opacity: animation,
             child: ScaleTransition(scale: animation, child: child),
           ),
-          child: GlyphIcon(glyph, key: ValueKey(glyph), size: 18),
+          child: icon ?? GlyphIcon(glyph, key: ValueKey(glyph), size: iconSize),
         ),
       ),
     );

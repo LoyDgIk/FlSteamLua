@@ -209,7 +209,9 @@ class _DataManagementPageState extends State<DataManagementPage> {
         await ui.AppDialogs.confirm(
           context,
           title: localeText.clearCache,
-          message: localeText.clearCacheConfirmation,
+          message:
+              '${localeText.clearCacheConfirmation}\n\n${localeText.lanClearChunkCacheConfirmation}',
+          destructive: true,
         ) ??
         false;
     if (!confirmed || !mounted) return;
@@ -217,16 +219,12 @@ class _DataManagementPageState extends State<DataManagementPage> {
     try {
       await services.tasks.run(localeText.clearCache, (task) async {
         task.report(localeText.clearingCache);
+        await services.lanTransfer.clearChunkCache();
         await clearStorageDirectory(paths.storageLocation('cache'));
         services.keyCache.clearMemoryCache();
         PaintingBinding.instance.imageCache
           ..clear()
           ..clearLiveImages();
-        try {
-          await services.lanTransfer.clearChunkCache();
-        } catch (_) {
-          // The native engine may be stopped; its cache is still in dataDir.
-        }
       });
       if (mounted) {
         ui.showAppSuccess(context, context.l10n.cacheCleared);
@@ -283,7 +281,7 @@ class _DataManagementPageState extends State<DataManagementPage> {
                 leading: const ui.GlyphIcon(ui.AppGlyphs.devices, size: 20),
                 title: Text(context.l10n.lanTransferCache),
                 subtitle: Text(
-                  '${formatStorageBytes(stats.bytes)} · ${stats.files} ${context.l10n.files}',
+                  '${formatStorageBytes(stats.bytes)} · ${stats.files} ${context.l10n.files}\n${context.l10n.lanChunkCacheDescription}',
                 ),
               ),
           ],
@@ -350,10 +348,12 @@ class _DataManagementPageState extends State<DataManagementPage> {
           ),
           const SizedBox(height: 18),
           SizedBox(
+            width: double.infinity,
             height: 12,
             child: _loading
                 ? const ui.SkeletonPill(width: double.infinity, height: 12)
                 : CustomPaint(
+                    key: const ValueKey('storage-usage-bar'),
                     painter: _StorageBarPainter(
                       segments: [
                         for (final name in categories)
@@ -438,42 +438,47 @@ class _DataManagementPageState extends State<DataManagementPage> {
                 ),
             ],
           ),
-          if (editable) ...[
-            const SizedBox(width: 6),
-            ui.CommonPopupBox(
-              targetBuilder: (open) => IconButton(
-                tooltip: context.l10n.manage,
-                onPressed: _busy == null ? open : null,
-                icon: _busy == name
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: ui.CommonCircleLoading(size: 18),
-                      )
-                    : const ui.GlyphIcon(ui.AppGlyphs.more, size: 20),
-              ),
-              popupBuilder: (_) => ui.CommonPopupMenu(
-                items: [
-                  ui.CommonPopupMenuItem(
-                    label: context.l10n.changeStorageFolder,
-                    glyph: ui.AppGlyphs.edit,
-                    onPressed: () => _changeFolder(name),
-                  ),
-                  ui.CommonPopupMenuItem(
-                    label: context.l10n.openFolder,
-                    glyph: ui.AppGlyphs.resources,
-                    onPressed: () =>
-                        showAction(context, () => _openFolder(name)),
-                  ),
-                  ui.CommonPopupMenuItem(
-                    label: context.l10n.restoreDefault,
-                    glyph: ui.AppGlyphs.reset,
-                    section: const ui.CommonPopupMenuSection(),
-                    onPressed: () => _useDefaultFolder(name),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          const SizedBox(width: 6),
+          SizedBox.square(
+            dimension: kMinInteractiveDimension,
+            child: editable
+                ? ui.CommonPopupBox(
+                    targetBuilder: (open) => Center(
+                      child: IconButton(
+                        tooltip: context.l10n.manage,
+                        onPressed: _busy == null ? open : null,
+                        icon: _busy == name
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child: ui.CommonCircleLoading(size: 18),
+                              )
+                            : const ui.GlyphIcon(ui.AppGlyphs.more, size: 20),
+                      ),
+                    ),
+                    popupBuilder: (_) => ui.CommonPopupMenu(
+                      items: [
+                        ui.CommonPopupMenuItem(
+                          label: context.l10n.changeStorageFolder,
+                          glyph: ui.AppGlyphs.edit,
+                          onPressed: () => _changeFolder(name),
+                        ),
+                        ui.CommonPopupMenuItem(
+                          label: context.l10n.openFolder,
+                          glyph: ui.AppGlyphs.resources,
+                          onPressed: () =>
+                              showAction(context, () => _openFolder(name)),
+                        ),
+                        ui.CommonPopupMenuItem(
+                          label: context.l10n.restoreDefault,
+                          glyph: ui.AppGlyphs.reset,
+                          section: const ui.CommonPopupMenuSection(),
+                          onPressed: () => _useDefaultFolder(name),
+                        ),
+                      ],
+                    ),
+                  )
+                : null,
+          ),
         ],
       ),
     );

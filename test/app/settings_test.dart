@@ -10,6 +10,7 @@ import 'package:fl_steam_lua/core/app_paths.dart';
 import 'package:fl_steam_lua/core/settings_store.dart';
 import 'package:fl_steam_lua/features/cloud/cloud_redirect_plugin_page.dart';
 import 'package:fl_steam_lua/features/kernel/kernel_settings_page.dart';
+import 'package:fl_steam_lua/features/library/lua_directories.dart';
 import 'package:fl_steam_lua/ui/ui.dart' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -172,10 +173,13 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('steam-file-settings')));
       await tester.pumpAndSettle();
       await editPath(tester, 'steam-path-field', steam.path);
-      await editPath(tester, 'lua-path-field', lua.path);
       await press(tester, find.byKey(const ValueKey('save-paths')));
       expect(services.settings.steamPath, steam.path);
-      expect(services.settings.get<String>('luaPath', ''), lua.path);
+      expect(find.byKey(const ValueKey('lua-path-field')), findsNothing);
+      await tester.runAsync(() async {
+        await LuaDirectories(steam.path).save([lua.path]);
+        await services.library.scan();
+      });
       expect(services.library.games.single.appId, 42);
       expect(services.tasks.tasks.single.status.name, 'succeeded');
     },
@@ -422,8 +426,35 @@ void main() {
     },
   );
 
+  testWidgets('update failure stays outside the rounded settings group', (
+    tester,
+  ) async {
+    services.preferences.updateError = const HttpException(
+      'Release check failed: HTTP 403',
+    );
+    await render(tester);
+    await tester.tap(find.byKey(const ValueKey('application-update-settings')));
+    await tester.pumpAndSettle();
+    final row = find.byKey(const ValueKey('check-update'));
+    await reveal(tester, row);
+    expect(
+      ui.ItemPositionProvider.of(tester.element(row))?.position,
+      ui.ItemPosition.startAndEnd,
+    );
+    final error = find.textContaining('Release check failed: HTTP 403');
+    expect(error, findsOneWidget);
+    final card = find.ancestor(of: error, matching: find.byType(ui.CommonCard));
+    expect(
+      tester.getTopLeft(card).dy - tester.getBottomLeft(row).dy,
+      greaterThanOrEqualTo(12),
+    );
+    expect(tester.widget<ui.CommonCard>(card).inert, isTrue);
+  });
+
   testWidgets('open-source licenses are reachable from About', (tester) async {
     await render(tester);
+    await reveal(tester, find.byKey(const ValueKey('about-settings')));
+    await reveal(tester, find.byKey(const ValueKey('about-settings')));
     await tester.tap(find.byKey(const ValueKey('about-settings')));
     await tester.pumpAndSettle();
     final button = find.byKey(const ValueKey('open-licenses'));

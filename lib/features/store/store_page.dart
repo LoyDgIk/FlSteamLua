@@ -314,6 +314,7 @@ class _StorePageState extends State<StorePage>
                 ),
                 child: ui.CommonCard(
                   isError: true,
+                  inert: true,
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [

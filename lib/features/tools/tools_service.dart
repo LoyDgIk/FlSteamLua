@@ -1,4 +1,5 @@
 // Portions adapted from Fluent-Steam-Lua (zlib license); rewritten for Dart.
+import '../library/lua_directories.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -388,8 +389,12 @@ class ToolsService {
         final file = File(p.join(steam.path, relative));
         result.add(DiagnosticItem(relative, await file.exists(), file.path));
       }
-      final lua = Directory(p.join(steam.path, 'config', 'stplug-in'));
-      result.add(DiagnosticItem('Lua directory', await lua.exists(), lua.path));
+      for (final path in LuaDirectories(steam.path).loadOrder) {
+        final lua = Directory(path);
+        result.add(
+          DiagnosticItem('Lua directory', await lua.exists(), lua.path),
+        );
+      }
     }
     return result;
   }

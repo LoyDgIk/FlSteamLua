@@ -38,3 +38,8 @@ target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
 
 # Run the Flutter tool portions of the build. This must not be removed.
 add_dependencies(${BINARY_NAME} flutter_assemble)
+
+add_executable(cloud_sync_worker "cloud_sync_worker.cpp")
+apply_standard_settings(cloud_sync_worker)
+target_compile_definitions(cloud_sync_worker PRIVATE NOMINMAX)
+add_dependencies(${BINARY_NAME} cloud_sync_worker)

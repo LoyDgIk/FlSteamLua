@@ -68,3 +68,27 @@ recorded commit, adapt only the needed behavior, retain notices and update
 this record when the actual reference changes. Primary navigation stays
 `面板主页 / 库 / 商店 / 成就 / 云存档`; secondary utilities live in game actions,
 the tools entry or settings.
+
+
+## Steam client version reference (2026-11-06)
+
+User-provided SteamVault 1.0.0 distribution: `D:/tool/steam update`.
+Inspected its UTF-8 manual and embedded package/URL/command metadata without
+executing the program. The distribution contains a PyInstaller executable and
+runtime, not an ordinary source checkout. FlSteamLua implements the documented
+behaviors in Dart and does not copy the program or bundled Steam executables.
+Primary package-format evidence was fetched from Valve's official
+`https://media.steampowered.com/client/steam_client_win64` and `steam_client_win32`.
+Fixed manifest fixtures are under `test/steam_versions/fixtures`.
+The downloaded official bootstrap ZIP was inspected (not executed); its content
+hash matched the manifest and it contained `steam.exe`.
+
+The 59-entry seed catalogue extracts only factual build/snapshot metadata from
+SteamVault's embedded catalogue. 38 manifest requests were confirmed against
+Wayback during this session; other requests encountered transient connection
+failures. Entries are validated against the actual manifest on selection; seed
+membership is not evidence that every historical binary remains downloadable.
+Two original entries were excluded after replay returned a different build; the
+client rejects any later manifest that differs from the selected architecture or
+build. The runtime default archive address is web.archive.org, with an editable custom
+base and no built-in mirror or automatic archive host fallback.

@@ -219,6 +219,7 @@ class ContentSourceRegistry extends ChangeNotifier {
     String sourceId,
     int appId, {
     required Set<ContentCapability> requestedCapabilities,
+    ({int depotId, String manifestId})? manifestRequest,
     Set<int> dlcIds = const {},
     bool pinManifests = false,
     bool refreshMetadata = true,
@@ -237,6 +238,7 @@ class ContentSourceRegistry extends ChangeNotifier {
         nativeId,
         appId,
         requestedCapabilities: requestedCapabilities,
+        manifestRequest: manifestRequest,
         task: task,
       );
     }

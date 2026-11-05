@@ -170,25 +170,19 @@ class ManifestMonitor extends ChangeNotifier {
 class ManifestCdnDownloader {
   ManifestCdnDownloader({
     http.Client? client,
-    this.sources,
+    required this.resolveCode,
     this.cdnHost = 'steampipe.akamaized.net',
   }) : _client = client ?? http.Client(),
        _ownsClient = client == null;
   final http.Client _client;
   final bool _ownsClient;
-  final List<Uri Function(int, String)>? sources;
+  final Future<String> Function({
+    required int appId,
+    required int depotId,
+    required String gid,
+  })
+  resolveCode;
   final String cdnHost;
-
-  List<Uri Function(int, String)> get _sources =>
-      sources ??
-      [
-        (depot, gid) => Uri.https('20770407.xyz', '/manifest/$depot/$gid'),
-        (depot, gid) =>
-            Uri.https('steamapi.993499094.xyz', '/manifest/$depot/$gid'),
-        (depot, gid) => Uri.https('manifest.manifestdex.com', '/$depot'),
-        (depot, gid) => Uri.http('gmrc.wudrm.com', '/manifest/$depot'),
-        (depot, gid) => Uri.https('manifest.steam.run', '/api/manifest/$depot'),
-      ];
 
   Future<File> download(
     String steamPath,
@@ -200,67 +194,40 @@ class ManifestCdnDownloader {
         !RegExp(r'^[1-9]\d*$').hasMatch(request.manifestId)) {
       throw const FormatException('Invalid manifest request');
     }
-    final errors = <String>[];
-    for (final source in _sources) {
-      task.checkCancelled();
-      final uri = source(request.depotId, request.manifestId);
-      try {
-        task.report('Requesting code from ${uri.host}');
-        final codeResponse = await _client
-            .get(
-              uri,
-              headers: {
-                'User-Agent': uri.host.contains('manifestdex')
-                    ? 'ManifestDeX/1.0'
-                    : 'FlSteamLua/0.1',
-              },
-            )
-            .timeout(const Duration(seconds: 10));
-        if (codeResponse.statusCode != 200) {
-          throw HttpException('HTTP ${codeResponse.statusCode}');
-        }
-        var code = codeResponse.body.trim();
-        if (code.startsWith('{')) {
-          final decoded = jsonDecode(code) as Map<String, dynamic>;
-          code = '${decoded['content'] ?? ''}';
-        }
-        if (!RegExp(r'^[1-9]\d*$').hasMatch(code)) {
-          throw const FormatException('Invalid request code');
-        }
-        task.checkCancelled();
-        final cdn = Uri.https(
-          cdnHost,
-          '/depot/${request.depotId}/manifest/${request.manifestId}/5/$code',
-        );
-        task.report('Downloading manifest from $cdnHost');
-        final response = await _client
-            .get(cdn)
-            .timeout(const Duration(seconds: 25));
-        if (response.statusCode != 200) {
-          throw HttpException('CDN HTTP ${response.statusCode}');
-        }
-        final bytes = unwrapManifest(response.bodyBytes);
-        task.checkCancelled();
-        final directory = Directory(p.join(steamPath, 'depotcache'));
-        await directory.create(recursive: true);
-        final output = File(
-          p.join(
-            directory.path,
-            '${request.depotId}_${request.manifestId}.manifest',
-          ),
-        );
-        final temporary = File('${output.path}.flsteamlua.tmp');
-        await temporary.writeAsBytes(bytes, flush: true);
-        await temporary.rename(output.path);
-        task.report(output.path, 1);
-        return output;
-      } on TaskCancelled {
-        rethrow;
-      } catch (error) {
-        errors.add('${uri.host}: $error');
-      }
+    task.checkCancelled();
+    task.report('Resolving manifest request code');
+    final code = await resolveCode(
+      appId: request.appId,
+      depotId: request.depotId,
+      gid: request.manifestId,
+    );
+    task.checkCancelled();
+    final cdn = Uri.https(
+      cdnHost,
+      '/depot/${request.depotId}/manifest/${request.manifestId}/5/$code',
+    );
+    task.report('Downloading manifest from $cdnHost');
+    final response = await _client
+        .get(cdn)
+        .timeout(const Duration(seconds: 25));
+    if (response.statusCode != 200) {
+      throw HttpException('CDN HTTP ${response.statusCode}');
     }
-    throw HttpException(errors.join('\n'));
+    final bytes = unwrapManifest(response.bodyBytes);
+    task.checkCancelled();
+    final directory = Directory(p.join(steamPath, 'depotcache'));
+    await directory.create(recursive: true);
+    final output = File(
+      p.join(
+        directory.path,
+        '${request.depotId}_${request.manifestId}.manifest',
+      ),
+    );
+    final temporary = File('${output.path}.flsteamlua.tmp');
+    await temporary.writeAsBytes(bytes, flush: true);
+    await temporary.rename(output.path);
+    task.report(output.path, 1);
+    return output;
   }
 
   static List<int> unwrapManifest(List<int> input) {

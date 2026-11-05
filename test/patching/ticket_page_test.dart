@@ -49,12 +49,12 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('Denuvo authorization'), findsOneWidget);
+      expect(find.text('Denuvo ticket extraction'), findsOneWidget);
       await tester.tap(find.byTooltip('Open authorization page'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byType(TicketPage), findsOneWidget);
-      expect(find.text('Authorization tickets'), findsWidgets);
+      expect(find.text('Ticket management'), findsWidgets);
     } finally {
       await tester.pumpWidget(const SizedBox());
       achievements.dispose();

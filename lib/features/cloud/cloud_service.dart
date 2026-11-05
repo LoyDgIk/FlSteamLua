@@ -1,4 +1,5 @@
 // Reimplemented from Fluent-Steam-Lua cloud management (zlib).
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -13,13 +14,21 @@ import '../../core/app_paths.dart';
 import '../../core/settings_store.dart';
 import '../../core/task_center.dart';
 import '../../platform/windows/dpapi.dart';
+import '../../ui/localization.dart';
+import '../library/process_observer.dart';
+import 'remote/folder_store.dart';
+import 'cloud_native_sync.dart';
 import 'cloud_credentials.dart';
+import '../kernel/kernel_config.dart';
 import 'cloud_models.dart';
 import 'cloud_oauth.dart';
 import 'remote/cloud_remote.dart';
 
 export 'cloud_credentials.dart' show CredentialCodec;
 export 'cloud_models.dart';
+
+part 'cloud_profile_operations.dart';
+part 'cloud_backup_operations.dart';
 
 class CloudService extends ChangeNotifier {
   CloudService({
@@ -30,6 +39,8 @@ class CloudService extends ChangeNotifier {
     CredentialCodec? credentialCodec,
     Future<bool> Function(Uri)? openBrowser,
     RemoteStore? remoteStore,
+    CloudNativeRunner? nativeRunner,
+    Future<List<RunningProcess>> Function()? processReader,
   }) : client = client ?? http.Client(),
        configDirectory =
            configDirectory ??
@@ -37,7 +48,9 @@ class CloudService extends ChangeNotifier {
              Platform.environment['APPDATA'] ?? paths.root,
              'CloudRedirect',
            ),
-       _remoteOverride = remoteStore {
+       _remoteOverride = remoteStore,
+       _nativeRunner = nativeRunner ?? runCloudNativeSync,
+       _processReader = processReader ?? readRunningProcesses {
     credentials = CloudCredentialStore(
       this.configDirectory,
       credentialCodec ??
@@ -81,6 +94,34 @@ class CloudService extends ChangeNotifier {
   String get provider => status.provider;
   String? lastError;
   bool loading = false;
+  final CloudNativeRunner _nativeRunner;
+  final Future<List<RunningProcess>> Function() _processReader;
+  List<CloudStorageProfile> _profiles = [];
+  String _activeStorageId = 'current';
+  String? _browsingStorageId;
+  bool _mutating = false;
+  int _refreshGeneration = 0;
+  DateTime? checkedAt;
+  final Map<String, CloudSyncResult> syncResults = {};
+  final Map<String, String> locationErrors = {};
+  final Map<String, List<CloudFileInfo>> fileDetails = {};
+  AppLocalizations get _l10n => localizationsFor(settings.language);
+  bool get busy => _mutating;
+  void _notify() => notifyListeners();
+
+  Future<T> runMutation<T>(Future<T> Function() action) async {
+    if (_mutating) throw StateError(_l10n.cloudOperationBusy);
+    _mutating = true;
+    ++_refreshGeneration;
+    loading = false;
+    notifyListeners();
+    try {
+      return await action();
+    } finally {
+      _mutating = false;
+      notifyListeners();
+    }
+  }
 
   File get _configFile => File(p.join(configDirectory, 'config.json'));
   String get syncPath => status.syncPath.isNotEmpty
@@ -101,80 +142,244 @@ class CloudService extends ChangeNotifier {
   Future<void> _writeConfig(Map<String, dynamic> values) async {
     final config = await _readConfig();
     config.addAll(values);
+    config['flsteamlua_changed_at'] = DateTime.now().toUtc().toIso8601String();
+    final running = await _processReader();
+    config['flsteamlua_changed_pid'] = running
+        .where((v) => p.basename(v.executablePath).toLowerCase() == 'steam.exe')
+        .firstOrNull
+        ?.pid;
     await atomicWrite(
       _configFile,
       utf8.encode(const JsonEncoder.withIndent('  ').convert(config)),
     );
   }
 
-  Future<void> refresh({int? appId, TaskContext? context}) async {
+  Future<void> refreshStatus() async {
+    final config = await _readConfig();
+    final selected = config['provider'] as String? ?? 'folder';
+    if (!providers.contains(selected)) {
+      throw FormatException(_l10n.cloudUnknownStorage);
+    }
+    final token =
+        (config['token_paths'] as Map?)?[selected] as String? ??
+        config['token_path'] as String?;
+    final credential = CloudCredentialStore(
+      configDirectory,
+      credentials.codec,
+      overrides: {selected: ?token},
+    );
+    final configured =
+        selected == 'folder' ||
+        _remoteOverride != null ||
+        await credential.read(selected) != null;
+    final plugin = await inspectPlugin();
+    final processes = await _processReader();
+    final steam = processes
+        .where((v) => p.basename(v.executablePath).toLowerCase() == 'steam.exe')
+        .firstOrNull;
+    final oldPid = config['flsteamlua_changed_pid'];
+    final pending =
+        config['flsteamlua_changed_at'] != null &&
+        (steam == null || oldPid == steam.pid);
+    final root = settings.steamPath;
+    final dwm =
+        File(p.join(root, 'dwmapi.dll')).existsSync() ||
+        File(p.join(root, 'bin', 'dwmapi.dll')).existsSync();
+    final version = File(p.join(root, 'version.dll')).existsSync();
+    status = CloudStatus(
+      enabled: plugin.enabled,
+      pluginInstalled: plugin.installed,
+      configured: configured,
+      provider: selected,
+      syncPath: config['sync_path'] as String? ?? '',
+      syncAchievements: config['sync_achievements'] == true,
+      syncPlaytime: config['sync_playtime'] == true,
+      pendingRestart: pending,
+      coreReady:
+          root.isNotEmpty &&
+          File(p.join(root, 'OpenSteamTool.dll')).existsSync() &&
+          dwm != version,
+    );
+    await loadProfiles();
+    notifyListeners();
+  }
+
+  Future<void> _refreshAfterMutation({int? appId}) async {
+    try {
+      await refresh(appId: appId);
+    } catch (_) {
+      /* refresh records the listing error without undoing a committed operation */
+    }
+  }
+
+  Future<void> browseStorage(String id, {int? appId}) async {
+    if (_mutating) throw StateError(_l10n.cloudOperationBusy);
+    _browsingStorageId = id;
+    await refresh(appId: appId);
+  }
+
+  Future<void> refresh({
+    int? appId,
+    TaskContext? context,
+    bool includeRemote = true,
+  }) async {
+    if (!includeRemote) {
+      await refreshStatus();
+      return;
+    }
+    final generation = ++_refreshGeneration;
     loading = true;
     lastError = null;
     notifyListeners();
     try {
-      final config = await _readConfig();
-      final selected = config['provider'] is String
-          ? config['provider'] as String
-          : 'folder';
-      if (!providers.contains(selected)) {
-        throw FormatException('Unknown cloud provider: $selected');
-      }
-      final configured =
-          selected == 'folder' ||
-          _remoteOverride != null ||
-          await credentials.read(selected) != null;
-      status = CloudStatus(
-        enabled: await _redirectEnabled(),
-        syncPath: config['sync_path'] as String? ?? '',
-        provider: selected,
-        configured: configured,
+      await refreshStatus();
+      final selected = browsingStorage;
+      final storageId = selected.id;
+      fileDetails.clear();
+      locationErrors.clear();
+      final folderRoot = selected.provider == 'folder'
+          ? selected.folder
+          : syncPath;
+      final cacheRoot = settings.steamPath.isEmpty
+          ? null
+          : p.join(settings.steamPath, 'cloud_redirect', 'storage');
+      final local = await Isolate.run(
+        () => [
+          ..._scanLocalSaves(
+            folderRoot,
+            CloudSaveLocation.folder,
+            appId: appId,
+            storageId: storageId,
+          ),
+          if (cacheRoot != null && !p.equals(cacheRoot, folderRoot))
+            ..._scanLocalSaves(
+              cacheRoot,
+              CloudSaveLocation.cache,
+              appId: appId,
+              storageId: storageId,
+            ),
+        ],
       );
-      final localRoot = syncPath;
-      final local = await Isolate.run(() => _scanLocalSaves(localRoot));
-      _saves = local;
-      if (selected != 'folder' && configured) {
-        final remote = await _remote();
-        final remoteSaves = <CloudSave>[];
+      if (generation != _refreshGeneration) return;
+      final keep = _saves
+          .where(
+            (v) =>
+                v.storageId == storageId &&
+                (v.isRemote || appId != null && v.appId != appId),
+          )
+          .toList();
+      _saves = [...keep, ...local];
+      notifyListeners();
+      if (selected.provider != 'folder') {
+        final remote = await remoteFor(storageId);
+        final found = <CloudSave>[];
         for (final account in await remote.list('')) {
           context?.checkCancelled();
           if (!account.isDirectory ||
               int.tryParse(p.posix.basename(account.path)) == null) {
             continue;
           }
-          for (final app in await remote.list(account.path)) {
+          final apps = await remote.list(account.path);
+          for (final app in apps) {
             final id = int.tryParse(p.posix.basename(app.path));
-            if (!app.isDirectory || id == null || id <= 0) continue;
-            final files = await _remoteFiles(remote, app.path, context);
-            final timestamps =
-                files
-                    .map((file) => file.modifiedAt)
-                    .whereType<DateTime>()
-                    .toList()
-                  ..sort();
-            remoteSaves.add(
+            if (!app.isDirectory ||
+                id == null ||
+                id <= 0 ||
+                appId != null && id != appId) {
+              continue;
+            }
+            found.add(
               CloudSave(
                 appId: id,
                 accountId: p.posix.basename(account.path),
                 path: app.path,
-                isRemote: true,
-                fileCount: files.length,
-                size: files.fold(0, (sum, file) => sum + file.size),
-                modifiedAt: timestamps.isNotEmpty
-                    ? timestamps.last
-                    : app.modifiedAt,
+                location: CloudSaveLocation.remote,
+                storageId: storageId,
+                detailsLoaded: false,
+                modifiedAt: app.modifiedAt,
+                checkedAt: DateTime.now(),
               ),
             );
           }
+          if (generation != _refreshGeneration) return;
+          _saves = [
+            ...keep.where((v) => !found.any((n) => n.id == v.id)),
+            ...local,
+            ...found,
+          ];
+          notifyListeners();
         }
-        _saves = [...local, ...remoteSaves];
+        if (generation != _refreshGeneration) return;
+        _saves = [
+          ...keep.where((v) => appId != null && v.appId != appId),
+          ...local,
+          ...found,
+        ];
       }
-      _saves.sort((a, b) => a.appId.compareTo(b.appId));
+      checkedAt = DateTime.now();
     } catch (error) {
-      lastError = error.toString();
+      if (generation == _refreshGeneration) lastError = error.toString();
       rethrow;
     } finally {
-      loading = false;
+      if (generation == _refreshGeneration) {
+        loading = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<List<CloudFileInfo>> inspectSave(
+    CloudSave save, {
+    TaskContext? context,
+  }) async {
+    try {
+      final files = save.isRemote
+          ? (await _remoteFiles(
+                  await remoteFor(save.storageId),
+                  save.path,
+                  context,
+                ))
+                .map(
+                  (v) => CloudFileInfo(
+                    p.posix.relative(v.path, from: save.path),
+                    v.size,
+                    modifiedAt: v.modifiedAt,
+                  ),
+                )
+                .toList()
+          : await Isolate.run(
+              () => Directory(save.path)
+                  .listSync(recursive: true, followLinks: false)
+                  .whereType<File>()
+                  .map(
+                    (v) => CloudFileInfo(
+                      p.relative(v.path, from: save.path).replaceAll('\\', '/'),
+                      v.lengthSync(),
+                      modifiedAt: v.lastModifiedSync(),
+                    ),
+                  )
+                  .toList(),
+            );
+      fileDetails[save.id] = files;
+      locationErrors.remove(save.id);
+      final updated = CloudSave(
+        appId: save.appId,
+        accountId: save.accountId,
+        path: save.path,
+        location: save.location,
+        storageId: save.storageId,
+        fileCount: files.length,
+        size: files.fold(0, (sum, v) => sum + v.size),
+        checkedAt: DateTime.now(),
+        modifiedAt: save.modifiedAt,
+      );
+      _saves = _saves.map((v) => v.id == save.id ? updated : v).toList();
       notifyListeners();
+      return files;
+    } catch (error) {
+      locationErrors[save.id] = '$error';
+      notifyListeners();
+      rethrow;
     }
   }
 
@@ -214,12 +419,7 @@ class CloudService extends ChangeNotifier {
       } else {
         await Directory(destination).create(recursive: true);
       }
-      await _writeConfig({
-        'sync_path': destination,
-        'sync_achievements': true,
-        'sync_playtime': true,
-        'auto_update_dll': false,
-      });
+      await _writeConfig({'sync_path': destination, 'auto_update_dll': false});
     } catch (_) {
       if (promoted) await Directory(destination).rename(stage!.path);
       if (previous != null) await previous.rename(destination);
@@ -230,7 +430,7 @@ class CloudService extends ChangeNotifier {
       }
     }
     if (previous != null) await previous.delete();
-    await refresh();
+    await _refreshAfterMutation();
     context?.report('Save folder changed. Restart Steam to apply it.');
   }
 
@@ -271,13 +471,12 @@ class CloudService extends ChangeNotifier {
     await _writeConfig({
       'provider': selected,
       'sync_path': syncPath,
-      'sync_achievements': true,
-      'sync_playtime': true,
       'auto_update_dll': false,
       'token_paths': tokenPaths,
+      'flsteamlua_storage_id': 'current',
       if (selected != 'folder') 'token_path': credentials.path(selected),
     });
-    await refresh();
+    await refresh(includeRemote: false);
   }
 
   Future<Map<String, dynamic>?> providerConfiguration(String selected) =>
@@ -290,8 +489,8 @@ class CloudService extends ChangeNotifier {
 
   Future<void> signOut(String selected) async {
     await credentials.signOut(selected);
-    if (selected == provider) await configureProvider('folder', {});
-    await refresh();
+    if (selected == provider) await disableRedirect();
+    await _refreshAfterMutation();
   }
 
   Future<void> testConnection() async => (await _remote()).testConnection();
@@ -321,7 +520,34 @@ class CloudService extends ChangeNotifier {
       path: target,
       size: stat.size,
       modifiedAt: stat.modified,
+      version: await _pluginVersion(file),
     );
+  }
+
+  DateTime? _versionStamp;
+  String? _versionValue;
+  String? _versionPath;
+  Future<String?> _pluginVersion(File file) async {
+    final stamp = await file.lastModified();
+    if (_versionStamp == stamp && _versionPath == file.path) {
+      return _versionValue;
+    }
+    _versionStamp = stamp;
+    _versionPath = file.path;
+    if (!Platform.isWindows) return null;
+    final result = await Process.run(
+      'powershell.exe',
+      [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        r"(Get-Item -LiteralPath $env:FLSTEAM_CLOUD_DLL).VersionInfo.ProductVersion",
+      ],
+      environment: {'FLSTEAM_CLOUD_DLL': file.path},
+    );
+    if (result.exitCode != 0) return null;
+    final version = '${result.stdout}'.trim();
+    return _versionValue = version.isEmpty ? null : version;
   }
 
   Future<void> removePlugin({TaskContext? context}) async {
@@ -340,7 +566,7 @@ class CloudService extends ChangeNotifier {
       context?.checkCancelled();
       await file.delete();
     }
-    await refresh();
+    await _refreshAfterMutation();
   }
 
   Map<String, dynamic> _r2Config(Map<String, dynamic> value) => {
@@ -352,30 +578,11 @@ class CloudService extends ChangeNotifier {
   };
 
   Future<RemoteStore> _remote() async {
-    if (_remoteOverride != null) return _remoteOverride;
-    final value = provider == 'folder'
-        ? null
-        : await credentials.read(provider);
-    if (value == null) {
-      throw StateError('Configure the selected cloud provider first');
-    }
-    return switch (provider) {
-      'webdav' => WebDavRemoteStore(client, WebDavConfig.fromJson(value)),
-      's3' => S3RemoteStore(client, S3Config.fromJson(value)),
-      'r2' => S3RemoteStore(client, S3Config.fromJson(_r2Config(value))),
-      'gdrive' => GoogleDriveRemoteStore(
-        client,
-        () => oauth.accessToken('gdrive'),
-      ),
-      'onedrive' => OneDriveRemoteStore(
-        client,
-        () => oauth.accessToken('onedrive'),
-      ),
-      _ => throw StateError('Local folder mode has no remote connection'),
-    };
+    await loadProfiles();
+    return remoteFor(activeStorageId);
   }
 
-  Future<void> enableRedirect({TaskContext? context}) async {
+  Future<void> installPlugin({TaskContext? context}) async {
     final steam = settings.steamPath;
     if (steam.isEmpty || !await File(p.join(steam, 'steam.exe')).exists()) {
       throw StateError('Select a valid Steam directory first');
@@ -427,34 +634,34 @@ class CloudService extends ChangeNotifier {
     await _writeConfig({
       'provider': provider,
       'sync_path': syncPath,
-      'sync_achievements': true,
-      'sync_playtime': true,
       'auto_update_dll': false,
     });
+    await refresh(includeRemote: false);
+  }
+
+  Future<void> enableRedirect({TaskContext? context}) async {
+    final plugin = await inspectPlugin();
+    if (!plugin.installed) {
+      throw StateError('Install the CloudRedirect plugin first');
+    }
     await _setKernelEnabled(true);
-    await refresh();
-    context?.report('Enabled. Restart Steam for the native library to load.');
+    await refresh(includeRemote: false);
   }
 
   Future<void> disableRedirect() async {
     await _setKernelEnabled(false);
-    await refresh();
+    await refresh(includeRemote: false);
   }
 
   Future<(File, String)> _readKernelConfig() async {
     if (settings.steamPath.isEmpty) {
       throw StateError('Steam directory is not configured');
     }
-    final main = File(p.join(settings.steamPath, 'opensteamtool.toml'));
-    final example = File(
-      p.join(settings.steamPath, 'opensteamtool.example.toml'),
+    final file = KernelConfig(settings.steamPath).file;
+    return (
+      file,
+      await file.exists() ? await file.readAsString(encoding: utf8) : '',
     );
-    final file = await main.exists()
-        ? main
-        : await example.exists()
-        ? example
-        : main;
-    return (file, await file.exists() ? await file.readAsString() : '');
   }
 
   String _pluginTarget(String toml) {
@@ -467,37 +674,11 @@ class CloudService extends ChangeNotifier {
         : p.join(steam, library);
   }
 
-  Future<bool> _redirectEnabled() async {
-    if (settings.steamPath.isEmpty) return false;
-    final config = await _readKernelConfig();
-    return _tomlValue(config.$2, 'cloud', 'enabled') == 'true';
-  }
-
   Future<void> _setKernelEnabled(bool enabled) async {
-    final config = await _readKernelConfig();
-    final lines = const LineSplitter().convert(config.$2).toList();
-    var start = lines.indexWhere((line) => line.trim() == '[cloud]');
-    if (start < 0) {
-      lines.addAll(['', '[cloud]']);
-      start = lines.length - 1;
-    }
-    var end = lines.length;
-    for (var i = start + 1; i < lines.length; i++) {
-      if (lines[i].trimLeft().startsWith('[')) {
-        end = i;
-        break;
-      }
-    }
-    final index = lines.indexWhere(
-      (line) => RegExp(r'^\s*enabled\s*=').hasMatch(line),
-      start + 1,
-    );
-    if (index >= 0 && index < end) {
-      lines[index] = 'enabled = $enabled';
-    } else {
-      lines.insert(end, 'enabled = $enabled');
-    }
-    await atomicWrite(config.$1, utf8.encode('${lines.join('\n')}\n'));
+    await KernelConfig(
+      settings.steamPath,
+    ).update('cloud', {'enabled': enabled});
+    await _writeConfig({});
     final pin = File(
       p.join(settings.steamPath, 'cloud_redirect', 'config.json'),
     );
@@ -512,38 +693,32 @@ class CloudService extends ChangeNotifier {
   }
 
   static String? _tomlValue(String source, String section, String key) {
-    var active = false;
-    for (final line in const LineSplitter().convert(source)) {
-      final text = line.trim();
-      if (text.startsWith('[')) {
-        active = text == '[$section]';
-        continue;
-      }
-      if (!active || text.startsWith('#')) continue;
-      final match = RegExp(
-        '^${RegExp.escape(key)}\\s*=\\s*(.*)',
-      ).firstMatch(text);
-      if (match != null) {
-        final value = match.group(1)!.split(' #').first.trim();
-        if (value.startsWith('"') && value.endsWith('"')) {
-          return value.substring(1, value.length - 1).replaceAll(r'\\', '\\');
-        }
-        if (value.startsWith("'") && value.endsWith("'")) {
-          return value.substring(1, value.length - 1);
-        }
-        return value;
-      }
-    }
-    return null;
+    final table = KernelConfig.decode(source)[section];
+    return table is Map ? table[key]?.toString() : null;
+  }
+
+  Future<void> setMetadataSync({
+    required bool achievements,
+    required bool playtime,
+  }) async {
+    await _writeConfig({
+      'sync_achievements': achievements,
+      'sync_playtime': playtime,
+    });
+    await refresh(includeRemote: false);
   }
 
   Future<CloudDeletePreview> previewDelete(
     int appId, {
+    CloudSave? selection,
     TaskContext? context,
   }) async {
     if (appId <= 0) throw ArgumentError.value(appId, 'appId');
     final targets = <CloudDeleteTarget>[];
-    final roots = <String, String>{'sync': syncPath};
+    await loadProfiles();
+    final profile = storage(selection?.storageId ?? browsingStorageId);
+    final folder = profile.provider == 'folder' ? profile.folder : syncPath;
+    final roots = <String, String>{'sync': folder};
     if (settings.steamPath.isNotEmpty) {
       roots['cache'] = p.join(settings.steamPath, 'cloud_redirect', 'storage');
       roots['legacy-cache'] = p.join(
@@ -553,13 +728,25 @@ class CloudService extends ChangeNotifier {
       );
       roots['userdata'] = p.join(settings.steamPath, 'userdata');
     }
+    final selectedKind = selection == null
+        ? null
+        : switch (selection.location) {
+            CloudSaveLocation.folder => 'sync',
+            CloudSaveLocation.cache => 'cache',
+            CloudSaveLocation.remote => 'remote',
+          };
     for (final root in roots.entries) {
+      if (selectedKind != null && selectedKind != root.key) continue;
       if (!await Directory(root.value).exists()) continue;
       await for (final account in Directory(
         root.value,
       ).list(followLinks: false)) {
         if (account is! Directory ||
             int.tryParse(p.basename(account.path)) == null) {
+          continue;
+        }
+        if (selection != null &&
+            p.basename(account.path) != selection.accountId) {
           continue;
         }
         final target = Directory(p.join(account.path, '$appId'));
@@ -576,12 +763,18 @@ class CloudService extends ChangeNotifier {
         );
       }
     }
-    if (provider != 'folder' && status.configured) {
-      final remote = await _remote();
+    if ((selectedKind == null || selectedKind == 'remote') &&
+        profile.provider != 'folder' &&
+        (await storageValues(profile.id)).isNotEmpty) {
+      final remote = await remoteFor(profile.id);
       for (final account in await remote.list('')) {
         context?.checkCancelled();
         if (!account.isDirectory ||
             int.tryParse(p.posix.basename(account.path)) == null) {
+          continue;
+        }
+        if (selection != null &&
+            p.posix.basename(account.path) != selection.accountId) {
           continue;
         }
         final apps = await remote.list(account.path);
@@ -604,7 +797,11 @@ class CloudService extends ChangeNotifier {
     }
     return CloudDeletePreview(
       appId: appId,
-      provider: provider,
+      provider: profile.provider,
+      target: targets.any((v) => v.kind == 'sync' || v.isRemote)
+          ? await targetFor(profile.id)
+          : null,
+      selection: selection,
       targets: targets,
       backupDirectory: p.normalize(
         paths.file(
@@ -614,15 +811,24 @@ class CloudService extends ChangeNotifier {
     );
   }
 
-  Future<CloudBackup> backup(int appId, {TaskContext? context}) async {
-    final preview = await previewDelete(appId, context: context);
+  Future<CloudBackup> backup(
+    int appId, {
+    CloudSave? selection,
+    TaskContext? context,
+  }) async {
+    final preview = await previewDelete(
+      appId,
+      selection: selection,
+      context: context,
+    );
     return _backupPreview(preview, context);
   }
 
   Future<CloudBackup> _backupPreview(
     CloudDeletePreview preview,
-    TaskContext? context,
-  ) async {
+    TaskContext? context, {
+    String reason = 'manual',
+  }) async {
     if (preview.targets.isEmpty) {
       throw StateError('No saves found for this game');
     }
@@ -636,7 +842,7 @@ class CloudService extends ChangeNotifier {
       await targetDir.create(recursive: true);
       final files = <Map<String, dynamic>>[];
       if (target.isRemote) {
-        final remote = await _remote();
+        final remote = await remoteFor(preview.target!.storageId);
         for (final file in await _remoteFiles(remote, target.path, context)) {
           context?.checkCancelled();
           final relative = p.posix.relative(file.path, from: target.path);
@@ -695,6 +901,8 @@ class CloudService extends ChangeNotifier {
           'version': 1,
           'app_id': preview.appId,
           'provider': preview.provider,
+          'target': preview.target?.toJson(),
+          'reason': reason,
           'created_at': created.toIso8601String(),
           'targets': records,
         }),
@@ -706,6 +914,17 @@ class CloudService extends ChangeNotifier {
       createdAt: created,
       fileCount: records.fold(0, (sum, r) => sum + (r['files'] as List).length),
       size: totalBytes,
+      provider: preview.provider,
+      target: preview.target,
+      reason: reason,
+      locations: [
+        for (final target in preview.targets)
+          CloudBackupLocation(
+            kind: target.kind,
+            accountId: target.accountId,
+            sourcePath: target.path,
+          ),
+      ],
     );
   }
 
@@ -713,14 +932,20 @@ class CloudService extends ChangeNotifier {
     CloudDeletePreview preview, {
     TaskContext? context,
   }) async {
-    if (preview.provider != provider) {
-      throw StateError('Cloud provider changed; request a new preview');
-    }
-    final fresh = await previewDelete(preview.appId, context: context);
+    if (preview.target != null) await _assertTarget(preview.target);
+    final fresh = await previewDelete(
+      preview.appId,
+      selection: preview.selection,
+      context: context,
+    );
     if (!_samePreview(preview, fresh)) {
       throw StateError('Save files changed; request a new delete preview');
     }
-    final backup = await _backupPreview(preview, context);
+    final backup = await _backupPreview(
+      preview,
+      context,
+      reason: 'beforeDelete',
+    );
     final manifest =
         jsonDecode(
               await File(p.join(backup.path, 'manifest.json')).readAsString(),
@@ -733,7 +958,7 @@ class CloudService extends ChangeNotifier {
         context?.checkCancelled();
         final file = value as Map<String, dynamic>;
         final bytes = target['kind'] == 'remote'
-            ? await (await _remote()).read(
+            ? await (await remoteFor(preview.target!.storageId)).read(
                 p.posix.join(target['path'] as String, file['path'] as String),
               )
             : await File(
@@ -747,15 +972,24 @@ class CloudService extends ChangeNotifier {
         }
       }
     }
-    for (final target in preview.targets) {
-      context?.checkCancelled();
-      if (target.isRemote) {
-        await (await _remote()).delete(target.path);
-      } else {
-        await Directory(target.path).delete(recursive: true);
+    try {
+      for (final target in preview.targets) {
+        context?.checkCancelled();
+        if (target.isRemote) {
+          await _deleteRemoteTree(
+            await remoteFor(preview.target!.storageId),
+            target.path,
+            context,
+          );
+        } else {
+          await Directory(target.path).delete(recursive: true);
+        }
       }
+    } catch (_) {
+      await _applyBackup(manifest, backup, null);
+      rethrow;
     }
-    await refresh();
+    await _refreshAfterMutation();
     return backup;
   }
 
@@ -790,6 +1024,22 @@ class CloudService extends ChangeNotifier {
           createdAt: DateTime.parse(value['created_at'] as String),
           fileCount: files.length,
           size: files.fold(0, (sum, f) => sum + (f['size'] as int)),
+          provider: value['provider'] as String,
+          target: value['target'] is Map
+              ? CloudTarget.fromJson(Map<String, dynamic>.from(value['target']))
+              : null,
+          note: value['note'] as String? ?? '',
+          pinned: value['pinned'] == true,
+          reason: value['reason'] as String? ?? 'manual',
+          verifiedAt: DateTime.tryParse(value['verified_at'] as String? ?? ''),
+          locations: [
+            for (final target in value['targets'] as List)
+              CloudBackupLocation(
+                kind: target['kind'] as String,
+                accountId: target['account_id'] as String,
+                sourcePath: target['path'] as String,
+              ),
+          ],
         ),
       );
     }
@@ -797,139 +1047,201 @@ class CloudService extends ChangeNotifier {
     return values;
   }
 
+  List<({CloudBackupLocation location, String path})> restoreLocations(
+    CloudBackup backup,
+  ) => [
+    for (final location in backup.locations)
+      (
+        location: location,
+        path:
+            _localRestorePath(
+              location.kind,
+              location.accountId,
+              backup.appId,
+              sourcePath: location.sourcePath,
+            ) ??
+            p.posix.join(location.accountId, '${backup.appId}'),
+      ),
+  ];
+
+  String? _localRestorePath(
+    String kind,
+    String account,
+    int appId, {
+    String? sourcePath,
+  }) {
+    return switch (kind) {
+      'sync' => sourcePath ?? p.join(syncPath, account, '$appId'),
+      'cache' => p.join(
+        settings.steamPath,
+        'cloud_redirect',
+        'storage',
+        account,
+        '$appId',
+      ),
+      'legacy-cache' => p.join(
+        settings.steamPath,
+        'cloud_redirect',
+        'blobs',
+        account,
+        '$appId',
+      ),
+      'userdata' => p.join(settings.steamPath, 'userdata', account, '$appId'),
+      'remote' => null,
+      _ => throw const FormatException('Unknown backup target'),
+    };
+  }
+
   Future<void> restore(CloudBackup backup, {TaskContext? context}) async {
-    final value = jsonDecode(
-      await File(p.join(backup.path, 'manifest.json')).readAsString(),
+    final value = await _backupDocument(backup);
+    await verifyBackup(backup);
+    if (backup.locations.isEmpty) throw StateError(_l10n.cloudNoRestoreTargets);
+    if (backup.locations.any((v) => v.kind == 'remote' || v.kind == 'sync')) {
+      await _assertTarget(backup.target);
+    }
+    for (final raw in value['targets'] as List) {
+      if (raw['kind'] == 'sync') {
+        final profile = storage(backup.target!.storageId);
+        final root = profile.provider == 'folder' ? profile.folder : syncPath;
+        if (!p.equals(
+          raw['path'] as String,
+          p.join(root, raw['account_id'] as String, '${backup.appId}'),
+        )) {
+          throw StateError(_l10n.cloudBackupTargetChanged);
+        }
+      }
+    }
+    final before = await _snapshotTargets(
+      backup.appId,
+      backup.locations,
+      backup.target,
+      'beforeRestore',
+      context,
     );
-    if (value is! Map<String, dynamic> ||
-        value['version'] != 1 ||
-        value['app_id'] != backup.appId) {
-      throw const FormatException('Invalid cloud backup manifest');
-    }
-    // Check the entire imported backup before performing writes to any target.
-    for (final raw in value['targets'] as List) {
-      final target = raw as Map<String, dynamic>;
-      if (target['index'] is! int || (target['index'] as int) < 0) {
-        throw const FormatException('Invalid backup target index');
-      }
-      for (final raw in target['files'] as List) {
-        context?.checkCancelled();
-        final file = raw as Map<String, dynamic>;
-        final relative = file['path'] as String;
-        _validateRelative(relative);
-        final bytes = await File(
-          p.join(
-            backup.path,
-            '${target['index']}',
-            p.fromUri(Uri(path: relative)),
-          ),
-        ).readAsBytes();
-        if (sha256.convert(bytes).toString() != file['sha256']) {
-          throw const FormatException('Backup checksum mismatch');
-        }
-      }
-    }
+    await _applyBackup(value, backup, context, rollback: before);
+    await _refreshAfterMutation();
+  }
+
+  Future<void> _applyBackup(
+    Map<String, dynamic> value,
+    CloudBackup backup,
+    TaskContext? context, {
+    CloudBackup? rollback,
+  }) async {
     final staged = <(Directory, Directory, Directory?)>[];
-    for (final raw in value['targets'] as List) {
-      final target = raw as Map<String, dynamic>;
-      if (target['kind'] == 'remote') {
-        if (value['provider'] != provider) {
-          throw StateError('Select the backup cloud provider before restoring');
-        }
-      }
-      final account = target['account_id'] as String;
-      if (int.tryParse(account) == null) {
-        throw const FormatException('Invalid backup account');
-      }
-      final localDestination = switch (target['kind']) {
-        'sync' => p.join(syncPath, account, '${backup.appId}'),
-        'cache' => p.join(
-          settings.steamPath,
-          'cloud_redirect',
-          'storage',
+    final promoted = <(Directory, Directory?)>[];
+    final remoteTargets = <String>[];
+    try {
+      for (final raw in value['targets'] as List) {
+        final target = raw as Map;
+        final account = target['account_id'] as String;
+        final kind = target['kind'] as String;
+        final local = _localRestorePath(
+          kind,
           account,
-          '${backup.appId}',
-        ),
-        'legacy-cache' => p.join(
-          settings.steamPath,
-          'cloud_redirect',
-          'blobs',
-          account,
-          '${backup.appId}',
-        ),
-        'userdata' => p.join(
-          settings.steamPath,
-          'userdata',
-          account,
-          '${backup.appId}',
-        ),
-        'remote' => null,
-        _ => throw const FormatException('Unknown backup target'),
-      };
-      if (localDestination != null &&
-          target['kind'] != 'sync' &&
-          settings.steamPath.isEmpty) {
-        throw StateError('Configure Steam directory before restoring');
-      }
-      final stage = localDestination == null
-          ? null
-          : Directory(
-              '$localDestination.restore-${DateTime.now().microsecondsSinceEpoch}',
-            );
-      if (stage != null) await stage.create(recursive: true);
-      for (final raw in target['files'] as List) {
-        context?.checkCancelled();
-        final file = raw as Map<String, dynamic>;
-        final relative = file['path'] as String;
-        _validateRelative(relative);
-        final source = File(
-          p.join(
-            backup.path,
-            '${target['index']}',
-            p.fromUri(Uri(path: relative)),
-          ),
+          backup.appId,
+          sourcePath: target['path'] as String,
         );
-        final bytes = await source.readAsBytes();
-        if (sha256.convert(bytes).toString() != file['sha256']) {
-          throw const FormatException('Backup checksum mismatch');
+        if (local != null && kind != 'sync' && settings.steamPath.isEmpty) {
+          throw StateError(_l10n.cloudFolderAbsolute);
         }
+        final stage = local == null
+            ? null
+            : Directory(
+                '$local.restore-${DateTime.now().microsecondsSinceEpoch}',
+              );
+        final destination = local == null ? null : Directory(local);
         if (stage != null) {
-          await atomicWrite(
-            File(p.join(stage.path, p.fromUri(Uri(path: relative)))),
-            bytes,
-          );
+          await stage.create(recursive: true);
+          final previous = await destination!.exists()
+              ? Directory(
+                  '$local.before-restore-${DateTime.now().microsecondsSinceEpoch}',
+                )
+              : null;
+          staged.add((stage, destination, previous));
         } else {
-          await (await _remote()).write(
-            p.posix.join(account, '${backup.appId}', relative),
-            bytes,
-          );
+          remoteTargets.add('$account/${backup.appId}');
+        }
+        for (final rawFile in target['files'] as List) {
+          context?.checkCancelled();
+          final file = rawFile as Map;
+          final relative = file['path'] as String;
+          final bytes = await File(
+            p.join(
+              backup.path,
+              '${target['index']}',
+              p.fromUri(Uri(path: relative)),
+            ),
+          ).readAsBytes();
+          if (stage != null) {
+            await atomicWrite(
+              File(p.join(stage.path, p.fromUri(Uri(path: relative)))),
+              bytes,
+            );
+          } else {
+            await (await remoteFor(
+              backup.target!.storageId,
+            )).write('$account/${backup.appId}/$relative', bytes);
+          }
+        }
+        if (stage == null) {
+          final remote = await remoteFor(backup.target!.storageId);
+          final expected = {
+            for (final f in target['files'] as List)
+              '$account/${backup.appId}/${f['path']}',
+          };
+          for (final extra in await _remoteFiles(
+            remote,
+            '$account/${backup.appId}',
+            context,
+          )) {
+            if (!expected.contains(extra.path)) await remote.delete(extra.path);
+          }
         }
       }
-      if (stage != null) {
-        final destination = Directory(localDestination!);
-        // Keep the previous directory on its own volume so rename remains atomic.
-        final previous = await destination.exists()
-            ? Directory(
-                '${destination.path}.before-restore-${DateTime.now().microsecondsSinceEpoch}',
-              )
-            : null;
-        staged.add((stage, destination, previous));
+      for (final (stage, destination, previous) in staged) {
+        context?.checkCancelled();
+        if (previous != null) await destination.rename(previous.path);
+        try {
+          await stage.rename(destination.path);
+        } catch (_) {
+          if (previous != null) await previous.rename(destination.path);
+          rethrow;
+        }
+        promoted.add((destination, previous));
       }
-    }
-    for (final (stage, destination, previous) in staged) {
-      context?.checkCancelled();
-      if (previous != null) {
-        await previous.parent.create(recursive: true);
-        await destination.rename(previous.path);
-      }
-      try {
-        await stage.rename(destination.path);
-      } catch (_) {
+    } catch (_) {
+      for (final (destination, previous) in promoted.reversed) {
+        await destination.delete(recursive: true);
         if (previous != null) await previous.rename(destination.path);
-        rethrow;
+      }
+      if (remoteTargets.isNotEmpty) {
+        final remote = await remoteFor(backup.target!.storageId);
+        for (final target in remoteTargets) {
+          await _deleteRemoteTree(remote, target, null);
+        }
+        if (rollback != null) {
+          final data = await _backupDocument(rollback);
+          final remoteData = {
+            ...data,
+            'targets': (data['targets'] as List)
+                .where((v) => v['kind'] == 'remote')
+                .toList(),
+          };
+          await _applyBackup(remoteData, rollback, null);
+        }
+      }
+      rethrow;
+    } finally {
+      for (final (stage, _, _) in staged) {
+        if (await stage.exists()) await stage.delete(recursive: true);
       }
     }
-    await refresh();
+    for (final (_, previous) in promoted) {
+      if (previous != null && await previous.exists()) {
+        await previous.delete(recursive: true);
+      }
+    }
   }
 
   Future<void> download(
@@ -937,33 +1249,86 @@ class CloudService extends ChangeNotifier {
     String destination, {
     TaskContext? context,
   }) async {
-    if (!save.isRemote) throw ArgumentError('Selected save is already local');
-    final remote = await _remote();
-    for (final file in await _remoteFiles(remote, save.path, context)) {
-      context?.checkCancelled();
-      final relative = p.posix.relative(file.path, from: save.path);
-      _validateRelative(relative);
-      await atomicWrite(
-        File(p.join(destination, p.fromUri(Uri(path: relative)))),
-        await remote.read(file.path),
-      );
+    final target = Directory(destination);
+    if (await target.exists() && !await target.list().isEmpty) {
+      throw StateError(_l10n.cloudExportNotEmpty);
+    }
+    final stage = Directory(
+      '$destination.export-${DateTime.now().microsecondsSinceEpoch}',
+    );
+    await stage.create(recursive: true);
+    try {
+      if (save.isRemote) {
+        final remote = await remoteFor(save.storageId);
+        for (final file in await _remoteFiles(remote, save.path, context)) {
+          context?.checkCancelled();
+          final relative = p.posix.relative(file.path, from: save.path);
+          _validateRelative(relative);
+          await atomicWrite(
+            File(p.join(stage.path, p.fromUri(Uri(path: relative)))),
+            await remote.read(file.path),
+          );
+        }
+      } else {
+        for (final file in await _localFiles(save.path)) {
+          context?.checkCancelled();
+          await atomicWrite(
+            File(p.join(stage.path, p.relative(file.path, from: save.path))),
+            await file.readAsBytes(),
+          );
+        }
+      }
+      if (await target.exists()) {
+        if (!await target.list().isEmpty) {
+          throw StateError(_l10n.cloudExportNotEmpty);
+        }
+        await target.delete();
+      }
+      await stage.rename(destination);
+    } finally {
+      if (await stage.exists()) await stage.delete(recursive: true);
     }
   }
 
   Future<void> upload(CloudSave save, {TaskContext? context}) async {
-    if (save.isRemote) throw ArgumentError('Selected save is already remote');
-    final remote = await _remote();
-    for (final file in await _localFiles(save.path)) {
-      context?.checkCancelled();
-      final relative = p
-          .relative(file.path, from: save.path)
-          .replaceAll('\\', '/');
-      await remote.write(
-        p.posix.join(save.accountId, '${save.appId}', relative),
-        await file.readAsBytes(),
-      );
+    if (save.location != CloudSaveLocation.folder) {
+      throw ArgumentError('Only a folder repository can be copied directly');
     }
-    await refresh();
+    final target = await targetFor(activeStorageId);
+    if (target.provider == 'folder') {
+      throw ArgumentError('Select a remote sync target');
+    }
+    final path = '${save.accountId}/${save.appId}';
+    final before = await _snapshotTargets(
+      save.appId,
+      [
+        CloudBackupLocation(
+          kind: 'remote',
+          accountId: save.accountId,
+          sourcePath: path,
+        ),
+      ],
+      target,
+      'beforeUpload',
+      context,
+    );
+    final remote = await remoteFor(target.storageId);
+    try {
+      for (final file in await _localFiles(save.path)) {
+        context?.checkCancelled();
+        final relative = p
+            .relative(file.path, from: save.path)
+            .replaceAll('\\', '/');
+        await remote.write('$path/$relative', await file.readAsBytes());
+      }
+    } catch (_) {
+      await _deleteRemoteTree(remote, path, null);
+      if (before != null) {
+        await _applyBackup(await _backupDocument(before), before, null);
+      }
+      rethrow;
+    }
+    await _refreshAfterMutation();
   }
 
   Future<void> openSave(CloudSave save) async {
@@ -1148,7 +1513,12 @@ Future<List<RemoteEntry>> _remoteFiles(
   return (count, size);
 }
 
-List<CloudSave> _scanLocalSaves(String root) {
+List<CloudSave> _scanLocalSaves(
+  String root,
+  CloudSaveLocation location, {
+  int? appId,
+  String storageId = 'current',
+}) {
   final directory = Directory(root);
   if (!directory.existsSync()) return [];
   final result = <CloudSave>[];
@@ -1158,16 +1528,17 @@ List<CloudSave> _scanLocalSaves(String root) {
     for (final app
         in account.listSync(followLinks: false).whereType<Directory>()) {
       final id = int.tryParse(p.basename(app.path));
-      if (id == null || id <= 0) continue;
-      final count = _countDirectory(app.path);
+      if (id == null || id <= 0 || appId != null && id != appId) continue;
       final marker = File(p.join(app.path, 'cn.cloudredirect'));
       result.add(
         CloudSave(
           appId: id,
+          location: location,
           accountId: p.basename(account.path),
           path: app.path,
-          fileCount: count.$1,
-          size: count.$2,
+          storageId: storageId,
+          detailsLoaded: false,
+          checkedAt: DateTime.now(),
           modifiedAt: marker.existsSync()
               ? marker.lastModifiedSync()
               : app.statSync().modified,
@@ -1176,4 +1547,17 @@ List<CloudSave> _scanLocalSaves(String root) {
     }
   }
   return result;
+}
+
+Future<void> _deleteRemoteTree(
+  RemoteStore store,
+  String path,
+  TaskContext? context,
+) async {
+  // S3 DELETE removes one key, not a prefix. Enumerate every object first.
+  for (final file in await _remoteFiles(store, path, context)) {
+    context?.checkCancelled();
+    await store.delete(file.path);
+  }
+  await store.delete(path);
 }

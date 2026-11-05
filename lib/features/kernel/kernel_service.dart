@@ -18,6 +18,7 @@ import '../../core/task_center.dart';
 import '../content_sources/content_models.dart';
 import '../network/network_preferences.dart';
 import 'kernel_models.dart';
+import 'kernel_config.dart';
 import 'local_toml_builder.dart';
 
 export 'kernel_models.dart';
@@ -894,7 +895,8 @@ class KernelService extends ChangeNotifier {
   Future<void> setInjectionMode(InjectionMode mode) async =>
       _exclusive(() async {
         final steam = await _requireStoppedSteam();
-        if (!_installed.enabled) {
+        if (!_installed.installed ||
+            !File(p.join(steam, 'OpenSteamTool.dll')).existsSync()) {
           throw StateError('Enable the kernel before changing injection entry');
         }
         final backup = await _createBackup(steam, 'Change injection entry');
@@ -1357,9 +1359,6 @@ class KernelService extends ChangeNotifier {
     }
     final results = <TomlFetchResult>[];
     final channel = tomlChannelSettings;
-    final channelBase = channel.mode == KernelTomlChannelMode.branch
-        ? '${channel.repository}/${channel.channel}'
-        : '${channel.repository}/main/${channel.channel}';
     for (final target in [
       ('pattern', 'steamclient', resolved.clientSha),
       ('pattern', 'steamui', resolved.uiSha),
@@ -1368,9 +1367,11 @@ class KernelService extends ChangeNotifier {
       context?.checkCancelled();
       final relative =
           'opensteamtool/${target.$1}/${target.$2}/${target.$3}.toml';
-      final uri = Uri.https(
-        'raw.githubusercontent.com',
-        '/$channelBase/${target.$1}/${target.$2}/${target.$3}.toml',
+      final uri = Uri.parse(
+        channel.urlTemplate
+            .replaceAll('{channel}', target.$1)
+            .replaceAll('{component}', target.$2)
+            .replaceAll('{sha256}', target.$3),
       );
       context?.report('Fetching ${target.$1}/${target.$2}');
       try {
@@ -1482,10 +1483,9 @@ class KernelService extends ChangeNotifier {
             .where((value) => value.name == formatValue)
             .firstOrNull ??
         KernelManifestFormat.plain;
-    final provider = settings.get<String>(
-      'kernelManifestProvider',
-      mode == KernelManifestMode.builtIn ? url : '20770407',
-    );
+    final provider = mode == KernelManifestMode.builtIn
+        ? url
+        : settings.get<String>('kernelManifestProvider', '20770407');
     final storedCustomUrl = settings.get<String>('kernelManifestCustomUrl', '');
     final sourceIds = settings
         .get<List<dynamic>>('kernelManifestSourceIds', const [])
@@ -1520,14 +1520,26 @@ class KernelService extends ChangeNotifier {
                       value.name ==
                       settings.get<String>(
                         'kernelTomlChannelMode',
-                        KernelTomlChannelMode.branch.name,
+                        KernelTomlChannelMode.directory.name,
                       ),
                 )
                 .firstOrNull ??
-            KernelTomlChannelMode.branch,
+            KernelTomlChannelMode.directory,
       );
 
   Future<void> saveTomlChannelSettings(KernelTomlChannelSettings value) async {
+    final normalized = KernelTomlChannelSettings(
+      repository: _normalizeRepository(value.repository),
+      channel: value.channel.trim(),
+      mode: value.mode,
+    );
+    if (value.mode == KernelTomlChannelMode.directory &&
+        !RegExp(r'^[A-Za-z0-9_.\-/]+$').hasMatch(value.channel)) {
+      throw const FormatException('Invalid metadata branch');
+    }
+    await KernelConfig(
+      settings.steamPath,
+    ).update('remote', {'url_template': normalized.urlTemplate});
     await settings.set(
       'kernelTomlRepository',
       _normalizeRepository(value.repository),
@@ -1573,28 +1585,9 @@ class KernelService extends ChangeNotifier {
     if (file == null) {
       throw StateError('Select your Steam folder first');
     }
-    final existing = await file.exists() ? await file.readAsString() : '';
-    final lines = const LineSplitter().convert(existing).toList();
-    var start = lines.indexWhere((line) => line.trim() == '[manifest]');
-    if (start < 0) {
-      if (lines.isNotEmpty && lines.last.trim().isNotEmpty) lines.add('');
-      lines.add('[manifest]');
-      start = lines.length - 1;
-    }
-    var end = lines.length;
-    for (var i = start + 1; i < lines.length; i++) {
-      if (lines[i].trimLeft().startsWith('[')) {
-        end = i;
-        break;
-      }
-    }
-    final section = <String>[
-      '[manifest]',
-      'url = "${_tomlEscape(url)}"',
-      'failover = ${value.failover}',
-    ];
-    lines.replaceRange(start, end, section);
-    await file.writeAsString('${lines.join('\n')}\n', flush: true);
+    await KernelConfig(
+      settings.steamPath,
+    ).update('manifest', {'url': url, 'failover': value.failover});
     if (value.mode == KernelManifestMode.builtIn) {
       await _removeManifestLuaBridge();
     } else {
@@ -1825,33 +1818,9 @@ class KernelService extends ChangeNotifier {
   }
 
   static String? _tomlValue(String source, String section, String key) {
-    var active = false;
-    for (final line in const LineSplitter().convert(source)) {
-      final text = line.trim();
-      if (text.startsWith('[')) {
-        active = text == '[$section]';
-        continue;
-      }
-      if (!active || text.startsWith('#')) continue;
-      final match = RegExp(
-        '^${RegExp.escape(key)}\\s*=\\s*(.*)',
-      ).firstMatch(text);
-      if (match != null) {
-        final value = match.group(1)!.split(' #').first.trim();
-        if (value.startsWith('"') && value.endsWith('"')) {
-          return value.substring(1, value.length - 1).replaceAll(r'\"', '"');
-        }
-        if (value.startsWith("'") && value.endsWith("'")) {
-          return value.substring(1, value.length - 1);
-        }
-        return value;
-      }
-    }
-    return null;
+    final table = KernelConfig.decode(source)[section];
+    return table is Map ? table[key]?.toString() : null;
   }
-
-  static String _tomlEscape(String value) =>
-      value.replaceAll(r'\', r'\\').replaceAll('"', r'\"');
 
   Future<SteamDllTomlInfo?> detectSteamDllInfo() async {
     final steam = settings.steamPath;
@@ -2106,7 +2075,7 @@ class KernelService extends ChangeNotifier {
     }
     _installed = KernelInstallation(
       installed: bodyPresent,
-      enabled: bodyPresent && !disabled,
+      enabled: bodyPresent && !disabled && (dwm != version),
       entryState: dwm && version
           ? InjectionEntryState.bothActive
           : dwm

@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/task_center.dart';
 import '../../ui/context.dart';
@@ -29,18 +30,40 @@ Future<ContentImportResult?> showContentImportDialog(
   required int appId,
   required String gameName,
   List<ContentImportDlcOption> dlcOptions = const [],
-}) => ui.showFormSheet<ContentImportResult>(
-  context: context,
-  builder: (_) => ContentImportDialog(
-    registry: registry,
-    resolver: resolver,
-    importer: importer,
-    tasks: tasks,
-    appId: appId,
-    gameName: gameName,
-    dlcOptions: dlcOptions,
-  ),
-);
+}) async {
+  final result = await ui.showFormSheet<ContentImportResult>(
+    context: context,
+    builder: (_) => ContentImportDialog(
+      registry: registry,
+      resolver: resolver,
+      importer: importer,
+      tasks: tasks,
+      appId: appId,
+      gameName: gameName,
+      dlcOptions: dlcOptions,
+    ),
+  );
+  if (result != null && result.written.isNotEmpty && context.mounted) {
+    ui.showAppFeedback(
+      context,
+      context.l10n.luaImportReady(gameName),
+      level: ui.MessageLevel.success,
+      actionState: ui.MessageActionState(
+        actionText: context.l10n.installWithSteam,
+        action: () async {
+          try {
+            if (!await launchUrl(Uri.parse('steam://install/$appId'))) {
+              throw StateError('Steam could not open the installation page');
+            }
+          } catch (error) {
+            if (context.mounted) ui.showAppError(context, error);
+          }
+        },
+      ),
+    );
+  }
+  return result;
+}
 
 class ContentImportDialog extends StatefulWidget {
   const ContentImportDialog({
@@ -95,12 +118,24 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
           )
           .toList();
       final manifestSources = widget.registry.sources
-          .where((source) => source.enabled && source.providesManifests)
+          .where(
+            (source) =>
+                source.enabled &&
+                (source.capabilities.contains(ContentCapability.manifestIds) ||
+                    source.capabilities.contains(
+                      ContentCapability.manifestFiles,
+                    )),
+          )
           .toList();
       final remembered = widget.registry.importSelection();
-      final rememberedLua = luaSources
-          .where((source) => source.id == remembered?.luaSourceId)
-          .firstOrNull;
+      final readySources = luaSources
+          .where((source) => source.configurationComplete)
+          .toList();
+      final rememberedLua =
+          luaSources
+              .where((source) => source.id == remembered?.luaSourceId)
+              .firstOrNull ??
+          (readySources.length == 1 ? readySources.single : null);
       var manifestSource = manifestSources
           .where((source) => source.id == remembered?.manifestSourceId)
           .firstOrNull
@@ -175,6 +210,45 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
     });
   }
 
+  Future<void> _configureSource(String? id) async {
+    await Navigator.of(context).push(
+      ui.buildAppPageRoute(
+        builder: (_) => ContentSourcesPage(
+          registry: widget.registry,
+          tasks: widget.tasks,
+          initialSourceId: id,
+          onImportLocal: () async {
+            final selected = await FilePicker.platform.pickFiles(
+              allowMultiple: true,
+              type: FileType.custom,
+              allowedExtensions: const [
+                'lua',
+                'bin',
+                'manifest',
+                'zip',
+                '7z',
+                'rar',
+                'tar',
+                'tgz',
+                'gz',
+              ],
+            );
+            if (selected == null || !mounted) return;
+            await showLocalContentImportDialog(
+              context,
+              resolver: widget.resolver,
+              importer: widget.importer,
+              tasks: widget.tasks,
+              paths: selected.paths.whereType<String>().toList(),
+            );
+          },
+        ),
+      ),
+    );
+    if (!mounted) return;
+    await _initialize();
+  }
+
   Future<void> _prepare() async {
     final sourceId = _luaSource;
     if (sourceId == null) return;
@@ -204,7 +278,10 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
       }, appId: widget.appId);
       if (mounted) setState(() => _preview = preview);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) {
+        setState(() => _error = ui.appErrorText(context, error));
+        ui.showAppError(context, error);
+      }
     } finally {
       _taskId = null;
       if (mounted) setState(() => _busy = false);
@@ -231,7 +308,10 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
       }, appId: widget.appId);
       if (mounted) Navigator.pop(context, result);
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) {
+        setState(() => _error = ui.appErrorText(context, error));
+        ui.showAppError(context, error);
+      }
     } finally {
       _taskId = null;
       if (mounted) setState(() => _busy = false);
@@ -248,7 +328,12 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
           )
           .toList();
       final manifestSources = widget.registry.sources
-          .where((s) => s.enabled && s.providesManifests)
+          .where(
+            (s) =>
+                s.enabled &&
+                (s.capabilities.contains(ContentCapability.manifestIds) ||
+                    s.capabilities.contains(ContentCapability.manifestFiles)),
+          )
           .toList();
       final selectedLua = luaSources
           .where((s) => s.id == _luaSource)
@@ -257,6 +342,13 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
       final canSave =
           !_busy &&
           selectedLua != null &&
+          selectedLua.configurationComplete &&
+          (_manifestSource == null ||
+              manifestSources.any(
+                (source) =>
+                    source.id == _manifestSource &&
+                    source.configurationComplete,
+              )) &&
           (preview == null || !preview.hasConflicts || _overwrite);
       return ui.FormPage(
         title: context.l10n.contentImport,
@@ -296,7 +388,13 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
                 title: context.l10n.luaContentSource,
                 value: selectedLua?.id,
                 options: [
-                  for (final source in luaSources) (source.id, source.name),
+                  for (final source in luaSources)
+                    (
+                      source.id,
+                      source.configurationComplete
+                          ? source.name
+                          : context.l10n.sourceNeedsConfiguration(source.name),
+                    ),
                 ],
                 enabled: !_busy,
                 onChanged: (value) {
@@ -321,7 +419,12 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
                 options: [
                   ('', context.l10n.noManifestSource),
                   for (final source in manifestSources)
-                    (source.id, source.name),
+                    (
+                      source.id,
+                      source.configurationComplete
+                          ? source.name
+                          : context.l10n.sourceNeedsConfiguration(source.name),
+                    ),
                 ],
                 enabled: !_busy,
                 onChanged: (value) {
@@ -332,6 +435,40 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
                   _rememberSelection();
                 },
               ),
+            ],
+          ),
+          ui.generateSection(
+            items: [
+              ui.DecorationListItem(
+                key: const ValueKey('import-configure-source'),
+                leading: const ui.GlyphIcon(ui.AppGlyphs.settings),
+                title: Text(
+                  selectedLua?.configurationComplete == false
+                      ? context.l10n.sourceNeedsConfiguration(selectedLua!.name)
+                      : context.l10n.configureContentSources,
+                ),
+                trailing: const ui.GlyphIcon(ui.AppGlyphs.chevronForward),
+                onPressed: _busy
+                    ? null
+                    : () => _configureSource(
+                        selectedLua?.configurationComplete == false
+                            ? selectedLua?.id
+                            : null,
+                      ),
+              ),
+              if (_manifestSource != null &&
+                  manifestSources.any(
+                    (source) =>
+                        source.id == _manifestSource &&
+                        !source.configurationComplete,
+                  ))
+                ui.DecorationListItem(
+                  title: Text(context.l10n.configureManifestSource),
+                  onPressed: _busy
+                      ? null
+                      : () => _configureSource(_manifestSource),
+                  trailing: const ui.GlyphIcon(ui.AppGlyphs.chevronForward),
+                ),
             ],
           ),
           if (widget.dlcOptions.isNotEmpty &&
@@ -380,50 +517,6 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
                       ? null
                       : (value) => _changed(() => _refreshMetadata = value),
                 ),
-              ui.DecorationListItem(
-                leading: const ui.GlyphIcon(ui.AppGlyphs.settings),
-                title: Text(context.l10n.configureContentSources),
-                trailing: const ui.GlyphIcon(
-                  ui.AppGlyphs.chevronForward,
-                  size: 18,
-                ),
-                onPressed: _busy
-                    ? null
-                    : () => Navigator.of(context).push(
-                        ui.buildAppPageRoute<void>(
-                          builder: (_) => ContentSourcesPage(
-                            registry: widget.registry,
-                            tasks: widget.tasks,
-                            onImportLocal: () async {
-                              final selected = await FilePicker.platform
-                                  .pickFiles(
-                                    allowMultiple: true,
-                                    type: FileType.custom,
-                                    allowedExtensions: const [
-                                      'lua',
-                                      'zip',
-                                      '7z',
-                                      'rar',
-                                      'tar',
-                                      'tgz',
-                                      'gz',
-                                    ],
-                                  );
-                              if (selected == null || !context.mounted) return;
-                              await showLocalContentImportDialog(
-                                context,
-                                resolver: widget.resolver,
-                                importer: widget.importer,
-                                tasks: widget.tasks,
-                                paths: selected.paths
-                                    .whereType<String>()
-                                    .toList(),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-              ),
             ],
           ),
           if (preview != null) ...[
@@ -440,7 +533,9 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
                     title: SelectableText(entry.path),
                     subtitle: Text(
                       entry.exists
-                          ? context.l10n.existingFilesLeftUnchanged
+                          ? (_overwrite
+                                ? context.l10n.fileWillBeBackedUpAndReplaced
+                                : context.l10n.fileExistsChooseReplace)
                           : entry.artifact.capability == ContentCapability.lua
                           ? 'Lua'
                           : context.l10n.manifestFiles,
@@ -452,6 +547,7 @@ class _ContentImportDialogState extends State<ContentImportDialog> {
               ui.generateSection(
                 items: [
                   ui.FormRowSwitch(
+                    key: const ValueKey('content-import-replace'),
                     title: context.l10n.contentImportReplace,
                     value: _overwrite,
                     onChanged: _busy
@@ -559,7 +655,10 @@ class _LocalContentImportDialogState extends State<LocalContentImportDialog> {
       _previews.clear();
     } catch (error) {
       _previews.clear();
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) {
+        setState(() => _error = ui.appErrorText(context, error));
+        ui.showAppError(context, error);
+      }
     } finally {
       _taskId = null;
       if (mounted) setState(() => _busy = false);
@@ -605,7 +704,10 @@ class _LocalContentImportDialogState extends State<LocalContentImportDialog> {
         Navigator.pop(context, _results.values.toList());
       }
     } catch (error) {
-      if (mounted) setState(() => _error = '$error');
+      if (mounted) {
+        setState(() => _error = ui.appErrorText(context, error));
+        ui.showAppError(context, error);
+      }
     } finally {
       _taskId = null;
       if (mounted) setState(() => _busy = false);
@@ -661,7 +763,9 @@ class _LocalContentImportDialogState extends State<LocalContentImportDialog> {
                   title: SelectableText(entry.path),
                   subtitle: Text(
                     entry.exists
-                        ? context.l10n.existingFilesLeftUnchanged
+                        ? (_overwrite
+                              ? context.l10n.fileWillBeBackedUpAndReplaced
+                              : context.l10n.fileExistsChooseReplace)
                         : context.l10n.manifestFiles,
                   ),
                 );

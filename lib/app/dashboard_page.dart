@@ -6,6 +6,7 @@ import 'package:material_new_shapes/material_new_shapes.dart';
 import '../core/game_entry.dart';
 import '../core/task_center.dart';
 import '../features/content_sources/content_models.dart';
+import '../features/kernel/kernel_models.dart';
 import '../features/network/network_cover_image.dart';
 import '../ui/context.dart';
 import '../ui/localization.dart';
@@ -846,8 +847,15 @@ class _DashboardContent {
                 ? context.l10n.kernelUpdateAvailable(
                     services.kernel.updateInfo!.package.version,
                   )
+                : kernel.disabled
+                ? context.l10n.disabled
+                : kernel.installed &&
+                      kernel.entryState == InjectionEntryState.none
+                ? context.l10n.kernelStateMissingEntry
+                : kernel.entryState == InjectionEntryState.bothActive
+                ? context.l10n.kernelStateConflict
                 : value
-                ? context.l10n.enabled
+                ? context.l10n.configurationEnabled
                 : context.l10n.disabled,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1135,7 +1143,7 @@ class _DashboardContent {
 
   Widget _cloudCard() {
     final status = services.cloud.status;
-    final active = status.remoteSyncConfigured || status.enabled;
+    final active = status.pluginInstalled && status.enabled;
     return ui.DashboardCard(
       onTap: () => onFeature('cloud'),
       child: Column(
@@ -1153,7 +1161,11 @@ class _DashboardContent {
                 : const Duration(milliseconds: 260),
             child: ui.DashboardChip(
               key: ValueKey(active),
-              label: active ? context.l10n.enabled : context.l10n.disabled,
+              label: active
+                  ? context.l10n.configurationEnabled
+                  : status.remoteSyncConfigured
+                  ? context.l10n.configured
+                  : context.l10n.disabled,
               tone: active
                   ? ui.DashboardChipTone.ok
                   : ui.DashboardChipTone.idle,

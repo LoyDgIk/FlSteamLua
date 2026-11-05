@@ -104,6 +104,114 @@ abstract class AppLocalizations {
   /// **'English'**
   String get languageName;
 
+  /// No description provided for @quickStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick start'**
+  String get quickStart;
+
+  /// No description provided for @quickStartSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip setup'**
+  String get quickStartSkip;
+
+  /// No description provided for @quickStartBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get quickStartBack;
+
+  /// No description provided for @quickStartNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get quickStartNext;
+
+  /// No description provided for @quickStartEnter.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter app'**
+  String get quickStartEnter;
+
+  /// No description provided for @quickStartAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get quickStartAppearance;
+
+  /// No description provided for @quickStartFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Game folders'**
+  String get quickStartFolders;
+
+  /// No description provided for @quickStartPrepare.
+  ///
+  /// In en, this message translates to:
+  /// **'Get ready'**
+  String get quickStartPrepare;
+
+  /// No description provided for @quickStartAppearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make it yours'**
+  String get quickStartAppearanceTitle;
+
+  /// No description provided for @quickStartAppearanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language, colors and sidebar. Changes appear immediately.'**
+  String get quickStartAppearanceHint;
+
+  /// No description provided for @quickStartFoldersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your library'**
+  String get quickStartFoldersTitle;
+
+  /// No description provided for @quickStartFoldersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your Steam installation and the folder where new Lua files will be saved.'**
+  String get quickStartFoldersHint;
+
+  /// No description provided for @quickStartPrepareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready when you are'**
+  String get quickStartPrepareTitle;
+
+  /// No description provided for @quickStartPrepareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up the core and content sources as needed. You can return to quick start from Settings at any time.'**
+  String get quickStartPrepareHint;
+
+  /// No description provided for @quickStartMoreAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'More appearance settings'**
+  String get quickStartMoreAppearance;
+
+  /// No description provided for @quickStartNetworkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy and download mirrors'**
+  String get quickStartNetworkHint;
+
+  /// No description provided for @quickStartSources.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} configured sources enabled'**
+  String quickStartSources(int count);
+
+  /// No description provided for @quickStartStep.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {total}'**
+  String quickStartStep(int current, int total);
+
   /// No description provided for @updateKeySubscriptions.
   ///
   /// In en, this message translates to:
@@ -204,7 +312,7 @@ abstract class AppLocalizations {
   /// No description provided for @keySubscriptionsOfflineLua.
   ///
   /// In en, this message translates to:
-  /// **'Key subscriptions & offline Lua'**
+  /// **'Get Lua / manifests'**
   String get keySubscriptionsOfflineLua;
 
   /// No description provided for @gameToolsAndVersionManagement.
@@ -294,7 +402,7 @@ abstract class AppLocalizations {
   /// No description provided for @addToLibrary.
   ///
   /// In en, this message translates to:
-  /// **'Add to library'**
+  /// **'Add to Lua library'**
   String get addToLibrary;
 
   /// No description provided for @openGameFolder.
@@ -308,6 +416,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Playtime'**
   String get playtime;
+
+  /// No description provided for @playtimeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours'**
+  String playtimeHours(String hours);
 
   /// No description provided for @minutes.
   ///
@@ -360,7 +474,7 @@ abstract class AppLocalizations {
   /// No description provided for @backUpSyncAndRestoreProgress.
   ///
   /// In en, this message translates to:
-  /// **'Back up, sync and restore progress'**
+  /// **'View save locations and backups'**
   String get backUpSyncAndRestoreProgress;
 
   /// No description provided for @gameManagement.
@@ -384,7 +498,7 @@ abstract class AppLocalizations {
   /// No description provided for @enabledTakesEffectAfterRestartingSteam.
   ///
   /// In en, this message translates to:
-  /// **'Enabled; takes effect after restarting Steam'**
+  /// **'Enabled; the core can reload this Lua automatically'**
   String get enabledTakesEffectAfterRestartingSteam;
 
   /// No description provided for @disabledFileIsPreserved.
@@ -1024,7 +1138,7 @@ abstract class AppLocalizations {
   /// No description provided for @clearCompleted.
   ///
   /// In en, this message translates to:
-  /// **'Clear completed'**
+  /// **'Clear finished tasks'**
   String get clearCompleted;
 
   /// No description provided for @allClear.
@@ -1381,13 +1495,13 @@ abstract class AppLocalizations {
   /// No description provided for @localSaveRedirection.
   ///
   /// In en, this message translates to:
-  /// **'Local save redirection'**
+  /// **'Save redirection'**
   String get localSaveRedirection;
 
   /// No description provided for @enabledRestartSteamAfterChanges.
   ///
   /// In en, this message translates to:
-  /// **'Enabled; restart Steam after changes'**
+  /// **'Enabled in configuration; restart Steam after changes'**
   String get enabledRestartSteamAfterChanges;
 
   /// No description provided for @disabledEnablingDownloadsAndVerifiesTheCloudredirectDll.
@@ -1418,7 +1532,7 @@ abstract class AppLocalizations {
   /// No description provided for @localSaveFolder.
   ///
   /// In en, this message translates to:
-  /// **'Local save folder'**
+  /// **'Folder-provider directory'**
   String get localSaveFolder;
 
   /// No description provided for @remoteStorage.
@@ -1436,7 +1550,7 @@ abstract class AppLocalizations {
   /// No description provided for @remoteSyncIsNotConfigured.
   ///
   /// In en, this message translates to:
-  /// **'Remote sync is not configured'**
+  /// **'Remote storage is not configured'**
   String get remoteSyncIsNotConfigured;
 
   /// No description provided for @configure.
@@ -1550,7 +1664,7 @@ abstract class AppLocalizations {
   /// No description provided for @lanTransferCache.
   ///
   /// In en, this message translates to:
-  /// **'LAN transfer cache'**
+  /// **'Transfer staging'**
   String get lanTransferCache;
 
   /// No description provided for @cleanup.
@@ -1695,19 +1809,19 @@ abstract class AppLocalizations {
   /// No description provided for @backUpThisGame.
   ///
   /// In en, this message translates to:
-  /// **'Back up this game'**
+  /// **'Back up selected save location'**
   String get backUpThisGame;
 
   /// No description provided for @downloadToFolder.
   ///
   /// In en, this message translates to:
-  /// **'Download to folder'**
+  /// **'Export raw repository'**
   String get downloadToFolder;
 
   /// No description provided for @uploadToRemote.
   ///
   /// In en, this message translates to:
-  /// **'Upload to remote'**
+  /// **'Copy folder repository to remote'**
   String get uploadToRemote;
 
   /// No description provided for @previewDeletion.
@@ -1756,13 +1870,13 @@ abstract class AppLocalizations {
   /// No description provided for @downloadSaves.
   ///
   /// In en, this message translates to:
-  /// **'Download saves'**
+  /// **'Export save repository'**
   String get downloadSaves;
 
   /// No description provided for @uploadSaves.
   ///
   /// In en, this message translates to:
-  /// **'Upload saves'**
+  /// **'Copy save repository'**
   String get uploadSaves;
 
   /// No description provided for @remoteFilesWithTheSameNamesWillBeReplacedCloseTheGameFirst.
@@ -1780,13 +1894,13 @@ abstract class AppLocalizations {
   /// No description provided for @deleteThisGameSSaves.
   ///
   /// In en, this message translates to:
-  /// **'Delete this game’s saves'**
+  /// **'Delete saves at the selected account and location'**
   String get deleteThisGameSSaves;
 
   /// No description provided for @aCompleteBackupIsCreatedBeforeDeleting.
   ///
   /// In en, this message translates to:
-  /// **'A complete backup is created before deleting:'**
+  /// **'Back up and then delete the selected locations:'**
   String get aCompleteBackupIsCreatedBeforeDeleting;
 
   /// No description provided for @backupLocation.
@@ -2451,7 +2565,7 @@ abstract class AppLocalizations {
   /// No description provided for @patchSettings.
   ///
   /// In en, this message translates to:
-  /// **'Patch settings'**
+  /// **'Patch tools'**
   String get patchSettings;
 
   /// No description provided for @patchSettingsDescription.
@@ -2523,7 +2637,7 @@ abstract class AppLocalizations {
   /// No description provided for @authorizationTicketDescription.
   ///
   /// In en, this message translates to:
-  /// **'Import tickets.txt, validate its AppID and payload lengths, then apply the ticket only when explicitly requested.'**
+  /// **'Import and verify tickets while preserving the existing authorization identity by default.'**
   String get authorizationTicketDescription;
 
   /// No description provided for @matchingLua.
@@ -2991,7 +3105,7 @@ abstract class AppLocalizations {
   /// No description provided for @luaLoginDescription.
   ///
   /// In en, this message translates to:
-  /// **'Open the Steam account page to sign in or change account.'**
+  /// **'Extraction will try the local Steam session. You can also sign in from the account page.'**
   String get luaLoginDescription;
 
   /// No description provided for @appIdForExtraction.
@@ -3027,7 +3141,7 @@ abstract class AppLocalizations {
   /// No description provided for @copyAchievements.
   ///
   /// In en, this message translates to:
-  /// **'Copy achievements data'**
+  /// **'Include local achievement cache'**
   String get copyAchievements;
 
   /// No description provided for @extractionResult.
@@ -3093,7 +3207,7 @@ abstract class AppLocalizations {
   /// No description provided for @extractDenuvoTicket.
   ///
   /// In en, this message translates to:
-  /// **'Extract ticket'**
+  /// **'Extract tickets'**
   String get extractDenuvoTicket;
 
   /// No description provided for @openAuthorizationPage.
@@ -3465,7 +3579,7 @@ abstract class AppLocalizations {
   /// No description provided for @authorizationTickets.
   ///
   /// In en, this message translates to:
-  /// **'Authorization tickets'**
+  /// **'Ticket management'**
   String get authorizationTickets;
 
   /// No description provided for @authorization.
@@ -3477,13 +3591,13 @@ abstract class AppLocalizations {
   /// No description provided for @denuvoAuthorization.
   ///
   /// In en, this message translates to:
-  /// **'Denuvo authorization'**
+  /// **'Denuvo ticket management'**
   String get denuvoAuthorization;
 
   /// No description provided for @denuvoAuthorizationDescription.
   ///
   /// In en, this message translates to:
-  /// **'Extract, validate, back up and apply AppTicket and ETicket data for your locally signed-in Steam account.'**
+  /// **'Extract, back up and manage AppTicket and ETicket. Changing authorization identity requires an explicit selection.'**
   String get denuvoAuthorizationDescription;
 
   /// No description provided for @importedTicketsTxtFilesAreCheckedForAppidAndPayloadLengthsLocalBackupsUseCurrentUserW.
@@ -3514,7 +3628,7 @@ abstract class AppLocalizations {
   /// No description provided for @saveTicketBackup.
   ///
   /// In en, this message translates to:
-  /// **'Save ticket backup'**
+  /// **'Save encrypted ticket backup'**
   String get saveTicketBackup;
 
   /// No description provided for @encryptedBackup.
@@ -3574,19 +3688,19 @@ abstract class AppLocalizations {
   /// No description provided for @applySteamTicket.
   ///
   /// In en, this message translates to:
-  /// **'Apply Steam ticket'**
+  /// **'Apply tickets'**
   String get applySteamTicket;
 
   /// No description provided for @thisReplacesExistingAppticketAndEticketValuesForThisGame.
   ///
   /// In en, this message translates to:
-  /// **'This replaces existing AppTicket and ETicket values for this game.'**
+  /// **'Back up and replace the two tickets for this game, preserving its cached authorization identity by default.'**
   String get thisReplacesExistingAppticketAndEticketValuesForThisGame;
 
   /// No description provided for @applyTicket.
   ///
   /// In en, this message translates to:
-  /// **'Apply ticket'**
+  /// **'Write tickets'**
   String get applyTicket;
 
   /// No description provided for @exportPlaintextTicket.
@@ -3745,7 +3859,7 @@ abstract class AppLocalizations {
   /// No description provided for @broadcastPlayStatusToFriends.
   ///
   /// In en, this message translates to:
-  /// **'Broadcast play status to friends'**
+  /// **'Friend presence for Lua games'**
   String get broadcastPlayStatusToFriends;
 
   /// No description provided for @allowTheKernelToShowPlayStatusToSteamFriendsThroughSpacewarDisableToHideTheseBroadcas.
@@ -4826,7 +4940,7 @@ abstract class AppLocalizations {
   /// No description provided for @manifestMonitoring.
   ///
   /// In en, this message translates to:
-  /// **'Manifest monitoring'**
+  /// **'Manifest request monitoring'**
   String get manifestMonitoring;
 
   /// No description provided for @fetchMissingManifestsRequestedBySteam.
@@ -5150,7 +5264,7 @@ abstract class AppLocalizations {
   /// No description provided for @sourceNotTested.
   ///
   /// In en, this message translates to:
-  /// **'Not tested'**
+  /// **'Configured; not tested yet'**
   String get sourceNotTested;
 
   /// No description provided for @sourceNeverUpdated.
@@ -5162,7 +5276,7 @@ abstract class AppLocalizations {
   /// No description provided for @noContentSources.
   ///
   /// In en, this message translates to:
-  /// **'No matching content sources'**
+  /// **'No content sources yet'**
   String get noContentSources;
 
   /// No description provided for @contentImport.
@@ -5264,7 +5378,7 @@ abstract class AppLocalizations {
   /// No description provided for @invalidUpdateInterval.
   ///
   /// In en, this message translates to:
-  /// **'Enter a non-negative integer'**
+  /// **'Enter a whole number from 0 to 8760.'**
   String get invalidUpdateInterval;
 
   /// No description provided for @sourceTestSucceeded.
@@ -5633,12 +5747,6 @@ abstract class AppLocalizations {
   /// **'Lua folder'**
   String get luaFolder;
 
-  /// No description provided for @leaveEmptyToUseTheKernelConfigurationOrConfigLua.
-  ///
-  /// In en, this message translates to:
-  /// **'Leave empty to use the kernel configuration or config/stplug-in'**
-  String get leaveEmptyToUseTheKernelConfigurationOrConfigLua;
-
   /// No description provided for @saveAndRefreshLibrary.
   ///
   /// In en, this message translates to:
@@ -5810,7 +5918,7 @@ abstract class AppLocalizations {
   /// No description provided for @automaticRefreshUpdateChecksFriendPresenceStartupAndOfflineMode.
   ///
   /// In en, this message translates to:
-  /// **'Automatic refresh, update checks, friend presence, startup and offline mode.'**
+  /// **'Automatic refresh, update checks, startup and offline mode.'**
   String get automaticRefreshUpdateChecksFriendPresenceStartupAndOfflineMode;
 
   /// No description provided for @downloadsKernelAndAccount.
@@ -6876,7 +6984,7 @@ abstract class AppLocalizations {
   /// No description provided for @manifestSettings.
   ///
   /// In en, this message translates to:
-  /// **'Manifest settings'**
+  /// **'Manifest request codes'**
   String get manifestSettings;
 
   /// No description provided for @manifestProvider.
@@ -6894,7 +7002,7 @@ abstract class AppLocalizations {
   /// No description provided for @manifestModeCustom.
   ///
   /// In en, this message translates to:
-  /// **'Custom server'**
+  /// **'Custom server (through this app)'**
   String get manifestModeCustom;
 
   /// No description provided for @manifestModeLocalProxy.
@@ -6948,13 +7056,13 @@ abstract class AppLocalizations {
   /// No description provided for @manifestLocalProxyDescription.
   ///
   /// In en, this message translates to:
-  /// **'Run a loopback server that resolves the selected content sources and returns a plain manifest request code to the kernel.'**
+  /// **'Resolve the current depot/GID through the selected scripts while this app stays running. The core may still use a built-in source if scripts fail.'**
   String get manifestLocalProxyDescription;
 
   /// No description provided for @manifestCustomHint.
   ///
   /// In en, this message translates to:
-  /// **'Use depotId and gid placeholders in the URL'**
+  /// **'Include a gid or manifestId placeholder; appId and depotId are optional. Keep this app running; the core can fall back to a built-in source.'**
   String get manifestCustomHint;
 
   /// No description provided for @steamClientDataChannel.
@@ -6972,7 +7080,7 @@ abstract class AppLocalizations {
   /// No description provided for @channelName.
   ///
   /// In en, this message translates to:
-  /// **'Channel'**
+  /// **'Git branch'**
   String get channelName;
 
   /// No description provided for @channelFormat.
@@ -6984,13 +7092,13 @@ abstract class AppLocalizations {
   /// No description provided for @channelFormatBranch.
   ///
   /// In en, this message translates to:
-  /// **'Branch format'**
+  /// **'Separate pattern / ipc branches'**
   String get channelFormatBranch;
 
   /// No description provided for @channelFormatDirectory.
   ///
   /// In en, this message translates to:
-  /// **'Directory format'**
+  /// **'Pattern / ipc directories in one branch'**
   String get channelFormatDirectory;
 
   /// No description provided for @defaultRepository.
@@ -7014,7 +7122,7 @@ abstract class AppLocalizations {
   /// No description provided for @localTemporaryBuildDescription.
   ///
   /// In en, this message translates to:
-  /// **'Use only after a Steam update when every online data channel is unavailable. The generated files apply only to the current Steam client build.'**
+  /// **'Scan the current Steam files using bundled signatures and write temporary metadata only when matches are complete. Unknown builds may not be supported.'**
   String get localTemporaryBuildDescription;
 
   /// No description provided for @localBuildTitle.
@@ -7601,18 +7709,6 @@ abstract class AppLocalizations {
   /// **'Apply patches and manage license configuration.'**
   String get managePatchesAndLicenses;
 
-  /// No description provided for @setLuaDirectory.
-  ///
-  /// In en, this message translates to:
-  /// **'Set Lua library folder'**
-  String get setLuaDirectory;
-
-  /// No description provided for @luaDirectoryUpdated.
-  ///
-  /// In en, this message translates to:
-  /// **'Lua library folder updated and the library was refreshed.'**
-  String get luaDirectoryUpdated;
-
   /// No description provided for @kernelDownloadsAndNetwork.
   ///
   /// In en, this message translates to:
@@ -7826,13 +7922,13 @@ abstract class AppLocalizations {
   /// No description provided for @lanRememberDevice.
   ///
   /// In en, this message translates to:
-  /// **'Remember this device'**
+  /// **'Trust this device and receive automatically'**
   String get lanRememberDevice;
 
   /// No description provided for @lanAcceptAndRemember.
   ///
   /// In en, this message translates to:
-  /// **'Accept and remember'**
+  /// **'Accept and trust'**
   String get lanAcceptAndRemember;
 
   /// No description provided for @lanContentToTransfer.
@@ -7889,6 +7985,36 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get lanNetworkSpeed;
 
+  /// No description provided for @lanDiskWriteSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Disk writes'**
+  String get lanDiskWriteSpeed;
+
+  /// No description provided for @lanDownloadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading data'**
+  String get lanDownloadProgress;
+
+  /// No description provided for @lanUploadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending data'**
+  String get lanUploadProgress;
+
+  /// No description provided for @lanInstallProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing files'**
+  String get lanInstallProgress;
+
+  /// No description provided for @lanNetworkTransferred.
+  ///
+  /// In en, this message translates to:
+  /// **'Transferred over the network: {bytes}'**
+  String lanNetworkTransferred(String bytes);
+
   /// No description provided for @lanPeakSpeed.
   ///
   /// In en, this message translates to:
@@ -7924,6 +8050,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resume transfer'**
   String get lanResume;
+
+  /// No description provided for @lanRetryTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry transfer'**
+  String get lanRetryTransfer;
 
   /// No description provided for @lanCancelTransfer.
   ///
@@ -8090,19 +8222,31 @@ abstract class AppLocalizations {
   /// No description provided for @lanChunkCache.
   ///
   /// In en, this message translates to:
-  /// **'Chunk cache'**
+  /// **'Transfer staging'**
   String get lanChunkCache;
+
+  /// No description provided for @lanChunkCacheDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfinished game data kept for resuming transfers.'**
+  String get lanChunkCacheDescription;
 
   /// No description provided for @lanClearChunkCache.
   ///
   /// In en, this message translates to:
-  /// **'Clear chunk cache'**
+  /// **'Clear transfer staging'**
   String get lanClearChunkCache;
+
+  /// No description provided for @lanClearChunkCacheConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear unfinished transfer data? Resuming these transfers will require retransmission.'**
+  String get lanClearChunkCacheConfirmation;
 
   /// No description provided for @lanChunkCacheCleared.
   ///
   /// In en, this message translates to:
-  /// **'Chunk cache cleared.'**
+  /// **'Transfer staging cleared.'**
   String get lanChunkCacheCleared;
 
   /// No description provided for @lanManualAddressInvalid.
@@ -8188,6 +8332,1510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No manifest files were found for this game in Steam depotcache.'**
   String get noDownloadedManifests;
+
+  /// No description provided for @luaDirectories.
+  ///
+  /// In en, this message translates to:
+  /// **'Lua directories'**
+  String get luaDirectories;
+
+  /// No description provided for @addLuaDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Lua directory'**
+  String get addLuaDirectory;
+
+  /// No description provided for @luaDirectoryAlreadyAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'This directory is already listed.'**
+  String get luaDirectoryAlreadyAdded;
+
+  /// No description provided for @defaultLuaWriteDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Default write directory'**
+  String get defaultLuaWriteDirectory;
+
+  /// No description provided for @luaDirectoriesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Lua directories saved to the core configuration and library refreshed.'**
+  String get luaDirectoriesSaved;
+
+  /// No description provided for @coreLuaDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed directory'**
+  String get coreLuaDirectory;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @configurationEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled in configuration'**
+  String get configurationEnabled;
+
+  /// No description provided for @cloudPluginCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin local cache'**
+  String get cloudPluginCache;
+
+  /// No description provided for @cloudFolderRepository.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder repository'**
+  String get cloudFolderRepository;
+
+  /// No description provided for @cloudConfigurationSavedRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration saved. Restart Steam to apply it.'**
+  String get cloudConfigurationSavedRestart;
+
+  /// No description provided for @cloudConfigurationRestartDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Steam loads this configuration at startup. Enabling it does not confirm that the plugin is loaded or sync has completed.'**
+  String get cloudConfigurationRestartDescription;
+
+  /// No description provided for @cloudMetadataSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement and playtime sync'**
+  String get cloudMetadataSync;
+
+  /// No description provided for @cloudSyncAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync achievements and statistics'**
+  String get cloudSyncAchievements;
+
+  /// No description provided for @cloudSyncPlaytime.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync playtime'**
+  String get cloudSyncPlaytime;
+
+  /// No description provided for @cloudRepositoryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage CloudRedirect repositories and caches here. Exports preserve hashed objects and metadata; the plugin inside Steam restores saves through synchronization.'**
+  String get cloudRepositoryDescription;
+
+  /// No description provided for @manifestConfigurationSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Request-code configuration saved. Restart Steam to apply script changes; custom and local proxy modes require this app to stay running.'**
+  String get manifestConfigurationSaved;
+
+  /// No description provided for @kernelChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving updates both the core automatic source and manual downloads. Existing cached files remain in use; new build fingerprints use this source on the next Steam startup.'**
+  String get kernelChannelDescription;
+
+  /// No description provided for @onlineFixRealAppIdDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'On the maintained fork, try keeping the real AppID for black-screen or loading issues. Games requiring the Spacewar AppID should use the option above.'**
+  String get onlineFixRealAppIdDescription;
+
+  /// No description provided for @luaPresenceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls friend presence for Lua games, without changing Steam-wide privacy. Requires a fork with presence support; the discontinued mainline does not support it.'**
+  String get luaPresenceDescription;
+
+  /// No description provided for @customLuaDirectories.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom directories'**
+  String get customLuaDirectories;
+
+  /// No description provided for @noCustomLuaDirectories.
+  ///
+  /// In en, this message translates to:
+  /// **'No custom directories'**
+  String get noCustomLuaDirectories;
+
+  /// No description provided for @luaDirectoriesSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Directory order'**
+  String get luaDirectoriesSort;
+
+  /// No description provided for @currentSteamLoginAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Steam account'**
+  String get currentSteamLoginAccount;
+
+  /// No description provided for @ticketOwnerAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket owner'**
+  String get ticketOwnerAccount;
+
+  /// No description provided for @cachedAuthorizationIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached authorization identity for this game'**
+  String get cachedAuthorizationIdentity;
+
+  /// No description provided for @ticketIdentityNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get ticketIdentityNotSet;
+
+  /// No description provided for @ticketAccountUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed in or unavailable'**
+  String get ticketAccountUnavailable;
+
+  /// No description provided for @applyTicketPreserveIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply tickets, preserve identity'**
+  String get applyTicketPreserveIdentity;
+
+  /// No description provided for @syncAuthorizationIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Also set authorization identity to {steamId}'**
+  String syncAuthorizationIdentity(String steamId);
+
+  /// No description provided for @ticketIdentitySaveWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing the authorization identity may affect game saves stored in SteamID-specific directories.'**
+  String get ticketIdentitySaveWarning;
+
+  /// No description provided for @ticketCachedIdentityWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The cached authorization identity differs from the ticket owner. Preserving it may affect authorization; only starting the game can confirm authorization.'**
+  String get ticketCachedIdentityWarning;
+
+  /// No description provided for @ticketIdentityWarningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity mismatch'**
+  String get ticketIdentityWarningLabel;
+
+  /// No description provided for @ticketApplyBackupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up the previous AppTicket, ETicket and SteamID with encryption before applying. By default, only the two tickets are replaced.'**
+  String get ticketApplyBackupDescription;
+
+  /// No description provided for @ticketWrittenVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Tickets written and verified'**
+  String get ticketWrittenVerified;
+
+  /// No description provided for @restorePreApplyCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore previous credentials'**
+  String get restorePreApplyCredentials;
+
+  /// No description provided for @ticketRestoreCompleteSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore both tickets and SteamID from this backup, deleting values that were originally absent. Restore associated Lua files too and save the current credentials in an encrypted backup.'**
+  String get ticketRestoreCompleteSet;
+
+  /// No description provided for @ticketCredentialsRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous credential set restored and verified'**
+  String get ticketCredentialsRestored;
+
+  /// No description provided for @ticketLuaCleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket statements to remove from Lua'**
+  String get ticketLuaCleanup;
+
+  /// No description provided for @ticketLuaRemovalCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} old ticket statements'**
+  String ticketLuaRemovalCount(String count);
+
+  /// No description provided for @ticketLuaCleanupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming backs up the Lua files and removes these statements before applying, preventing the core from reloading old tickets.'**
+  String get ticketLuaCleanupDescription;
+
+  /// No description provided for @ticketStopSteamForLua.
+  ///
+  /// In en, this message translates to:
+  /// **'Steam will close after confirmation to prevent Lua hot reload from overwriting credentials. Restart it manually afterwards.'**
+  String get ticketStopSteamForLua;
+
+  /// No description provided for @ticketPreviewChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Credentials changed after the preview. Review them again.'**
+  String get ticketPreviewChanged;
+
+  /// No description provided for @ticketLuaChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Lua changed after the preview or backup. The current file was not overwritten; review it again.'**
+  String get ticketLuaChanged;
+
+  /// No description provided for @ticketInvalidBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid credential backup.'**
+  String get ticketInvalidBackup;
+
+  /// No description provided for @ticketWriteNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Credential read-back verification failed; restoration of the previous values was attempted.'**
+  String get ticketWriteNotVerified;
+
+  /// No description provided for @ticketRollbackIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation failed and rollback was incomplete. Restore the full credential set and Lua files from the encrypted backup.'**
+  String get ticketRollbackIncomplete;
+
+  /// No description provided for @ticketOperationBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Another credential operation is still running.'**
+  String get ticketOperationBusy;
+
+  /// No description provided for @ticketLuaManualCleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'The Lua ticket call is not a removable stand-alone statement. Edit it in the Lua editor before applying.'**
+  String get ticketLuaManualCleanup;
+
+  /// No description provided for @copyAchievementsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies local cache files only; unlocked achievements are not transferred.'**
+  String get copyAchievementsHint;
+
+  /// No description provided for @lanAutomaticReceiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Future transfers will be accepted into: {path}. Use the device menu to forget this device.'**
+  String lanAutomaticReceiveHint(String path);
+
+  /// No description provided for @noInstalledGamesToTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'No installed games to transfer'**
+  String get noInstalledGamesToTransfer;
+
+  /// No description provided for @installGameBeforeTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Install a game, then refresh the library.'**
+  String get installGameBeforeTransfer;
+
+  /// No description provided for @noAdditionalFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No additional files'**
+  String get noAdditionalFiles;
+
+  /// No description provided for @sourceNeedsConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · Needs configuration'**
+  String sourceNeedsConfiguration(String name);
+
+  /// No description provided for @configureManifestSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure selected manifest source'**
+  String get configureManifestSource;
+
+  /// No description provided for @sourceTestPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} passed the test.'**
+  String sourceTestPassed(String name);
+
+  /// No description provided for @fileWillBeBackedUpAndReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be backed up and replaced'**
+  String get fileWillBeBackedUpAndReplaced;
+
+  /// No description provided for @fileExistsChooseReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'File exists; confirm backup and replacement'**
+  String get fileExistsChooseReplace;
+
+  /// No description provided for @luaImportReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Lua configuration for “{game}” is saved. You can now open Steam to install it.'**
+  String luaImportReady(String game);
+
+  /// No description provided for @httpsUrlRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid HTTPS URL.'**
+  String get httpsUrlRequired;
+
+  /// No description provided for @subscriptionAutoUpdateScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to all subscriptions; each uses its own update interval.'**
+  String get subscriptionAutoUpdateScope;
+
+  /// No description provided for @subscriptionIntervalDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'An interval of 0 means manual updates only. Enable automatic updates above to use the interval.'**
+  String get subscriptionIntervalDescription;
+
+  /// No description provided for @sourceOutputType.
+  ///
+  /// In en, this message translates to:
+  /// **'Content to retrieve'**
+  String get sourceOutputType;
+
+  /// No description provided for @sourceArchiveOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest archive'**
+  String get sourceArchiveOutput;
+
+  /// No description provided for @sourceCredentialHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in on the source website and obtain this credential from account settings.'**
+  String get sourceCredentialHint;
+
+  /// No description provided for @sourceOutputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lua retrieves configuration text; the archive option retrieves the source’s manifest package.'**
+  String get sourceOutputHint;
+
+  /// No description provided for @sourceProviderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the manifest provider used by this service.'**
+  String get sourceProviderHint;
+
+  /// No description provided for @sourceGameNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used only by the source service; leave blank if unnecessary.'**
+  String get sourceGameNameHint;
+
+  /// No description provided for @sourceDepotManifestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Depot ID and Manifest ID together, or leave both blank to request the game package.'**
+  String get sourceDepotManifestHint;
+
+  /// No description provided for @openSourceWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source website'**
+  String get openSourceWebsite;
+
+  /// No description provided for @luaDirectoryRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Directory removed from configuration. Its files are kept.'**
+  String get luaDirectoryRemoved;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @bearerToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearer token'**
+  String get bearerToken;
+
+  /// No description provided for @fillRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete these required fields: {fields}.'**
+  String fillRequiredFields(String fields);
+
+  /// No description provided for @cloudAddressInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a complete HTTPS URL, or enable Allow HTTP to use an HTTP URL.'**
+  String get cloudAddressInvalid;
+
+  /// No description provided for @cloudTimeoutInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeout must be from 0 to 300 seconds.'**
+  String get cloudTimeoutInvalid;
+
+  /// No description provided for @connectionFailedRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect. Check your network and try again.'**
+  String get connectionFailedRetry;
+
+  /// No description provided for @fileOperationFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not access the files. Check folder permissions, disk space, and whether a file is in use.'**
+  String get fileOperationFailedHint;
+
+  /// No description provided for @remoteCredentialsRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote access was denied. Check your credentials and folder permissions.'**
+  String get remoteCredentialsRejected;
+
+  /// No description provided for @remoteLocationMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The remote location was not found. Check the configured address or folder.'**
+  String get remoteLocationMissing;
+
+  /// No description provided for @remoteOperationFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The remote operation could not finish. Check the connection or open Details.'**
+  String get remoteOperationFailedHint;
+
+  /// No description provided for @invalidInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The content format is invalid. Check the form or imported file.'**
+  String get invalidInputHint;
+
+  /// No description provided for @operationFailedDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'The operation could not finish. Open Details for the cause.'**
+  String get operationFailedDetails;
+
+  /// No description provided for @steamLocalSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Steam local saves'**
+  String get steamLocalSave;
+
+  /// No description provided for @selectBackupProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup includes remote data from {provider}. Select that storage provider before restoring.'**
+  String selectBackupProvider(String provider);
+
+  /// No description provided for @steamUpdateChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'Steam update checks'**
+  String get steamUpdateChecks;
+
+  /// No description provided for @steamForcedUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Steam forced updates'**
+  String get steamForcedUpdates;
+
+  /// No description provided for @blockedSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get blockedSetting;
+
+  /// No description provided for @allowedSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get allowedSetting;
+
+  /// No description provided for @confirmApplyTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm ticket application'**
+  String get confirmApplyTickets;
+
+  /// No description provided for @reviewExtractedTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and apply these tickets'**
+  String get reviewExtractedTickets;
+
+  /// No description provided for @extractTrainerBeforeBinding.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract this archive first, then select the trainer executable to bind it to a game.'**
+  String get extractTrainerBeforeBinding;
+
+  /// No description provided for @testAndUpdateSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Test and update subscription'**
+  String get testAndUpdateSubscription;
+
+  /// No description provided for @cloudOperationBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for the current save operation to finish.'**
+  String get cloudOperationBusy;
+
+  /// No description provided for @cloudInvalidBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid backup record.'**
+  String get cloudInvalidBackup;
+
+  /// No description provided for @cloudBackupChecksumFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup checksum failed. Saves were not overwritten.'**
+  String get cloudBackupChecksumFailed;
+
+  /// No description provided for @cloudPinnedBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin the backup before deleting it.'**
+  String get cloudPinnedBackup;
+
+  /// No description provided for @cloudInvalidRetention.
+  ///
+  /// In en, this message translates to:
+  /// **'Retention count and size must be nonnegative integers.'**
+  String get cloudInvalidRetention;
+
+  /// No description provided for @cloudBackupTargetUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup has no storage identity and cannot be restored remotely.'**
+  String get cloudBackupTargetUnknown;
+
+  /// No description provided for @cloudBackupTargetChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage location or account has changed. Review the destination.'**
+  String get cloudBackupTargetChanged;
+
+  /// No description provided for @cloudSyncActiveOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate this storage before pulling to the plugin cache.'**
+  String get cloudSyncActiveOnly;
+
+  /// No description provided for @cloudSteamMustStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Steam and games before continuing.'**
+  String get cloudSteamMustStop;
+
+  /// No description provided for @cloudInstallPluginFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Install the CloudRedirect plugin first.'**
+  String get cloudInstallPluginFirst;
+
+  /// No description provided for @cloudSyncMetadataMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository sync metadata is missing or invalid.'**
+  String get cloudSyncMetadataMissing;
+
+  /// No description provided for @cloudSyncNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'The core did not confirm synchronization. The pre-operation backup is retained; check the task log.'**
+  String get cloudSyncNotVerified;
+
+  /// No description provided for @cloudCurrentStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Current core configuration'**
+  String get cloudCurrentStorage;
+
+  /// No description provided for @cloudFolderAbsolute.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an absolute save-folder path.'**
+  String get cloudFolderAbsolute;
+
+  /// No description provided for @cloudCredentialsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter credentials for the selected authentication method.'**
+  String get cloudCredentialsRequired;
+
+  /// No description provided for @cloudUnknownStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid storage type.'**
+  String get cloudUnknownStorage;
+
+  /// No description provided for @cloudAuthorizeFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorize an account in this form first.'**
+  String get cloudAuthorizeFirst;
+
+  /// No description provided for @cloudAccountLookupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the authorized account identity.'**
+  String get cloudAccountLookupFailed;
+
+  /// No description provided for @cloudWriteProbeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Test-file readback verification failed.'**
+  String get cloudWriteProbeFailed;
+
+  /// No description provided for @cloudStorageNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a storage name.'**
+  String get cloudStorageNameRequired;
+
+  /// No description provided for @cloudActiveStorageDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the active sync target before removing it.'**
+  String get cloudActiveStorageDelete;
+
+  /// No description provided for @cloudDisableBeforeDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable redirection before disconnecting the active target.'**
+  String get cloudDisableBeforeDisconnect;
+
+  /// No description provided for @cloudStorages.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage management'**
+  String get cloudStorages;
+
+  /// No description provided for @cloudAddStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add storage'**
+  String get cloudAddStorage;
+
+  /// No description provided for @cloudStorageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage name'**
+  String get cloudStorageName;
+
+  /// No description provided for @cloudActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Use for synchronization'**
+  String get cloudActivate;
+
+  /// No description provided for @cloudActiveTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync target'**
+  String get cloudActiveTarget;
+
+  /// No description provided for @cloudBrowse.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse saves'**
+  String get cloudBrowse;
+
+  /// No description provided for @cloudBrowsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Browsing'**
+  String get cloudBrowsing;
+
+  /// No description provided for @cloudDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate configuration'**
+  String get cloudDuplicate;
+
+  /// No description provided for @cloudSortStorages.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage order'**
+  String get cloudSortStorages;
+
+  /// No description provided for @cloudStorageSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage saved'**
+  String get cloudStorageSaved;
+
+  /// No description provided for @cloudStorageRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove local configuration and credentials. Remote files are retained.'**
+  String get cloudStorageRemoved;
+
+  /// No description provided for @cloudStorageActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync target updated; it takes effect on the next Steam launch.'**
+  String get cloudStorageActivated;
+
+  /// No description provided for @cloudTestRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Test reading'**
+  String get cloudTestRead;
+
+  /// No description provided for @cloudTestWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Test writing and cleanup'**
+  String get cloudTestWrite;
+
+  /// No description provided for @cloudTestWriteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Creates a temporary test file, verifies it, then deletes it.'**
+  String get cloudTestWriteHint;
+
+  /// No description provided for @cloudReadVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading verified'**
+  String get cloudReadVerified;
+
+  /// No description provided for @cloudWriteVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading and writing verified'**
+  String get cloudWriteVerified;
+
+  /// No description provided for @cloudNotTested.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested'**
+  String get cloudNotTested;
+
+  /// No description provided for @cloudDiscardDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard unsaved changes?'**
+  String get cloudDiscardDraft;
+
+  /// No description provided for @cloudPendingRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Steam restart'**
+  String get cloudPendingRestart;
+
+  /// No description provided for @cloudCoreReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Core files ready'**
+  String get cloudCoreReady;
+
+  /// No description provided for @cloudCoreMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Core or loader not ready'**
+  String get cloudCoreMissing;
+
+  /// No description provided for @cloudNotRuntimeVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Runtime not verified'**
+  String get cloudNotRuntimeVerified;
+
+  /// No description provided for @cloudLastChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Last checked'**
+  String get cloudLastChecked;
+
+  /// No description provided for @cloudAllAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'All accounts'**
+  String get cloudAllAccounts;
+
+  /// No description provided for @cloudAccountFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Account filter'**
+  String get cloudAccountFilter;
+
+  /// No description provided for @cloudLocationFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Location filter'**
+  String get cloudLocationFilter;
+
+  /// No description provided for @cloudAllLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'All locations'**
+  String get cloudAllLocations;
+
+  /// No description provided for @cloudDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Save details'**
+  String get cloudDetails;
+
+  /// No description provided for @cloudLoadFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'View files'**
+  String get cloudLoadFiles;
+
+  /// No description provided for @cloudPull.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull to plugin cache'**
+  String get cloudPull;
+
+  /// No description provided for @cloudPullHint.
+  ///
+  /// In en, this message translates to:
+  /// **'CloudRedirect pulls this game after backing up its cache. Launch the game afterward to verify save loading.'**
+  String get cloudPullHint;
+
+  /// No description provided for @cloudSyncVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Core sync completed; cache metadata verified'**
+  String get cloudSyncVerified;
+
+  /// No description provided for @cloudCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare repository manifests'**
+  String get cloudCompare;
+
+  /// No description provided for @cloudLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Local only'**
+  String get cloudLocalOnly;
+
+  /// No description provided for @cloudRemoteOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote only'**
+  String get cloudRemoteOnly;
+
+  /// No description provided for @cloudChangedFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Different content or metadata'**
+  String get cloudChangedFiles;
+
+  /// No description provided for @cloudManifestEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'Repository manifests match'**
+  String get cloudManifestEqual;
+
+  /// No description provided for @cloudCompareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Compares file manifests; timestamps do not establish sync completion.'**
+  String get cloudCompareHint;
+
+  /// No description provided for @cloudExportRepository.
+  ///
+  /// In en, this message translates to:
+  /// **'Export repository copy'**
+  String get cloudExportRepository;
+
+  /// No description provided for @cloudExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Exports hashed objects and metadata. The destination must be empty.'**
+  String get cloudExportHint;
+
+  /// No description provided for @cloudPreOperationBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic pre-operation backup'**
+  String get cloudPreOperationBackup;
+
+  /// No description provided for @cloudConfirmOperation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm save operation'**
+  String get cloudConfirmOperation;
+
+  /// No description provided for @cloudStopAndContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Steam and continue'**
+  String get cloudStopAndContinue;
+
+  /// No description provided for @cloudBackupDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup details'**
+  String get cloudBackupDetails;
+
+  /// No description provided for @cloudBackupNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get cloudBackupNote;
+
+  /// No description provided for @cloudBackupPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep pinned'**
+  String get cloudBackupPinned;
+
+  /// No description provided for @cloudVerifyBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify backup'**
+  String get cloudVerifyBackup;
+
+  /// No description provided for @cloudBackupVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup verified'**
+  String get cloudBackupVerified;
+
+  /// No description provided for @cloudRetention.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean up backups'**
+  String get cloudRetention;
+
+  /// No description provided for @cloudRetentionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups to keep per game'**
+  String get cloudRetentionCount;
+
+  /// No description provided for @cloudRetentionSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size limit per game (MiB)'**
+  String get cloudRetentionSize;
+
+  /// No description provided for @cloudRetentionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0 means unlimited. Pinned backups are excluded. Files are deleted only after reviewing the list.'**
+  String get cloudRetentionHint;
+
+  /// No description provided for @cloudNothingToClean.
+  ///
+  /// In en, this message translates to:
+  /// **'No backups to clean up'**
+  String get cloudNothingToClean;
+
+  /// No description provided for @cloudBackupManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual backup'**
+  String get cloudBackupManual;
+
+  /// No description provided for @cloudBackupBeforeDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Before deletion'**
+  String get cloudBackupBeforeDelete;
+
+  /// No description provided for @cloudBackupBeforeRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before restore'**
+  String get cloudBackupBeforeRestore;
+
+  /// No description provided for @cloudBackupBeforeUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Before upload'**
+  String get cloudBackupBeforeUpload;
+
+  /// No description provided for @cloudBackupBeforeSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Before pull'**
+  String get cloudBackupBeforeSync;
+
+  /// No description provided for @cloudDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get cloudDestination;
+
+  /// No description provided for @cloudRepositoryCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy to sync target'**
+  String get cloudRepositoryCopy;
+
+  /// No description provided for @cloudGameAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Game / account'**
+  String get cloudGameAccount;
+
+  /// No description provided for @cloudTargetChangedDuringOperation.
+  ///
+  /// In en, this message translates to:
+  /// **'The destination changed during the operation. Stopped.'**
+  String get cloudTargetChangedDuringOperation;
+
+  /// No description provided for @cloudExportNotEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an empty directory. Existing files were not overwritten.'**
+  String get cloudExportNotEmpty;
+
+  /// No description provided for @cloudNoRestoreTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup has no restore locations.'**
+  String get cloudNoRestoreTargets;
+
+  /// No description provided for @cloudRestartForSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved. Verify runtime behavior after restarting Steam.'**
+  String get cloudRestartForSettings;
+
+  /// No description provided for @cloudLoadFailedRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh failed; previous results retained'**
+  String get cloudLoadFailedRetained;
+
+  /// No description provided for @cloudDisconnectConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this storage’s local credentials. Remote files are retained.'**
+  String get cloudDisconnectConfirm;
+
+  /// No description provided for @cloudNoFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No files'**
+  String get cloudNoFiles;
+
+  /// No description provided for @steamVersionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Steam client versions'**
+  String get steamVersionTitle;
+
+  /// No description provided for @steamVersionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse, verify, install and restore Steam client versions'**
+  String get steamVersionDescription;
+
+  /// No description provided for @steamVersionBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for the current version operation to finish.'**
+  String get steamVersionBusy;
+
+  /// No description provided for @steamVersionInvalidCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'The version catalogue is invalid or incomplete.'**
+  String get steamVersionInvalidCatalog;
+
+  /// No description provided for @steamVersionManifestMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The manifest architecture or build does not match the request.'**
+  String get steamVersionManifestMismatch;
+
+  /// No description provided for @steamVersionInvalidFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Use YYYYMMDD dates; the start date must not exceed the end date.'**
+  String get steamVersionInvalidFilter;
+
+  /// No description provided for @steamVersionDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading and verifying {file}'**
+  String steamVersionDownloading(String file);
+
+  /// No description provided for @steamVersionDownloadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} · {received}/{total} bytes'**
+  String steamVersionDownloadProgress(
+    String file,
+    String received,
+    String total,
+  );
+
+  /// No description provided for @steamVersionRangeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The server returned an incorrect resume range.'**
+  String get steamVersionRangeInvalid;
+
+  /// No description provided for @steamVersionChecksumFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'File size or SHA-256 verification failed.'**
+  String get steamVersionChecksumFailed;
+
+  /// No description provided for @steamVersionPackageInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing or invalid package: {file}'**
+  String steamVersionPackageInvalid(String file);
+
+  /// No description provided for @steamVersionSameImport.
+  ///
+  /// In en, this message translates to:
+  /// **'This directory is already in the version library.'**
+  String get steamVersionSameImport;
+
+  /// No description provided for @steamVersionStaging.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing and verifying the version in a temporary directory'**
+  String get steamVersionStaging;
+
+  /// No description provided for @steamVersionInstallUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'The target installation could not be verified; it was not applied to Steam.'**
+  String get steamVersionInstallUnverified;
+
+  /// No description provided for @steamVersionLinkedPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Version files contain an unsupported link.'**
+  String get steamVersionLinkedPath;
+
+  /// No description provided for @steamVersionApplying.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying client file {current}/{total}'**
+  String steamVersionApplying(String current, String total);
+
+  /// No description provided for @steamVersionTargetRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Steam directory containing steam.exe, or an empty directory for a new installation.'**
+  String get steamVersionTargetRequired;
+
+  /// No description provided for @steamVersionInvalidBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid client backup.'**
+  String get steamVersionInvalidBackup;
+
+  /// No description provided for @steamVersionBackupTargetChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup belongs to a different Steam directory.'**
+  String get steamVersionBackupTargetChanged;
+
+  /// No description provided for @steamVersionLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync official releases'**
+  String get steamVersionLatest;
+
+  /// No description provided for @steamVersionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Update history index'**
+  String get steamVersionHistory;
+
+  /// No description provided for @steamVersionImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import downloaded version'**
+  String get steamVersionImport;
+
+  /// No description provided for @steamVersionCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current client'**
+  String get steamVersionCurrent;
+
+  /// No description provided for @steamVersionUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Version not identified'**
+  String get steamVersionUnknown;
+
+  /// No description provided for @steamVersionTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation directory'**
+  String get steamVersionTarget;
+
+  /// No description provided for @steamVersionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cached versions'**
+  String get steamVersionEmpty;
+
+  /// No description provided for @steamVersionOfficial.
+  ///
+  /// In en, this message translates to:
+  /// **'Official CDN'**
+  String get steamVersionOfficial;
+
+  /// No description provided for @steamVersionArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Wayback archive'**
+  String get steamVersionArchive;
+
+  /// No description provided for @steamVersionLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local import'**
+  String get steamVersionLocal;
+
+  /// No description provided for @steamVersionPackages.
+  ///
+  /// In en, this message translates to:
+  /// **'Client packages'**
+  String get steamVersionPackages;
+
+  /// No description provided for @steamVersionReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded'**
+  String get steamVersionReady;
+
+  /// No description provided for @steamVersionPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{current}/{total} packages downloaded'**
+  String steamVersionPartial(String current, String total);
+
+  /// No description provided for @steamVersionDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download and verify'**
+  String get steamVersionDownload;
+
+  /// No description provided for @steamVersionVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify downloads'**
+  String get steamVersionVerify;
+
+  /// No description provided for @steamVersionInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Install this version'**
+  String get steamVersionInstall;
+
+  /// No description provided for @steamVersionInstallHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Installs offline in a temporary directory, then backs up and replaces client files with rollback on failure. Games, account settings, Lua and plugins are retained. Update behavior follows Settings → Steam update control.'**
+  String get steamVersionInstallHint;
+
+  /// No description provided for @steamVersionInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Client files applied and version checked. Start Steam to verify runtime behavior.'**
+  String get steamVersionInstalled;
+
+  /// No description provided for @steamVersionDeleteDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete local download packages while retaining the catalogue entry and client backups.'**
+  String get steamVersionDeleteDownload;
+
+  /// No description provided for @steamVersionBackups.
+  ///
+  /// In en, this message translates to:
+  /// **'Client backups'**
+  String get steamVersionBackups;
+
+  /// No description provided for @steamVersionRestoreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore client files from before this operation, after backing up the current state.'**
+  String get steamVersionRestoreHint;
+
+  /// No description provided for @steamVersionArchitecture.
+  ///
+  /// In en, this message translates to:
+  /// **'Client architecture'**
+  String get steamVersionArchitecture;
+
+  /// No description provided for @steamVersionStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get steamVersionStartDate;
+
+  /// No description provided for @steamVersionEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End date'**
+  String get steamVersionEndDate;
+
+  /// No description provided for @steamVersionHistoryLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest limit'**
+  String get steamVersionHistoryLimit;
+
+  /// No description provided for @steamVersionHistoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Historical files may be incomplete. Installation requires every package to pass verification.'**
+  String get steamVersionHistoryHint;
+
+  /// No description provided for @steamVersionRefreshLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh local status'**
+  String get steamVersionRefreshLocal;
+
+  /// No description provided for @steamVersionStartSteam.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Steam'**
+  String get steamVersionStartSteam;
+
+  /// No description provided for @steamVersionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Version details'**
+  String get steamVersionDetails;
+
+  /// No description provided for @steamVersionDownloadedVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'All client packages passed verification'**
+  String get steamVersionDownloadedVerified;
+
+  /// No description provided for @steamVersionStopSteam.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Steam before installation'**
+  String get steamVersionStopSteam;
+
+  /// No description provided for @steamVersionBackupBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up client files before applying'**
+  String get steamVersionBackupBefore;
+
+  /// No description provided for @steamVersionWaybackSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Wayback and cache'**
+  String get steamVersionWaybackSettings;
+
+  /// No description provided for @steamVersionWaybackAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Wayback address'**
+  String get steamVersionWaybackAddress;
+
+  /// No description provided for @steamVersionWaybackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Defaults to web.archive.org. You can enter a custom Wayback address.'**
+  String get steamVersionWaybackHint;
+
+  /// No description provided for @steamVersionWaybackInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a complete HTTPS address without credentials or query parameters.'**
+  String get steamVersionWaybackInvalid;
+
+  /// No description provided for @steamVersionCacheHit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reusing cached historical manifest: {stamp}'**
+  String steamVersionCacheHit(String stamp);
+
+  /// No description provided for @steamVersionCacheSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Historical manifest cached: {stamp}'**
+  String steamVersionCacheSaved(String stamp);
+
+  /// No description provided for @steamVersionCacheHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The built-in catalogue provides initial choices. Refresh the version library to discover new releases. History indexes are cached for 24 hours; selected manifests are fetched on demand and saved.'**
+  String get steamVersionCacheHint;
+
+  /// No description provided for @steamVersionForceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Force refresh history index'**
+  String get steamVersionForceHistory;
+
+  /// No description provided for @steamVersionWaybackDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore default address'**
+  String get steamVersionWaybackDefault;
+
+  /// No description provided for @steamVersionRefreshCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh version library'**
+  String get steamVersionRefreshCatalog;
+
+  /// No description provided for @steamVersionBuiltin.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in catalogue'**
+  String get steamVersionBuiltin;
+
+  /// No description provided for @steamVersionManifestPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest not loaded'**
+  String get steamVersionManifestPending;
+
+  /// No description provided for @steamVersionLoadManifest.
+  ///
+  /// In en, this message translates to:
+  /// **'Load version manifest'**
+  String get steamVersionLoadManifest;
+
+  /// No description provided for @steamVersionSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Historical snapshot {date}'**
+  String steamVersionSnapshot(String date);
 }
 
 class _AppLocalizationsDelegate

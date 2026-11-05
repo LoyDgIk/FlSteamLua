@@ -8,7 +8,7 @@ enum KernelManifestFormat { plain, steamrun, jsonContent }
 
 enum KernelTomlChannelMode { branch, directory }
 
-const kernelDefaultTomlRepository = 'madoiscool/steam-monitor';
+const kernelDefaultTomlRepository = 'huanyuejue/steam-monitor';
 
 const kernelTomlChannelRepositories = [
   kernelDefaultTomlRepository,
@@ -16,19 +16,23 @@ const kernelTomlChannelRepositories = [
   'kasakigaming/steam-monitor',
   'mmxlyo/steam-monitor',
   'OpenSteam001/steam-monitor',
-  'huanyuejue/steam-monitor',
+  'madoiscool/steam-monitor',
 ];
 
 class KernelTomlChannelSettings {
   const KernelTomlChannelSettings({
     this.repository = kernelDefaultTomlRepository,
     this.channel = 'main',
-    this.mode = KernelTomlChannelMode.branch,
+    this.mode = KernelTomlChannelMode.directory,
   });
 
   final String repository;
   final String channel;
   final KernelTomlChannelMode mode;
+  String get urlTemplate =>
+      'https://raw.githubusercontent.com/$repository/'
+      '${mode == KernelTomlChannelMode.directory ? '$channel/' : ''}'
+      '{channel}/{component}/{sha256}.toml';
 }
 
 class KernelManifestSettings {
@@ -229,6 +233,9 @@ class KernelInstallation {
   final InjectionEntryState entryState;
   final String? version;
   final List<String> files;
+  bool get disabled =>
+      files.contains('OpenSteamTool.dll.off') ||
+      files.contains('xinput1_4.dll.off');
 }
 
 class KernelSwitchResult {

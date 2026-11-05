@@ -91,7 +91,7 @@ class _KernelManifestSettingsPageState
         ),
       );
       if (mounted) {
-        ui.showAppSuccess(context, context.l10n.operationCompleted);
+        ui.showAppSuccess(context, context.l10n.manifestConfigurationSaved);
       }
     } catch (error) {
       if (mounted) setState(() => _error = '$error');
@@ -126,6 +126,7 @@ class _KernelManifestSettingsPageState
                   padding: const EdgeInsets.only(bottom: 12),
                   child: ui.CommonCard(
                     isError: true,
+                    inert: true,
                     padding: const EdgeInsets.all(14),
                     child: SelectableText(_error!),
                   ),
@@ -240,14 +241,14 @@ class _KernelManifestSettingsPageState
                                   }
                                 }),
                         ),
-                    ui.FormRowSwitch(
-                      title: context.l10n.manifestFailover,
-                      value: _failover,
-                      onChanged: _saving
-                          ? (_) {}
-                          : (value) => setState(() => _failover = value),
-                    ),
                   ],
+                  ui.FormRowSwitch(
+                    title: context.l10n.manifestFailover,
+                    value: _failover,
+                    onChanged: _saving
+                        ? (_) {}
+                        : (value) => setState(() => _failover = value),
+                  ),
                 ],
                 footer: _mode == KernelManifestMode.localProxy
                     ? context.l10n.manifestLocalProxyDescription

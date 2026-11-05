@@ -1,3 +1,4 @@
+import '../preferences/friend_presence_settings.dart';
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
@@ -17,16 +18,55 @@ import 'kernel_toml_channel_page.dart';
 import 'kernel_service.dart';
 import 'kernel_toml_sheet.dart';
 
-String _kernelSwitchMessage(BuildContext context, KernelPackage package) {
-  final message = context.l10n
-      .currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst(
-        package.displayName,
-      );
-  final notes = package.releaseNotes.trim();
-  return notes.isEmpty
-      ? message
-      : '$message\n\n${context.l10n.releaseAnnouncement}\n$notes';
-}
+Future<bool> _confirmKernelSwitch(
+  BuildContext context,
+  KernelPackage package,
+  String title,
+) async =>
+    await ui.showFlDialog<bool>(
+      context: context,
+      builder: (context) => ui.CommonDialog(
+        title: title,
+        actions: [
+          ui.CommonDialogAction(
+            label: context.l10n.cancel,
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          ui.CommonDialogAction(
+            label: context.l10n.continueLabel,
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n
+                    .currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst(
+                      package.displayName,
+                    ),
+              ),
+              if (package.releaseNotes.trim().isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  context.l10n.releaseAnnouncement,
+                  style: ui.AppTextStyle.headline.of(context),
+                ),
+                const SizedBox(height: 12),
+                ui.ReleaseNotes(
+                  data: package.releaseNotes,
+                  baseUrl: package.releaseUrl == null
+                      ? null
+                      : Uri.tryParse(package.releaseUrl!),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    ) ??
+    false;
 
 class KernelSettingsPage extends StatefulWidget {
   const KernelSettingsPage({
@@ -235,9 +275,10 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
       return;
     }
     final package = info.package;
-    if (!await _confirm(
+    if (!await _confirmKernelSwitch(
+      context,
+      package,
       localeText.installOrUpdateKernel,
-      _kernelSwitchMessage(context, package),
     )) {
       return;
     }
@@ -247,9 +288,10 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
   Future<void> _switch(KernelPackage package, {bool confirm = true}) async {
     final localeText = context.l10n;
     if (confirm &&
-        !await _confirm(
+        !await _confirmKernelSwitch(
+          context,
+          package,
           localeText.switchKernel,
-          _kernelSwitchMessage(context, package),
         )) {
       return;
     }
@@ -402,11 +444,14 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
   String _stateLabel(BuildContext context) {
     final installed = service.installed;
     if (!installed.installed) return context.l10n.kernelStateNotInstalled;
-    if (!installed.enabled) return context.l10n.kernelStateDisabled;
+    if (installed.disabled) return context.l10n.kernelStateDisabled;
     return switch (installed.entryState) {
       InjectionEntryState.none => context.l10n.kernelStateMissingEntry,
       InjectionEntryState.bothActive => context.l10n.kernelStateConflict,
-      _ => context.l10n.kernelStateHealthy,
+      _ =>
+        installed.enabled
+            ? context.l10n.configurationEnabled
+            : context.l10n.kernelStateDisabled,
     };
   }
 
@@ -484,6 +529,7 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: ui.CommonCard(
+        inert: true,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         shape: ui.AppShape.md,
         child: Row(
@@ -510,7 +556,7 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
   Widget build(BuildContext context) {
     final localeText = context.l10n;
     final installed = service.installed;
-    final canChangeEntry = installed.installed && installed.enabled && !_busy;
+    final canChangeEntry = installed.installed && !_busy;
     final updateText = _updateInfo == null
         ? null
         : _updateInfo!.hasUpdate
@@ -536,7 +582,6 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, ui.pageContentTopInset, 16, 28),
         children: [
-          for (final warning in service.warnings) _warning(context, warning),
           ui.generateSection(
             title: localeText.kernelOverview,
             items: [
@@ -565,6 +610,37 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
                 ),
               ),
             ],
+          ),
+          FutureBuilder<bool>(
+            future: widget.settings.steamPath.isEmpty
+                ? null
+                : FriendPresenceSettings().read(widget.settings.steamPath),
+            builder: (context, snapshot) => ui.generateSection(
+              footer: localeText.luaPresenceDescription,
+              items: [
+                ui.ListItem.toggle(
+                  key: const ValueKey('friend-broadcast-switch'),
+                  title: Text(localeText.broadcastPlayStatusToFriends),
+                  value: snapshot.data ?? false,
+                  onChanged:
+                      !snapshot.hasData ||
+                          _busy ||
+                          service.repositorySlug == 'OpenSteam001/OpenSteamTool'
+                      ? null
+                      : (value) async {
+                          try {
+                            await FriendPresenceSettings().write(
+                              widget.settings.steamPath,
+                              value,
+                            );
+                            if (mounted) setState(() {});
+                          } catch (error) {
+                            _showError(error);
+                          }
+                        },
+                ),
+              ],
+            ),
           ),
           ui.generateSection(
             title: localeText.injectionEntry,
@@ -634,22 +710,24 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
                               )
                             : _repositoryKindChip(context),
                       ),
-                      if (service.repositoryInfo != null)
-                        ui.DecorationListItem(
-                          leading: const ui.GlyphIcon(ui.AppGlyphs.connections),
-                          title: Text(localeText.defaultBranch),
-                          subtitle: Text(
-                            [
-                              service.repositoryInfo!.defaultBranch,
-                              if (service.repositoryInfo!.parent != null)
-                                '${localeText.repositoryFork}: '
-                                    '${service.repositoryInfo!.parent}',
-                              if (service.repositoryInfo!.pushedAt != null)
-                                '${localeText.lastPush}: '
-                                    '${service.repositoryInfo!.pushedAt!.toLocal().toString().split('.').first}',
-                            ].join(' · '),
-                          ),
+                      ui.DecorationListItem(
+                        leading: const ui.GlyphIcon(ui.AppGlyphs.connections),
+                        title: Text(localeText.defaultBranch),
+                        subtitle: Text(
+                          [
+                            service.repositoryInfo?.defaultBranch ??
+                                localeText.notRecorded,
+                            if (service.repositoryInfo?.parent != null)
+                              '${localeText.repositoryFork}: '
+                                  '${service.repositoryInfo!.parent}',
+                            if (service.repositoryInfo?.pushedAt != null)
+                              '${localeText.lastPush}: '
+                                  '${service.repositoryInfo!.pushedAt!.toLocal().toString().split('.').first}',
+                          ].join(' · '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                      ),
                       ui.ListItem.toggle(
                         leading: const ui.GlyphIcon(ui.AppGlyphs.settings),
                         title: Text(localeText.kernelUpdateCheckOnStartup),
@@ -813,6 +891,10 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
           ui.ListFooter(
             text: '${localeText.repository}: ${service.repositoryRoot}',
           ),
+          if (service.warnings.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            for (final warning in service.warnings) _warning(context, warning),
+          ],
         ],
       ),
     );
@@ -903,10 +985,10 @@ class _KernelPackagesSheetState extends State<_KernelPackagesSheet> {
 
   Future<void> _switch(KernelPackage package) async {
     if (service.activePackageId == package.id || _busy) return;
-    final confirmed = await ui.AppDialogs.confirm(
+    final confirmed = await _confirmKernelSwitch(
       context,
-      title: context.l10n.switchKernel,
-      message: _kernelSwitchMessage(context, package),
+      package,
+      context.l10n.switchKernel,
     );
     if (confirmed != true || !mounted) return;
     final steam = widget.steamProcess;

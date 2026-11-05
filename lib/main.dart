@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app_services.dart';
 import 'app/app_shell.dart';
+import 'app/quick_start_page.dart';
 import 'core/app_paths.dart';
 import 'core/system_appearance.dart';
 import 'platform/desktop/desktop_integration.dart';
@@ -55,6 +56,7 @@ class FlSteamLuaApp extends ConsumerWidget {
         return MaterialApp(
           title: 'FlSteamLua',
           debugShowCheckedModeBanner: false,
+          themeAnimationStyle: AnimationStyle.noAnimation,
           theme: ui.buildAppTheme(
             seedColor: seed,
             colorStyle: colorStyle,
@@ -103,7 +105,9 @@ class FlSteamLuaApp extends ConsumerWidget {
               ),
             );
           },
-          home: AppShell(services: services),
+          home: settings.quickStartDismissed
+              ? AppShell(services: services)
+              : QuickStartWindow(services: services),
         );
       },
     );

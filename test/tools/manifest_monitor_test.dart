@@ -41,12 +41,12 @@ void main() {
       addTearDown(() => temp.delete(recursive: true));
       final bytes = [0xd0, 0x17, 0xf6, 0x71, ...List.filled(40, 0)];
       final downloader = ManifestCdnDownloader(
-        sources: [(depot, gid) => Uri.https('codes.test', '/$depot/$gid')],
+        resolveCode: ({required appId, required depotId, required gid}) async {
+          expect((appId, depotId, gid), (50, 71, '99900011122233344'));
+          return '123456';
+        },
         cdnHost: 'cdn.test',
         client: MockClient((request) async {
-          if (request.url.host == 'codes.test') {
-            return http.Response('123456', 200);
-          }
           expect(
             request.url.path,
             '/depot/71/manifest/99900011122233344/5/123456',

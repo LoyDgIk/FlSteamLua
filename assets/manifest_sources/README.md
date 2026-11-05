@@ -29,7 +29,7 @@ async function test(ctx) {
 }
 ```
 
-- `ctx.params`: parsed source settings plus the requested numeric `appid` during downloads.
+- `ctx.params`: parsed source settings plus the requested numeric `appid` during downloads. Kernel request-code calls additionally provide numeric `depotid` and decimal-string `gid`; use the string unchanged to retain the complete uint64 value.
 - `ctx.log(message)`: appends a task log, with configured secret values redacted by the host.
 - `ctx.http.get(url, options)` and `ctx.http.post(url, options)`: return Promises. HTTP/HTTPS only; the host performs all network access.
 - HTTP options: string `headers`, `responseType` (`text`, `json`, `base64`), `timeout` in seconds, `allowNonSuccess`, `maxBytes`; POST also accepts `body` and `contentType`.

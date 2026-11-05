@@ -10,12 +10,14 @@ class ScriptContentSourceAdapter {
     String id,
     int appId, {
     required Set<ContentCapability> requestedCapabilities,
+    ({int depotId, String manifestId})? manifestRequest,
     TaskContext? task,
   }) async {
     final result = await service.downloadContent(
       id,
       appId,
       requestedCapabilities: requestedCapabilities,
+      manifestRequest: manifestRequest,
       task: task,
     );
     return ContentSourcePayload(

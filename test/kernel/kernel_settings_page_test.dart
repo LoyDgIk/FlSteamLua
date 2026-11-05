@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:fl_steam_lua/core/app_paths.dart';
@@ -47,6 +48,87 @@ void main() {
     await temp.delete(recursive: true);
   });
 
+  testWidgets(
+    'checking updates preserves scrolled row geometry while showing progress',
+    (tester) async {
+      final response = Completer<http.Response>();
+      service.dispose();
+      service = KernelService(
+        paths: AppPaths(p.join(temp.path, 'app')),
+        settings: settings,
+        isSteamRunning: () async => false,
+        client: MockClient(
+          (request) async => request.url.path.endsWith('/releases')
+              ? response.future
+              : http.Response('{"default_branch":"main","fork":true}', 200),
+        ),
+      );
+      await tester.binding.setSurfaceSize(const Size(1100, 720));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('en'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          theme: ui.buildAppTheme(),
+          home: KernelSettingsPage(
+            service: service,
+            tasks: tasks,
+            settings: settings,
+          ),
+        ),
+      );
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      final action = find.text('Install or update kernel');
+      await tester.scrollUntilVisible(
+        action,
+        250,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      final scroll = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
+      scroll.jumpTo(scroll.pixels - 160);
+      await tester.pumpAndSettle();
+      final before = tester.getRect(action);
+      final offset = scroll.pixels;
+      await tester.runAsync(() async {
+        await tester.tap(action);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      for (final elapsed in [0, 16, 50, 100, 200]) {
+        await tester.pump(Duration(milliseconds: elapsed));
+        expect(find.byType(ui.CommonProgressBar), findsOneWidget);
+        expect(
+          tester.getRect(action),
+          before,
+          reason: 'Loading frame $elapsed moved the row',
+        );
+        expect(scroll.pixels, offset);
+      }
+      await tester.runAsync(() async {
+        response.complete(http.Response('Forbidden', 403));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      for (var attempt = 0; attempt < 30 && tasks.runningCount > 0; attempt++) {
+        await tester.pump();
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+      }
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(ui.CommonProgressBar), findsNothing);
+      expect(tester.getRect(action), before);
+      expect(scroll.pixels, offset);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
   testWidgets('kernel page uses grouped rows and opens residual side sheet', (
     tester,
   ) async {
@@ -76,12 +158,8 @@ void main() {
 
     expect(find.text('Kernel overview'), findsOneWidget);
     expect(find.text('Install and runtime'), findsOneWidget);
-    expect(find.text('Maintenance'), findsOneWidget);
     expect(find.text('Repository subscription'), findsOneWidget);
     expect(find.text('Local kernel package'), findsOneWidget);
-    expect(find.text('Manifest settings'), findsOneWidget);
-    expect(find.text('Built-in provider · 20770407'), findsOneWidget);
-    expect(find.text('madoiscool/steam-monitor · main'), findsOneWidget);
     expect(find.byType(OutlinedButton), findsNothing);
     expect(find.byType(ui.CommonSelectField), findsNothing);
     final overviewTop = tester.getTopLeft(find.text('Kernel overview')).dy;
@@ -99,6 +177,10 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
+    expect(find.text('Maintenance'), findsOneWidget);
+    expect(find.text('Manifest request codes'), findsOneWidget);
+    expect(find.text('Built-in provider · 20770407'), findsOneWidget);
+    expect(find.text('huanyuejue/steam-monitor · main'), findsOneWidget);
     await tester.tap(scan);
     await tester.pump();
     await tester.runAsync(
@@ -136,7 +218,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     final backups = find.text('Switch and recovery backups');
-    await tester.ensureVisible(backups);
+    await tester.scrollUntilVisible(
+      backups,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(backups);
     await tester.pump();
@@ -168,7 +254,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final repository = find.text('madoiscool/steam-monitor · Default');
+    final repository = find.text('huanyuejue/steam-monitor · Default');
     expect(repository, findsOneWidget);
     await tester.tap(repository);
     await tester.pump();

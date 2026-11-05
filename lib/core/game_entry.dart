@@ -14,7 +14,7 @@ class GameEntry {
     this.isRunning = false,
     this.isFavorite = false,
     this.ownership = GameOwnership.unknown,
-    this.playtimeMinutes = 0,
+    this.playtimeMinutes,
     this.lastPlayed,
     this.sizeOnDisk = 0,
     this.coverUrl,
@@ -32,7 +32,7 @@ class GameEntry {
   final bool isRunning;
   final bool isFavorite;
   final GameOwnership ownership;
-  final int playtimeMinutes;
+  final int? playtimeMinutes;
   final DateTime? lastPlayed;
   final int sizeOnDisk;
   final String? coverUrl;

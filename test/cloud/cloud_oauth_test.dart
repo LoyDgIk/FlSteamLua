@@ -51,6 +51,8 @@ void main() {
       'access_token': 'expired',
       'refresh_token': 'refresh',
       'expires_at': 1,
+      'remote_account_id': 'account-A',
+      'account_label': 'Alice',
     });
     final oauth = CloudOAuth(
       client: MockClient((request) async {
@@ -69,6 +71,8 @@ void main() {
     expect(await oauth.accessToken('gdrive'), 'new');
     final value = (await credentials.read('gdrive'))!;
     expect(value['refresh_token'], 'rotated');
+    expect(value['remote_account_id'], 'account-A');
+    expect(value['account_label'], 'Alice');
     expect(value['expires_at'], now.millisecondsSinceEpoch ~/ 1000 + 3600);
     await temp.delete(recursive: true);
   });

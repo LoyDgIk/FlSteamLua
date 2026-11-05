@@ -3,17 +3,22 @@
 import 'package:flutter/widgets.dart';
 
 class KeepScope extends StatefulWidget {
-  const KeepScope({super.key, required this.keep, required this.child});
-
-  final bool keep;
   final Widget child;
 
+  const KeepScope({super.key, required this.child});
+
   @override
-  State<KeepScope> createState() => _KeepScopeState();
+  State<KeepScope> createState() => _KeepContainerState();
 }
 
-class _KeepScopeState extends State<KeepScope> {
+class _KeepContainerState extends State<KeepScope>
+    with AutomaticKeepAliveClientMixin {
   @override
-  Widget build(BuildContext context) =>
-      Offstage(offstage: !widget.keep, child: widget.child);
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

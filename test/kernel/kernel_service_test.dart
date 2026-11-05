@@ -214,7 +214,7 @@ void main() {
       await service.switchTo(active);
       final config = File(p.join(steam.path, 'steam.cfg'));
       await config.writeAsString('user configuration');
-      final lua = File(p.join(steam.path, 'config', 'stplug-in', '440.lua'));
+      final lua = File(p.join(steam.path, 'config', 'lua', '440.lua'));
       await lua.parent.create(recursive: true);
       await lua.writeAsString('addappid(440)');
       final orphan = File(p.join(steam.path, 'bin', 'dwmapi.dll'));
@@ -566,7 +566,7 @@ void main() {
       final toml = await File(
         p.join(steam.path, 'opensteamtool.toml'),
       ).readAsString();
-      expect(toml, contains('url = "20770407"'));
+      expect(toml, contains("url = '20770407'"));
       final bridge = await File(
         p.join(steam.path, 'config', 'lua', 'flsteamlua_manifest.lua'),
       ).readAsString();
@@ -591,10 +591,74 @@ void main() {
     },
   );
 
-  test('Steam data channel defaults to the local emergency repository', () {
+  test('Steam data channel defaults to the maintained core source', () {
     expect(service.tomlChannelSettings.repository, kernelDefaultTomlRepository);
     expect(service.tomlChannelSettings.channel, 'main');
-    expect(service.tomlChannelSettings.mode, KernelTomlChannelMode.branch);
+    expect(service.tomlChannelSettings.mode, KernelTomlChannelMode.directory);
+  });
+
+  test(
+    'channel selection writes the automatic core URL without removing other remote options',
+    () async {
+      final file = File(p.join(steam.path, 'opensteamtool.toml'));
+      await file.writeAsString('[remote]\norder = "github-first" # keep\n');
+      await service.saveTomlChannelSettings(
+        const KernelTomlChannelSettings(
+          repository: 'huanyuejue/steam-monitor',
+          channel: 'main',
+          mode: KernelTomlChannelMode.directory,
+        ),
+      );
+      final source = await file.readAsString();
+      expect(source, contains('order = "github-first" # keep'));
+      expect(source, contains('main/{channel}/{component}/{sha256}.toml'));
+    },
+  );
+
+  test(
+    'manifest editing preserves timeouts and built-in fallback uses the GID',
+    () async {
+      final file = File(p.join(steam.path, 'opensteamtool.toml'));
+      await file.writeAsString(
+        '[manifest]\ntimeout_recv_ms = 4321 # keep\nurl = "wudrm"\n',
+      );
+      service.dispose();
+      service = KernelService(
+        paths: paths,
+        settings: settings,
+        client: MockClient((request) async {
+          expect(
+            request.url.toString(),
+            'https://manifest.manifestdex.com/9876543210987654321',
+          );
+          return http.Response('12345', 200);
+        }),
+      );
+      await service.saveManifestSettings(
+        const KernelManifestSettings(provider: 'manifestdex', failover: false),
+      );
+      expect(
+        await file.readAsString(),
+        contains('timeout_recv_ms = 4321 # keep'),
+      );
+      expect(
+        await service.fetchManifestCode(
+          appId: 440,
+          depotId: 441,
+          gid: '9876543210987654321',
+        ),
+        '12345',
+      );
+    },
+  );
+
+  test('missing entry is not reported as enabled', () async {
+    await File(
+      p.join(steam.path, 'OpenSteamTool.dll'),
+    ).writeAsString('fixture');
+    await service.loadLocal();
+    expect(service.installed.entryState, InjectionEntryState.none);
+    expect(service.installed.enabled, isFalse);
   });
 
   test('local TOML build delegates only after Steam is stopped', () async {

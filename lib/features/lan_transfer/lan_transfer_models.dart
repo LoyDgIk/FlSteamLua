@@ -1,6 +1,7 @@
-const lanTransferProtocol = 'flsteamlua-lan/4';
+const lanTransferProtocol = 'flsteamlua-lan/5';
 const lanTransferPort = 47821;
 const lanTransferMulticastAddress = '239.255.42.99';
+const lanTransferHistoryCapacity = 120;
 
 enum TransferDirection { send, receive }
 
@@ -66,6 +67,7 @@ class LanTransferPlanSummary {
     required this.gameName,
     required this.installDir,
     required this.coverUrl,
+    required this.luaAvailable,
     required this.luaEnabled,
     required this.manifestAvailable,
     required this.selectedBytes,
@@ -84,6 +86,7 @@ class LanTransferPlanSummary {
   final String gameName;
   final String installDir;
   final String? coverUrl;
+  final bool luaAvailable;
   final bool luaEnabled;
   final bool manifestAvailable;
   final int selectedBytes;
@@ -104,6 +107,7 @@ class LanTransferPlanSummary {
     gameName: '${json['gameName'] ?? ''}',
     installDir: '${json['installDir'] ?? ''}',
     coverUrl: json['coverUrl']?.toString(),
+    luaAvailable: json['luaAvailable'] == true,
     luaEnabled: json['luaEnabled'] == true,
     manifestAvailable: json['manifestAvailable'] != false,
     selectedBytes: (json['selectedBytes'] as num?)?.toInt() ?? 0,
@@ -205,6 +209,12 @@ class TransferSession {
     required this.createdAt,
     this.coverUrl,
     this.transferredBytes = 0,
+    this.networkBytes = 0,
+    this.diskBytes = 0,
+    this.diskSpeed = 0,
+    this.installedBytes = 0,
+    this.installedFiles = 0,
+    this.totalFiles = 0,
     this.speed = 0,
     this.peakSpeed = 0,
     this.message = '',
@@ -215,7 +225,10 @@ class TransferSession {
     this.completedChunks = 0,
     this.cachedChunks = 0,
     List<double>? speedSamples,
-  }) : speedSamples = List.of(speedSamples ?? const <double>[]);
+    List<double>? diskSpeedSamples,
+    this.sampleRevision = 0,
+  }) : speedSamples = List.of(speedSamples ?? const <double>[]),
+       diskSpeedSamples = List.of(diskSpeedSamples ?? const <double>[]);
 
   final String id;
   final String bundleId;
@@ -233,14 +246,25 @@ class TransferSession {
   int cachedChunks;
   TransferSessionStatus status;
   int transferredBytes;
+  int networkBytes;
+  int diskBytes;
+  double diskSpeed;
+  int installedBytes;
+  int installedFiles;
+  int totalFiles;
   double speed;
   double peakSpeed;
   String message;
   Object? error;
   final List<double> speedSamples;
+  final List<double> diskSpeedSamples;
+  int sampleRevision;
 
   double get progress =>
       totalBytes <= 0 ? 0 : (transferredBytes / totalBytes).clamp(0, 1);
+
+  double get installProgress =>
+      totalFiles <= 0 ? 0 : (installedFiles / totalFiles).clamp(0, 1);
 }
 
 extension LanTransferPeerJson on LanPeer {
@@ -300,6 +324,12 @@ TransferSession transferSessionFromEngine(Map<String, dynamic> json) {
       ((json['createdAt'] as num?)?.toInt() ?? 0) * 1000,
     ),
     transferredBytes: (json['transferredBytes'] as num?)?.toInt() ?? 0,
+    networkBytes: (json['networkBytes'] as num?)?.toInt() ?? 0,
+    diskBytes: (json['diskBytes'] as num?)?.toInt() ?? 0,
+    diskSpeed: (json['diskSpeed'] as num?)?.toDouble() ?? 0,
+    installedBytes: (json['installedBytes'] as num?)?.toInt() ?? 0,
+    installedFiles: (json['installedFiles'] as num?)?.toInt() ?? 0,
+    totalFiles: (json['totalFiles'] as num?)?.toInt() ?? 0,
     speed: (json['speed'] as num?)?.toDouble() ?? 0,
     peakSpeed: (json['peakSpeed'] as num?)?.toDouble() ?? 0,
     message: '${json['message'] ?? ''}',

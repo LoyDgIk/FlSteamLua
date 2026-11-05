@@ -79,6 +79,10 @@ void main() {
     await tester.tap(find.text('run'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
+    expect(find.textContaining('boom'), findsNothing);
+    expect(find.text('操作未完成，可查看详情了解原因。'), findsOneWidget);
+    await tester.tap(find.text('详情'));
+    await tester.pumpAndSettle();
     expect(find.textContaining('boom'), findsOneWidget);
   });
 

@@ -1,6 +1,9 @@
 package protocol
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Hello struct {
 	Protocol    string
@@ -175,4 +178,52 @@ func DecodeCredit(data []byte) (Credit, error) {
 		return Credit{}, err
 	}
 	return Credit{Frames: uint32(f.Uint(1)), Bytes: f.Uint(2)}, nil
+}
+
+type Progress struct {
+	Status         string
+	DiskBytes      int64
+	DiskSpeed      float64
+	InstalledBytes int64
+	InstalledFiles int
+	TotalFiles     int
+}
+
+func EncodeProgress(value Progress) []byte {
+	var p PB
+	p.String(1, value.Status)
+	p.Uint(2, uint64(value.DiskBytes))
+	p.Uint(3, uint64(math.Round(value.DiskSpeed)))
+	p.Uint(4, uint64(value.InstalledBytes))
+	p.Uint(5, uint64(value.InstalledFiles))
+	p.Uint(6, uint64(value.TotalFiles))
+	return p.Result()
+}
+
+func DecodeProgress(data []byte) (Progress, error) {
+	f, err := ParseFields(data)
+	if err != nil {
+		return Progress{}, err
+	}
+	if status, exists := f.Last(1); exists && status.Wire != 2 {
+		return Progress{}, fmt.Errorf("invalid progress status")
+	}
+	for field := 2; field <= 6; field++ {
+		value, exists := f.Last(field)
+		if exists && (value.Wire != 0 || value.Uint > math.MaxInt64) {
+			return Progress{}, fmt.Errorf("invalid progress count in field %d", field)
+		}
+	}
+	maxInt := uint64(^uint(0) >> 1)
+	if f.Uint(5) > maxInt || f.Uint(6) > maxInt {
+		return Progress{}, fmt.Errorf("invalid progress file count")
+	}
+	return Progress{
+		Status:         f.String(1),
+		DiskBytes:      int64(f.Uint(2)),
+		DiskSpeed:      float64(f.Uint(3)),
+		InstalledBytes: int64(f.Uint(4)),
+		InstalledFiles: int(f.Uint(5)),
+		TotalFiles:     int(f.Uint(6)),
+	}, nil
 }

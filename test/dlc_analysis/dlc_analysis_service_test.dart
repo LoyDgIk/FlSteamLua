@@ -265,7 +265,7 @@ void main() {
 
   test('finds an existing Lua in the Steam plugin directory', () async {
     final steam = Directory(p.join(temporary.path, 'Steam'));
-    final lua = File(p.join(steam.path, 'config', 'stplug-in', '100.lua'));
+    final lua = File(p.join(steam.path, 'config', 'lua', '100.lua'));
     await lua.parent.create(recursive: true);
     await lua.writeAsString('addappid(100)\n');
     await settings.set('steamPath', steam.path);

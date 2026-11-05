@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	"flsteamlua/lan_transfer_engine/internal/discovery"
 	"flsteamlua/lan_transfer_engine/internal/identity"
 	"flsteamlua/lan_transfer_engine/internal/model"
+	"flsteamlua/lan_transfer_engine/internal/plan"
 	"flsteamlua/lan_transfer_engine/internal/protocol"
 )
 
@@ -38,7 +40,6 @@ func (s *transferServer) stop() {
 	s.engine.mu.Unlock()
 	if s.listener != nil {
 		_ = s.listener.Close()
-		s.listener = nil
 	}
 	s.engine.mu.Lock()
 	for _, pending := range s.engine.pending {
@@ -66,7 +67,7 @@ func (s *transferServer) handle(raw net.Conn) {
 		_ = raw.Close()
 		return
 	}
-	if tcp, ok := raw.(*net.TCPConn); ok {
+	if tcp, ok := conn.NetConn().(*net.TCPConn); ok {
 		_ = tcp.SetKeepAlive(true)
 		_ = tcp.SetKeepAlivePeriod(15 * time.Second)
 	}
@@ -75,7 +76,6 @@ func (s *transferServer) handle(raw net.Conn) {
 		_ = conn.Close()
 		return
 	}
-	_ = conn.SetDeadline(time.Time{})
 	peer, err := s.engine.performServerHello(conn)
 	if err != nil {
 		_ = conn.Close()
@@ -89,6 +89,7 @@ func (s *transferServer) handle(raw net.Conn) {
 		}
 		switch frame.Type {
 		case protocol.FrameOffer:
+			_ = conn.SetDeadline(time.Time{})
 			if err := s.handleOffer(peer, frame.Payload); err != nil {
 				_ = peer.write(protocol.Frame{Type: protocol.FrameError, Payload: protocol.EncodeError(err.Error())})
 				return
@@ -101,13 +102,16 @@ func (s *transferServer) handle(raw net.Conn) {
 	}
 }
 
-func (s *transferServer) handleOffer(peer *peerConn, payload []byte) error {
+func (s *transferServer) handleOffer(peer *peerConn, payload []byte) (resultErr error) {
 	offer, err := protocol.DecodeOffer(payload)
 	if err != nil {
 		return err
 	}
 	if offer.SessionID == "" || offer.BundleID == "" {
 		return fmt.Errorf("invalid transfer offer")
+	}
+	if err := plan.SafeName(offer.BundleID); err != nil {
+		return err
 	}
 	alias := "FlSteamLua"
 	s.engine.mu.Lock()
@@ -133,12 +137,44 @@ func (s *transferServer) handleOffer(peer *peerConn, payload []byte) error {
 	pending := &pendingOffer{
 		conn: peer, summary: summary, decision: make(chan acceptDecision, 1),
 	}
-	session := s.engine.addIncomingSession(summary)
+	session, err := s.engine.addIncomingSession(summary)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	session.mu.Lock()
+	session.conn = peer
+	session.cancel = cancel
+	session.done = done
+	session.mu.Unlock()
+	defer func() {
+		cancel()
+		s.engine.mu.Lock()
+		delete(s.engine.pending, summary.SessionID)
+		s.engine.mu.Unlock()
+		if resultErr != nil {
+			s.engine.markSessionError(session, resultErr)
+		}
+		session.mu.Lock()
+		if session.conn == peer {
+			session.conn = nil
+		}
+		if session.cancel != nil {
+			session.cancel = nil
+		}
+		session.done = nil
+		session.mu.Unlock()
+		_ = s.engine.persistSession(session)
+		close(done)
+	}()
 	s.engine.mu.Lock()
 	s.engine.pending[summary.SessionID] = pending
 	s.engine.mu.Unlock()
+	_ = s.engine.persistSession(session)
+	s.engine.emitSession(session)
 	s.engine.Emit("offer.received", summary)
-	if trusted.Fingerprint != "" && trusted.AutoAccept && trusted.DefaultLibraryRoot != "" {
+	if s.engine.currentConfig().AutoAcceptTrusted && trusted.Fingerprint != "" && trusted.AutoAccept && trusted.DefaultLibraryRoot != "" {
 		select {
 		case pending.decision <- acceptDecision{
 			accepted: true, target: trusted.DefaultLibraryRoot,
@@ -147,9 +183,29 @@ func (s *transferServer) handleOffer(peer *peerConn, payload []byte) error {
 		default:
 		}
 	}
+	firstRead := peer.prefetchFrame()
 	var decision acceptDecision
 	select {
 	case decision = <-pending.decision:
+	case <-firstRead.done:
+		if firstRead.err != nil {
+			return firstRead.err
+		}
+		if firstRead.frame.Type != protocol.FrameCancel {
+			return fmt.Errorf("unexpected frame while awaiting transfer approval")
+		}
+		message := protocol.DecodeError(firstRead.frame.Payload)
+		status := "cancelled"
+		if strings.EqualFold(message, "paused") {
+			status = "paused"
+		}
+		s.engine.updateSession(session, func(value *model.Session) {
+			value.Status = status
+			value.Message = message
+		})
+		return nil
+	case <-ctx.Done():
+		decision = acceptDecision{accepted: false, message: "cancelled"}
 	case <-time.After(5 * time.Minute):
 		decision = acceptDecision{accepted: false, message: "offer timed out"}
 	}
@@ -168,6 +224,9 @@ func (s *transferServer) handleOffer(peer *peerConn, payload []byte) error {
 			value.Message = decision.message
 		})
 		return nil
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	if err := peer.write(protocol.Frame{
 		Type: protocol.FrameDecision,
@@ -188,10 +247,10 @@ func (s *transferServer) handleOffer(peer *peerConn, payload []byte) error {
 	if err != nil {
 		return err
 	}
-	return incoming.run(context.Background())
+	return incoming.run(ctx)
 }
 
-func (e *Engine) addIncomingSession(offer model.OfferSummary) *sessionRuntime {
+func (e *Engine) addIncomingSession(offer model.OfferSummary) (*sessionRuntime, error) {
 	address := ""
 	if offer.Peer.Address != "" {
 		address = offer.Peer.Address
@@ -206,10 +265,20 @@ func (e *Engine) addIncomingSession(offer model.OfferSummary) *sessionRuntime {
 	}}
 	runtime.lastAt = time.Now()
 	e.mu.Lock()
+	for _, existing := range e.sessions {
+		existing.mu.Lock()
+		busy := existing.done != nil || existing.data.Status == "waitingForApproval"
+		collision := existing.data.ID == runtime.data.ID ||
+			(existing.data.Direction == "receive" && existing.data.AppID == runtime.data.AppID)
+		existing.mu.Unlock()
+		if busy && collision {
+			e.mu.Unlock()
+			return nil, fmt.Errorf("a transfer for this game is already active")
+		}
+	}
 	e.sessions[runtime.data.ID] = runtime
 	e.mu.Unlock()
-	e.emitSession(runtime)
-	return runtime
+	return runtime, nil
 }
 
 func suppressClosed(err error) bool {

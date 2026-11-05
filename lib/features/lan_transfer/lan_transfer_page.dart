@@ -74,26 +74,41 @@ class LanTransferSessionPage extends StatelessWidget {
               .firstOrNull ??
           session;
       final running =
+          live.status == TransferSessionStatus.preparing ||
           live.status == TransferSessionStatus.transferring ||
           live.status == TransferSessionStatus.paused ||
           live.status == TransferSessionStatus.waitingForApproval ||
           live.status == TransferSessionStatus.verifying ||
           live.status == TransferSessionStatus.waitingForSteamExit;
+      final retryable =
+          live.status == TransferSessionStatus.paused ||
+          live.status == TransferSessionStatus.failed;
       return ui.CommonScaffold(
         title: live.gameName,
         actions: [
           if (live.direction == TransferDirection.send)
             ui.DashboardIconButton(
-              glyph: ui.AppGlyphs.playPause(0),
-              tooltip: live.status == TransferSessionStatus.paused
+              glyph: live.status == TransferSessionStatus.failed
+                  ? ui.AppGlyphs.refresh
+                  : ui.AppGlyphs.playPause(0),
+              tooltip: live.status == TransferSessionStatus.failed
+                  ? context.l10n.lanRetryTransfer
+                  : live.status == TransferSessionStatus.paused
                   ? context.l10n.lanResume
                   : context.l10n.lanPause,
               onPressed:
-                  live.status == TransferSessionStatus.transferring ||
-                      live.status == TransferSessionStatus.paused
-                  ? () => live.status == TransferSessionStatus.paused
-                        ? service.resume(live.id)
-                        : service.pause(live.id)
+                  live.status == TransferSessionStatus.transferring || retryable
+                  ? () async {
+                      try {
+                        if (retryable) {
+                          await service.resume(live.id);
+                        } else {
+                          await service.pause(live.id);
+                        }
+                      } catch (error) {
+                        if (context.mounted) ui.showAppError(context, error);
+                      }
+                    }
                   : null,
             ),
           ui.DashboardIconButton(
@@ -110,7 +125,17 @@ class LanTransferSessionPage extends StatelessWidget {
             24 + MediaQuery.paddingOf(context).bottom,
           ),
           children: [
-            TransferHero(session: live, settings: settings),
+            TransferHero(
+              session: live,
+              settings: settings,
+              onPause: live.direction == TransferDirection.send
+                  ? () => service.pause(live.id)
+                  : null,
+              onResume: live.direction == TransferDirection.send
+                  ? () => service.resume(live.id)
+                  : null,
+              onCancel: () => service.cancel(live.id),
+            ),
             const SizedBox(height: 18),
             ui.generateSection(
               title: context.l10n.lanTransfer,
@@ -378,6 +403,13 @@ class _LanTransferPageState extends State<LanTransferPage> {
                       child: TransferHero(
                         session: session,
                         settings: widget.settings,
+                        onPause: session.direction == TransferDirection.send
+                            ? () => service.pause(session.id)
+                            : null,
+                        onResume: session.direction == TransferDirection.send
+                            ? () => service.resume(session.id)
+                            : null,
+                        onCancel: () => service.cancel(session.id),
                       ),
                     ),
                   ),
@@ -580,8 +612,12 @@ class _GamePickerSheetState extends State<_GamePickerSheet> {
         child: ui.NullStatusSwitcher(
           isEmpty: games.isEmpty,
           nullStatus: ui.NullStatus(
-            label: context.l10n.lanNoSelectedFiles,
-            description: context.l10n.selectAGameToShowGameTools,
+            label: _query.isEmpty
+                ? context.l10n.noInstalledGamesToTransfer
+                : context.l10n.noSearchResults,
+            description: _query.isEmpty
+                ? context.l10n.installGameBeforeTransfer
+                : null,
             illustration: ui.NullStatusIllustration.steam,
           ),
           child: ListView.separated(
@@ -648,6 +684,7 @@ class _SendGameSheetState extends State<_SendGameSheet> {
   String? _peerId;
   final Set<String> _extraIds = {};
   bool _sending = false;
+  bool _sent = false;
 
   LanTransferService get service => widget.service;
 
@@ -656,7 +693,9 @@ class _SendGameSheetState extends State<_SendGameSheet> {
     super.initState();
     _peerId = widget.initialPeerId;
     service.tasks.addListener(_taskChanged);
-    unawaited(_prepare());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_prepare());
+    });
   }
 
   void _taskChanged() {
@@ -666,6 +705,10 @@ class _SendGameSheetState extends State<_SendGameSheet> {
   @override
   void dispose() {
     service.tasks.removeListener(_taskChanged);
+    final plan = _plan;
+    if (plan != null && !_sent && !_sending) {
+      unawaited(service.discardPlan(plan.planId));
+    }
     super.dispose();
   }
 
@@ -676,7 +719,10 @@ class _SendGameSheetState extends State<_SendGameSheet> {
         (task) => service.prepare(widget.game, task: task),
         appId: widget.game.appId,
       );
-      if (!mounted) return;
+      if (!mounted) {
+        await service.discardPlan(plan.planId);
+        return;
+      }
       setState(() {
         _plan = plan;
         _error = null;
@@ -697,16 +743,20 @@ class _SendGameSheetState extends State<_SendGameSheet> {
     try {
       if (plan.officialFiles == 0 &&
           plan.manifestFiles == 0 &&
-          !plan.luaEnabled &&
           _extraIds.isEmpty) {
         throw StateError(noSelectedFiles);
       }
       final session = await service.send(peer, plan, _extraIds);
+      _sent = true;
       if (mounted) Navigator.pop(context, session);
     } catch (error) {
       if (mounted) ui.showAppError(context, error);
     } finally {
-      if (mounted) setState(() => _sending = false);
+      if (mounted) {
+        setState(() => _sending = false);
+      } else if (!_sent) {
+        await service.discardPlan(plan.planId);
+      }
     }
   }
 
@@ -798,27 +848,42 @@ class _SendGameSheetState extends State<_SendGameSheet> {
                       _ComponentRow(
                         glyph: ui.AppGlyphs.code,
                         title: context.l10n.lanLuaAndManifests,
-                        count: plan.manifestFiles + (plan.luaEnabled ? 1 : 0),
+                        count: plan.manifestFiles + (plan.luaAvailable ? 1 : 0),
                         bytes: plan.manifestBytes,
                         required: true,
-                        extraText: plan.luaEnabled
-                            ? '${widget.game.appId}.lua'
+                        extraText: plan.luaAvailable
+                            ? '${widget.game.appId}.lua${plan.luaEnabled ? '' : ' · ${context.l10n.luaDisabled}'}'
                             : null,
                       ),
-                      if (extraEntries.isNotEmpty)
-                        _OptionalGroupRow(
-                          glyph: ui.AppGlyphs.importFile,
-                          title: context.l10n.lanExtraFiles,
-                          entries: extraEntries,
-                          selectedIds: _extraIds,
-                          onChanged: (enabled, entries) =>
-                              _toggleGroup(entries, enabled),
-                        ),
                     ],
-                    footer: extraEntries.isNotEmpty
-                        ? context.l10n.lanExtrasWarning
-                        : context.l10n.lanSteamRestartNotice,
+                    footer: extraEntries.isEmpty
+                        ? context.l10n.lanSteamRestartNotice
+                        : null,
                   ),
+                  if (extraEntries.isNotEmpty) ...[
+                    const SizedBox(height: 18),
+                    ui.generateSection(
+                      title: context.l10n.lanExtraFiles,
+                      items: [
+                        ui.DecorationListItem(
+                          leading: const ui.GlyphIcon(
+                            ui.AppGlyphs.importFile,
+                            size: 20,
+                          ),
+                          title: Text(context.l10n.lanExtraFiles),
+                          subtitle: Text(
+                            context.l10n.fileCount('${_extraIds.length}'),
+                          ),
+                          trailing: const ui.GlyphIcon(
+                            ui.AppGlyphs.chevronForward,
+                            size: 18,
+                          ),
+                          onPressed: () => _chooseExtras(extraEntries),
+                        ),
+                      ],
+                      footer: context.l10n.lanExtrasWarning,
+                    ),
+                  ],
                   if (!plan.manifestAvailable || plan.warnings.isNotEmpty)
                     const SizedBox(height: 18),
                   if (!plan.manifestAvailable || plan.warnings.isNotEmpty)
@@ -854,16 +919,106 @@ class _SendGameSheetState extends State<_SendGameSheet> {
     );
   }
 
-  void _toggleGroup(List<LanTransferOptionalFile> entries, bool enabled) {
-    setState(() {
-      for (final entry in entries) {
-        if (enabled) {
-          _extraIds.add(entry.id);
-        } else {
-          _extraIds.remove(entry.id);
-        }
-      }
-    });
+  Future<void> _chooseExtras(List<LanTransferOptionalFile> entries) async {
+    final selected = await ui.showModalSideSheet<Set<String>>(
+      context: context,
+      builder: (_) =>
+          _OptionalFilesSheet(entries: entries, selectedIds: _extraIds),
+    );
+    if (selected == null || !mounted) return;
+    setState(
+      () => _extraIds
+        ..clear()
+        ..addAll(selected),
+    );
+  }
+}
+
+class _OptionalFilesSheet extends StatefulWidget {
+  const _OptionalFilesSheet({required this.entries, required this.selectedIds});
+
+  final List<LanTransferOptionalFile> entries;
+  final Set<String> selectedIds;
+
+  @override
+  State<_OptionalFilesSheet> createState() => _OptionalFilesSheetState();
+}
+
+class _OptionalFilesSheetState extends State<_OptionalFilesSheet> {
+  late final Set<String> _selected = Set.of(widget.selectedIds);
+  late final ui.AppBarSearchState _search = ui.AppBarSearchState(
+    onSearch: (value) => setState(() => _query = value.toLowerCase()),
+  );
+  final _scroll = ScrollController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = _query.isEmpty
+        ? widget.entries
+        : widget.entries
+              .where(
+                (entry) => entry.relativePath.toLowerCase().contains(_query),
+              )
+              .toList();
+    return ui.SideSheetScaffold(
+      title: context.l10n.lanExtraFiles,
+      searchState: _search,
+      actions: [
+        ui.DashboardIconButton(
+          glyph: ui.AppGlyphs.check,
+          tooltip: context.l10n.confirm,
+          onPressed: () => Navigator.pop(context, _selected),
+        ),
+      ],
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          ui.SideSheetScaffold.headerHeight + 16,
+          16,
+          16 + MediaQuery.paddingOf(context).bottom,
+        ),
+        child: ui.NullStatusSwitcher(
+          isEmpty: entries.isEmpty,
+          nullStatus: ui.NullStatus(
+            label: _query.isEmpty
+                ? context.l10n.noAdditionalFiles
+                : context.l10n.noSearchResults,
+            illustration: ui.NullStatusIllustration.data,
+          ),
+          child: ui.CommonScrollBar(
+            controller: _scroll,
+            child: ListView.builder(
+              controller: _scroll,
+              itemCount: entries.length,
+              itemBuilder: (context, index) {
+                final entry = entries[index];
+                return ui.ItemPositionProvider(
+                  position: ui.ItemPosition.get(index, entries.length),
+                  child: _OptionalFileRow(
+                    entry: entry,
+                    selected: _selected.contains(entry.id),
+                    onChanged: (enabled) => setState(() {
+                      if (enabled) {
+                        _selected.add(entry.id);
+                      } else {
+                        _selected.remove(entry.id);
+                      }
+                    }),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -952,6 +1107,11 @@ class _ReceiveOfferSheetState extends State<_ReceiveOfferSheet> {
                             size: 20,
                           ),
                           title: Text(context.l10n.lanRememberDevice),
+                          subtitle: Text(
+                            context.l10n.lanAutomaticReceiveHint(
+                              _target ?? context.l10n.notSelected,
+                            ),
+                          ),
                           onPressed: () =>
                               setState(() => _remember = !_remember),
                           trailing: ui.CommonSwitch(
@@ -1086,44 +1246,25 @@ class _ComponentRow extends StatelessWidget {
   }
 }
 
-class _OptionalGroupRow extends StatelessWidget {
-  const _OptionalGroupRow({
-    required this.glyph,
-    required this.title,
-    required this.entries,
-    required this.selectedIds,
+class _OptionalFileRow extends StatelessWidget {
+  const _OptionalFileRow({
+    required this.entry,
+    required this.selected,
     required this.onChanged,
   });
 
-  final ui.Glyph glyph;
-  final String title;
-  final List<LanTransferOptionalFile> entries;
-  final Set<String> selectedIds;
-  final void Function(bool enabled, List<LanTransferOptionalFile> entries)
-  onChanged;
+  final LanTransferOptionalFile entry;
+  final bool selected;
+  final ValueChanged<bool> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    if (entries.isEmpty) return const SizedBox.shrink();
-    final bytes = entries.fold<int>(0, (sum, entry) => sum + entry.size);
-    final selected = entries.every((entry) => selectedIds.contains(entry.id));
-    return ui.FormRow(
-      title: title,
-      leading: ui.GlyphIcon(glyph, size: 20),
-      onPressed: () => onChanged(!selected, entries),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('${entries.length} · ${formatTransferBytes(bytes)}'),
-          const SizedBox(width: 10),
-          ui.CommonSwitch(
-            value: selected,
-            onChanged: (value) => onChanged(value, entries),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ui.ListItem.toggle(
+    title: Text(entry.relativePath),
+    subtitle: Text(formatTransferBytes(entry.size)),
+    leading: const ui.GlyphIcon(ui.AppGlyphs.importFile, size: 20),
+    value: selected,
+    onChanged: onChanged,
+  );
 }
 
 class _AddDeviceSheet extends StatefulWidget {
@@ -1238,11 +1379,20 @@ class _ChunkCacheRowState extends State<_ChunkCacheRow> {
         subtitle: Text(
           stats == null
               ? '--'
-              : '${formatTransferBytes(stats.bytes)} · ${stats.files}',
+              : '${formatTransferBytes(stats.bytes)} · ${stats.files}\n${context.l10n.lanChunkCacheDescription}',
         ),
         onPressed: stats == null
             ? null
             : () async {
+                final confirmed =
+                    await ui.AppDialogs.confirm(
+                      context,
+                      title: context.l10n.lanClearChunkCache,
+                      message: context.l10n.lanClearChunkCacheConfirmation,
+                      destructive: true,
+                    ) ??
+                    false;
+                if (!confirmed || !context.mounted) return;
                 try {
                   await widget.service.clearChunkCache();
                   if (context.mounted) {

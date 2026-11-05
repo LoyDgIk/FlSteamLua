@@ -171,13 +171,20 @@ class _TrainerToolsPageState extends State<TrainerToolsPage> {
     );
     await _refreshDownloads();
     if (!mounted) return;
+    final downloaded = _downloads
+        .where((item) => p.equals(item.path, file.path))
+        .firstOrNull;
     ui.showAppFeedback(
       context,
-      '${context.l10n.downloaded} · ${p.basename(file.path)}',
+      '${context.l10n.downloaded} · ${p.basename(file.path)}${downloaded?.isExecutable == true ? '' : '\n${context.l10n.extractTrainerBeforeBinding}'}',
       level: ui.MessageLevel.success,
       actionState: ui.MessageActionState(
-        actionText: context.l10n.openFolder,
-        action: () => launchUrl(Uri.directory(file.parent.path)),
+        actionText: downloaded?.isExecutable == true
+            ? context.l10n.bindToGame
+            : context.l10n.openFolder,
+        action: downloaded?.isExecutable == true
+            ? () => unawaited(_editBinding(trainer: downloaded))
+            : () => launchUrl(Uri.directory(file.parent.path)),
       ),
     );
   });
@@ -617,9 +624,11 @@ class _TrainerToolsPageState extends State<TrainerToolsPage> {
                         ),
                         subtitle: Text(
                           '${p.basename(item.path)} · ${onlineFileSize(item.size)}'
-                          '${running ? ' · ${context.l10n.running}' : ''}',
+                          '${running ? ' · ${context.l10n.running}' : ''}${item.isExecutable ? '' : '\n${context.l10n.extractTrainerBeforeBinding}'}',
                         ),
-                        onPressed: () => _openFolder(p.dirname(item.path)),
+                        onPressed: item.isExecutable
+                            ? () => unawaited(_editBinding(trainer: item))
+                            : () => _openFolder(p.dirname(item.path)),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
