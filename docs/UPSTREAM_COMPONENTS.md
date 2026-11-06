@@ -191,3 +191,14 @@ of a fixed-height nested viewport. Historical rows exist on the initial offline
 load, while details fetch only the selected manifest. Steam update switches were
 removed from both this page and installation confirmation; the settings page
 continues to own them.
+
+
+## Author support (2026-11-06)
+
+About links adapt FlClash `views/about.dart` through existing ListItem and
+generateSection. Dashboard and library reuse DashboardIconButton. The support
+and feedback workflows use showModalSideSheet/SideSheetScaffold, TonalButton
+and SegmentedControl. FlClash has no bundled payment-code business workflow,
+so support_sheet.dart only adapts the supplied local images and QQ group number;
+it adds no independent presentation layer. The coffee glyph extends the shared
+AppGlyphs system using its existing path primitives.

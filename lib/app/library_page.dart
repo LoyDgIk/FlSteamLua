@@ -20,6 +20,7 @@ import '../features/store/store_service.dart';
 import '../ui/ui.dart' as ui;
 import '../ui/context.dart';
 import 'app_services.dart';
+import 'support_sheet.dart';
 import 'widgets.dart';
 import '../ui/localization.dart';
 
@@ -1317,6 +1318,7 @@ class _LibraryPageState extends State<LibraryPage> {
         searchHint: context.l10n.searchGameNamesOrAppid,
         trailingAction: _moreMenu(scopeGames),
         actions: [
+          const SupportAuthorButton(),
           ui.CommonPopupBox(
             key: const ValueKey('library-import-menu'),
             targetBuilder: (open) => ui.TonalButton(

@@ -9836,6 +9836,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Historical snapshot {date}'**
   String steamVersionSnapshot(String date);
+
+  /// No description provided for @supportAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'Support the author'**
+  String get supportAuthor;
+
+  /// No description provided for @supportAuthorThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy me a coffee. Thank you for supporting FlSteamLua.'**
+  String get supportAuthorThanks;
+
+  /// No description provided for @feedbackGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the feedback group'**
+  String get feedbackGroup;
+
+  /// No description provided for @feedbackGroupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for this group number in QQ to join and share feedback.'**
+  String get feedbackGroupHint;
+
+  /// No description provided for @copyGroupNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy group number'**
+  String get copyGroupNumber;
+
+  /// No description provided for @groupNumberCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Group number copied'**
+  String get groupNumberCopied;
+
+  /// No description provided for @wechatPay.
+  ///
+  /// In en, this message translates to:
+  /// **'WeChat Pay'**
+  String get wechatPay;
+
+  /// No description provided for @alipay.
+  ///
+  /// In en, this message translates to:
+  /// **'Alipay'**
+  String get alipay;
+
+  /// No description provided for @availableUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Available updates'**
+  String get availableUpdates;
+
+  /// No description provided for @applicationUpdateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'FlSteamLua {version} is available'**
+  String applicationUpdateAvailable(String version);
+
+  /// No description provided for @kernelUpdateNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Kernel {version} is available'**
+  String kernelUpdateNotification(String version);
+
+  /// No description provided for @viewChangelogHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'View changelog history'**
+  String get viewChangelogHistory;
 }
 
 class _AppLocalizationsDelegate

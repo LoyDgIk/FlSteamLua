@@ -12,6 +12,7 @@ import '../ui/context.dart';
 import '../ui/localization.dart';
 import '../ui/ui.dart' as ui;
 import 'app_services.dart';
+import 'support_sheet.dart';
 import 'task_panel.dart';
 import 'widgets.dart';
 
@@ -190,6 +191,7 @@ class _DashboardPageState extends State<DashboardPage> {
       return ui.CommonScaffold(
         title: context.l10n.dashboard,
         actions: [
+          const SupportAuthorButton(),
           ui.DashboardIconButton(
             glyph: ui.AppGlyphs.refresh,
             tooltip: context.l10n.refreshLibrary,

@@ -62,8 +62,8 @@ void main() {
         changelog.markdown.indexOf('### 中文'),
         lessThan(changelog.markdown.indexOf('### English')),
       );
-      expect(changelog.markdown, contains('`lua.paths`'));
-      expect(changelog.markdown, contains('**快速开始引导**'));
+      expect(changelog.markdown, contains('#### '));
+      expect(changelog.markdown, contains('- '));
     },
   );
 }

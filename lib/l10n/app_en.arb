@@ -2369,5 +2369,27 @@
         "type": "String"
       }
     }
-  }
+  },
+  "supportAuthor": "Support the author",
+  "supportAuthorThanks": "Buy me a coffee. Thank you for supporting FlSteamLua.",
+  "feedbackGroup": "Join the feedback group",
+  "feedbackGroupHint": "Search for this group number in QQ to join and share feedback.",
+  "copyGroupNumber": "Copy group number",
+  "groupNumberCopied": "Group number copied",
+  "wechatPay": "WeChat Pay",
+  "alipay": "Alipay",
+  "availableUpdates": "Available updates",
+  "applicationUpdateAvailable": "FlSteamLua {version} is available",
+  "@applicationUpdateAvailable": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "kernelUpdateNotification": "Kernel {version} is available",
+  "@kernelUpdateNotification": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
+  "viewChangelogHistory": "View changelog history"
 }

@@ -69,6 +69,7 @@ class _AppShellState extends State<AppShell> {
   late bool _sidebarExpanded;
   late bool _sidebarPersisted;
   final Set<String> _promptedLanOffers = {};
+  final Set<String> _promptedUpdates = {};
   AppServices get services => widget.services;
 
   @override
@@ -78,6 +79,9 @@ class _AppShellState extends State<AppShell> {
     _sidebarPersisted = _sidebarExpanded;
     services.settings.addListener(_settingsChanged);
     services.lanTransfer.addListener(_lanTransferChanged);
+    services.preferences.addListener(_updateStateChanged);
+    services.kernel.addListener(_updateStateChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateStateChanged());
   }
 
   void _settingsChanged() {
@@ -100,6 +104,49 @@ class _AppShellState extends State<AppShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(_openIncomingLanTransfer(pending));
+    });
+  }
+
+  void _updateStateChanged() {
+    if (!mounted) return;
+    final appRelease = services.preferences.updateRelease;
+    if (appRelease != null) {
+      _notifyUpdateOnce(
+        'app:${appRelease.url}',
+        context.l10n.applicationUpdateAvailable(appRelease.version),
+        _openAbout,
+        context.l10n.applicationUpdates,
+      );
+    }
+    final kernelInfo = services.kernel.updateInfo;
+    if (kernelInfo?.hasUpdate == true) {
+      _notifyUpdateOnce(
+        'kernel:${kernelInfo!.package.repository}:${kernelInfo.package.version}',
+        context.l10n.kernelUpdateNotification(kernelInfo.package.version),
+        () => _openFeature('kernel'),
+        context.l10n.kernel,
+      );
+    }
+  }
+
+  void _notifyUpdateOnce(
+    String key,
+    String message,
+    VoidCallback action,
+    String actionText,
+  ) {
+    if (!_promptedUpdates.add(key)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ui.showAppFeedback(
+        context,
+        message,
+        level: ui.MessageLevel.warning,
+        actionState: ui.MessageActionState(
+          actionText: actionText,
+          action: action,
+        ),
+      );
     });
   }
 
@@ -130,6 +177,8 @@ class _AppShellState extends State<AppShell> {
   void dispose() {
     services.settings.removeListener(_settingsChanged);
     services.lanTransfer.removeListener(_lanTransferChanged);
+    services.preferences.removeListener(_updateStateChanged);
+    services.kernel.removeListener(_updateStateChanged);
     _pages.dispose();
     _activePage.dispose();
     _libraryRequests.dispose();
@@ -253,6 +302,8 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _settings() => _select(6);
+
+  void _openAbout() => _push(AboutPage(services: services));
 
   Future<void> _steamFiles() => _push(SteamFilesPage(services: services));
 
@@ -541,6 +592,44 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
+  Widget _updateFooter(double progress) => ListenableBuilder(
+    listenable: Listenable.merge([services.preferences, services.kernel]),
+    builder: (context, _) {
+      final release = services.preferences.updateRelease;
+      final kernel = services.kernel.updateInfo;
+      final hasKernelUpdate = kernel?.hasUpdate == true;
+      if (release == null && !hasKernelUpdate) return const SizedBox.shrink();
+      return ui.CommonPopupBox(
+        popupBuilder: (_) => ui.CommonPopupMenu(
+          items: [
+            if (release != null)
+              ui.CommonPopupMenuItem(
+                label: context.l10n.applicationUpdateAvailable(release.version),
+                glyph: ui.AppGlyphs.cloudDownload,
+                onPressed: _openAbout,
+              ),
+            if (hasKernelUpdate)
+              ui.CommonPopupMenuItem(
+                label: context.l10n.kernelUpdateNotification(
+                  kernel!.package.version,
+                ),
+                glyph: ui.AppGlyphs.memory,
+                onPressed: () => _openFeature('kernel'),
+              ),
+          ],
+        ),
+        targetBuilder: (open) => ui.SidebarFooterButton(
+          icon: Badge(
+            child: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload, size: 20),
+          ),
+          label: context.l10n.availableUpdates,
+          progress: progress,
+          onTap: open,
+        ),
+      );
+    },
+  );
+
   Widget Function(double) _accountFooterBuilder() {
     final current = services.library.accounts
         .where((account) => account.mostRecent)
@@ -771,6 +860,7 @@ class _AppShellState extends State<AppShell> {
         onTap: _openTools,
       ),
       _taskFooter(progress),
+      _updateFooter(progress),
       _FooterButton(
         icon: Icons.settings_outlined,
         glyph: ui.AppGlyphs.settings,

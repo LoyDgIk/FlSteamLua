@@ -8,6 +8,13 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 abstract final class AppGlyphs {
+  static const coffee = Glyph([
+    GlyphPath('M4 8 H16 V14 C16 17 14 19 10 19 C6 19 4 17 4 14 Z'),
+    GlyphPath('M16 9 H18 C22 9 22 15 18 15 H16'),
+    GlyphPath('M3 22 H18', role: GlyphRole.line),
+    GlyphPath('M7 2 V5 M11 1 V5 M15 2 V5', role: GlyphRole.detail),
+  ]);
+
   static const dashboard = Glyph([
     GlyphBox(3.5, 3.5, 10.5, 11.5, 2),
     GlyphBox(13.5, 3.5, 20.5, 9.5, 2),

@@ -5436,4 +5436,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String steamVersionSnapshot(String date) {
     return 'Historical snapshot $date';
   }
+
+  @override
+  String get supportAuthor => 'Support the author';
+
+  @override
+  String get supportAuthorThanks =>
+      'Buy me a coffee. Thank you for supporting FlSteamLua.';
+
+  @override
+  String get feedbackGroup => 'Join the feedback group';
+
+  @override
+  String get feedbackGroupHint =>
+      'Search for this group number in QQ to join and share feedback.';
+
+  @override
+  String get copyGroupNumber => 'Copy group number';
+
+  @override
+  String get groupNumberCopied => 'Group number copied';
+
+  @override
+  String get wechatPay => 'WeChat Pay';
+
+  @override
+  String get alipay => 'Alipay';
+
+  @override
+  String get availableUpdates => 'Available updates';
+
+  @override
+  String applicationUpdateAvailable(String version) {
+    return 'FlSteamLua $version is available';
+  }
+
+  @override
+  String kernelUpdateNotification(String version) {
+    return 'Kernel $version is available';
+  }
+
+  @override
+  String get viewChangelogHistory => 'View changelog history';
 }

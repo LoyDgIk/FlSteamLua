@@ -1,5 +1,7 @@
 # FlSteamLua
 
+[应用介绍](https://LoyDgIk.github.io/FlSteamLua/) · [下载最新版本](https://github.com/LoyDgIk/FlSteamLua/releases/latest)
+
 面向 Windows 10/11 x64 的 Steam 桌面工具，使用 Flutter 编写界面、Dart 实现业务，
 局域网传输由独立 Go 原生引擎执行。
 主导航为 **面板主页、库、商店、成就、云存档**。库内默认展示 Lua 库，第二个 Tab 为 Steam 游戏库。高级操作从游戏详情的“管理”、左下角“工具”和“设置”进入。

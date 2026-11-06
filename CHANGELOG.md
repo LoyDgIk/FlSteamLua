@@ -5,6 +5,38 @@ Each release lists Chinese notes first, followed by English.
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-11-06
+
+### 中文
+
+#### 修复
+
+- 修正从应用内启动更新时，安装器结束应用进程树而把自己一并关闭的问题。现在只结束应用及明确列出的工作进程，保留正在运行的安装器。
+- 安装前同时关闭云同步工作进程，避免更新时文件仍被占用；新增隔离的 Windows 父子进程回归测试。
+
+#### 新增
+
+- 关于页整合应用更新检查与完整历史更新日志；版本说明统一在侧栏阅读，不再占用设置页布局。
+- App 与内核在自动检查发现新版本时会显示全局提示，并在侧栏提供“可用更新”入口，避免只在首页或设置中才能看见。
+- 关于页增加 QQ 反馈群与支持作者入口，主页和库页工具栏提供咖啡图标快捷入口；微信与支付宝支持码在统一侧栏中展示。
+- 重新设计应用图标，统一应用、窗口、任务栏、托盘与安装器的品牌资源，并提供适配小尺寸的多分辨率 ICO。
+- 发布全新的 [应用介绍页](https://LoyDgIk.github.io/FlSteamLua/)，包含实际客户端截图、交互式功能展示和可暂停的动效，由 GitHub Pages 自动部署。
+
+### English
+
+#### Fixed
+
+- Fixed the installer closing itself when an update was launched from the app. Setup now stops only the application and explicitly listed workers, preserving the installer process.
+- Added the cloud-sync worker to installation cleanup and a Windows regression test with isolated parent/child processes.
+
+#### Added
+
+- Consolidated app update checks and the complete changelog history into About; release notes now open in side sheets without consuming page layout.
+- Automatic checks for the app and kernel now show a global notice and a persistent Available updates entry in the sidebar.
+- Added QQ feedback group and author support entries to About, plus coffee shortcut buttons in the Home and Library toolbars with the supplied WeChat and Alipay codes in a shared side sheet.
+- Redesigned the app icon across the application, window, taskbar, tray and installer, with multiple ICO resolutions for small sizes.
+- Published a new [application website](https://LoyDgIk.github.io/FlSteamLua/) with actual client screenshots, interactive feature exhibits and pausable motion, deployed through GitHub Pages.
+
 ## [0.1.5] - 2026-11-06
 
 ### 中文

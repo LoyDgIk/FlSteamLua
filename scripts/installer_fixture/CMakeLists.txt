@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.14)
+project(installer_process_fixture LANGUAGES CXX)
+add_executable(installer_process_fixture "process_fixture.cpp")
+target_compile_features(installer_process_fixture PRIVATE cxx_std_17)
+target_compile_definitions(installer_process_fixture PRIVATE UNICODE _UNICODE)

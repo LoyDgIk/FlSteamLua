@@ -63,6 +63,9 @@ try {
         }
     }
     $cmakeCommand = Find-Compiler -Explicit $CMake -Command 'cmake.exe' -Candidates $cmakeCandidates
+    if (!$SkipChecks) {
+        Invoke-Checked -Program 'python' -Arguments @('scripts/test-installer-processes.py', '--cmake', $cmakeCommand)
+    }
     Invoke-Checked -Program 'flutter' -Arguments @('--suppress-analytics', 'pub', 'get')
     if (!$SkipChecks) {
         Invoke-Checked -Program 'dart' -Arguments @('analyze', '--fatal-infos')

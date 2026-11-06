@@ -2022,5 +2022,17 @@
         "type": "String"
       }
     }
-  }
+  },
+  "supportAuthor": "支持作者",
+  "supportAuthorThanks": "请作者喝杯咖啡，感谢你对 FlSteamLua 的支持。",
+  "feedbackGroup": "加入反馈群",
+  "feedbackGroupHint": "在 QQ 中搜索此群号，加入交流并反馈问题。",
+  "copyGroupNumber": "复制群号",
+  "groupNumberCopied": "群号已复制",
+  "wechatPay": "微信支付",
+  "alipay": "支付宝",
+  "availableUpdates": "可用更新",
+  "applicationUpdateAvailable": "FlSteamLua {version} 可更新",
+  "kernelUpdateNotification": "内核 {version} 可更新",
+  "viewChangelogHistory": "查看历史更新日志"
 }

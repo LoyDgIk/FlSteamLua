@@ -1,11 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <defs>
-    <linearGradient id="background" x2="1" y2="1">
-      <stop stop-color="#0D4444"/>
-      <stop offset="1" stop-color="#177D73"/>
-    </linearGradient>
-  </defs>
-  <rect x="8" y="8" width="240" height="240" rx="62" fill="url(#background)"/>
-  <path d="M65 65h74v25H92v26h40v24H92v51H65z" fill="#F5FFF4"/>
-  <path d="M153 65h27v101h28v25h-55z" fill="#D9F178"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">FlSteamLua — Play again</title>
+  <desc id="desc">A fluorescent archive-cut F and a warm-white forward play mark on a charcoal rounded square.</desc>
+  <rect x="8" y="8" width="240" height="240" rx="58" fill="#171A17"/>
+  <path d="M58 58H202L180 94H94V122H158L138 156H94V202H58Z" fill="#D2F45B"/>
+  <path d="M154 142L210 176L154 210Z" fill="#F0EEE6"/>
 </svg>

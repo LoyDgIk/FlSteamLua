@@ -5237,4 +5237,44 @@ class AppLocalizationsZh extends AppLocalizations {
   String steamVersionSnapshot(String date) {
     return '历史快照 $date';
   }
+
+  @override
+  String get supportAuthor => '支持作者';
+
+  @override
+  String get supportAuthorThanks => '请作者喝杯咖啡，感谢你对 FlSteamLua 的支持。';
+
+  @override
+  String get feedbackGroup => '加入反馈群';
+
+  @override
+  String get feedbackGroupHint => '在 QQ 中搜索此群号，加入交流并反馈问题。';
+
+  @override
+  String get copyGroupNumber => '复制群号';
+
+  @override
+  String get groupNumberCopied => '群号已复制';
+
+  @override
+  String get wechatPay => '微信支付';
+
+  @override
+  String get alipay => '支付宝';
+
+  @override
+  String get availableUpdates => '可用更新';
+
+  @override
+  String applicationUpdateAvailable(String version) {
+    return 'FlSteamLua $version 可更新';
+  }
+
+  @override
+  String kernelUpdateNotification(String version) {
+    return '内核 $version 可更新';
+  }
+
+  @override
+  String get viewChangelogHistory => '查看历史更新日志';
 }

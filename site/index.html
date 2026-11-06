@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#171a17" />
+    <meta
+      name="description"
+      content="FlSteamLua，把游戏留给你。一个开源 Windows Steam 桌面工具，整理 Lua 与游戏库，管理云存档、成就、版本与局域网传输。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="FlSteamLua — 把游戏，留给你。" />
+    <meta
+      property="og:description"
+      content="让配置各归其位，让每一次继续都有迹可循。开源 Windows Steam 桌面工具。"
+    />
+    <title>FlSteamLua — 把游戏，留给你。</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <header class="site-header">
+      <a class="wordmark" href="#" aria-label="FlSteamLua 首页"
+        ><img
+          class="brand-mark"
+          src="./favicon.svg"
+          alt=""
+          width="38"
+          height="38" />FlSteamLua<span
+          class="brand-dot"
+          aria-hidden="true"
+        ></span
+      ></a>
+      <nav aria-label="主导航">
+        <a href="#showcase">探索 <span>01</span></a>
+        <a href="#features">能力 <span>02</span></a>
+        <a class="nav-download" href="#download"
+          >获取应用 <svg aria-hidden="true"><use href="#arrow-down" /></svg
+        ></a>
+      </nav>
+      <button
+        class="motion-toggle"
+        type="button"
+        aria-pressed="false"
+        aria-label="暂停页面动效"
+      >
+        <span class="motion-bars" aria-hidden="true"><i></i><i></i><i></i></span
+        ><span class="motion-label">动效开</span>
+      </button>
+    </header>
+
+    <main id="main">
+      <section class="hero section-pad" aria-labelledby="hero-title">
+        <div class="hero-meta">
+          <span
+            ><i class="status-dot" aria-hidden="true"></i> 独立 · 开源 · 为
+            Windows 而生</span
+          ><span class="mono">A COMPANION FOR YOUR STEAM LIBRARY</span>
+        </div>
+        <div class="hero-body">
+          <div class="hero-type">
+            <p class="eyebrow">MORE TIME FOR PLAY.</p>
+            <h1 id="hero-title">把游戏，<br /><span>留给你</span><b>。</b></h1>
+            <div class="hero-copy">
+              <span class="cross" aria-hidden="true">+</span>
+              <p>让配置各归其位，<br />让每一次「继续」都有迹可循。</p>
+            </div>
+            <div class="hero-actions">
+              <a
+                class="button button-lime"
+                href="https://github.com/LoyDgIk/FlSteamLua/releases/latest"
+                >下载 Windows 版
+                <svg aria-hidden="true"><use href="#arrow-down" /></svg></a
+              ><a class="text-link" href="https://github.com/LoyDgIk/FlSteamLua"
+                >在 GitHub 探索
+                <svg aria-hidden="true"><use href="#arrow-diagonal" /></svg
+              ></a>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-coordinate mono">X: PLAY<br />Y: POSSIBILITY</div>
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <svg class="orbital-lines" viewBox="0 0 600 640" fill="none">
+              <path
+                d="M300 48V592M28 320H572"
+                stroke="currentColor"
+                stroke-dasharray="3 8"
+              />
+              <circle cx="300" cy="320" r="248" stroke="currentColor" />
+              <circle
+                cx="300"
+                cy="320"
+                r="212"
+                stroke="currentColor"
+                stroke-dasharray="1 9"
+              />
+              <path
+                d="M58 74h26M71 61v26M516 566h26M529 553v26"
+                stroke="currentColor"
+              />
+            </svg>
+            <div class="play-sculpture">
+              <div class="sculpture-grain"></div>
+              <div class="disc disc-back"></div>
+              <div class="disc disc-front">
+                <div class="disc-core">
+                  <svg viewBox="0 0 60 60">
+                    <path d="m24 16 22 14-22 14z" fill="currentColor" />
+                  </svg>
+                </div>
+                <span class="disc-type mono"
+                  >YOUR NEXT SESSION STARTS HERE · FLSTEAMLUA ·
+                </span>
+              </div>
+              <span class="sculpture-label mono"
+                >CONTINUE_<br />WITHOUT THE CLUTTER.</span
+              >
+            </div>
+            <span class="orbit-sticker mono">FLS<br /><b>↗</b></span>
+            <div class="art-caption mono">
+              <span>LIBRARY / SAVES / POSSIBILITIES</span
+              ><span>OBJECT Nº 001</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-bottom">
+          <a href="#showcase" class="scroll-cue"
+            ><span class="scroll-line" aria-hidden="true"></span>向下探索</a
+          >
+          <p>一套桌面工作台，<br /><strong>连接你的游戏日常。</strong></p>
+          <span class="hero-edition mono"
+            >OPEN SOURCE<br />WINDOWS 10 / 11 · X64</span
+          >
+        </div>
+      </section>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          <span>LESS FRICTION</span><i>↗</i><span>MORE PLAY</span><i>✳</i
+          ><span>YOUR LIBRARY</span><i>↗</i><span>YOUR WAY</span><i>✳</i
+          ><span>LESS FRICTION</span><i>↗</i><span>MORE PLAY</span><i>✳</i
+          ><span>YOUR LIBRARY</span><i>↗</i><span>YOUR WAY</span><i>✳</i>
+        </div>
+      </div>
+
+      <section class="intro section-pad" aria-labelledby="intro-title">
+        <p class="section-index mono">[ THE IDEA ]</p>
+        <h2 id="intro-title">
+          游戏世界很大。<br />你的工作台，<em>可以很从容。</em>
+        </h2>
+        <div class="intro-bottom">
+          <p class="intro-aside mono">
+            ORGANIZE THE ORDINARY.<br />MAKE ROOM FOR THE EXTRAORDINARY.
+          </p>
+          <p class="intro-copy">
+            Lua 文件、游戏版本、存档与工具，终于有了一个共同的去处。FlSteamLua
+            把它们串在熟悉的桌面交互里：你知道在哪里，也知道下一步做什么。
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="showcase"
+        class="showcase section-pad"
+        aria-labelledby="showcase-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="section-index mono">[ 01 / INSIDE THE APP ]</p>
+            <h2 id="showcase-title">
+              眼前所见，<br /><span>打开就能遇见。</span>
+            </h2>
+          </div>
+          <p class="section-description">
+            真实客户端，真实界面。<br /><span
+              >切换一个视角，认识你的工作台。</span
+            >
+          </p>
+        </div>
+        <div class="shot-toolbar">
+          <div class="shot-tabs" role="tablist" aria-label="客户端截图">
+            <button
+              id="shot-tab-start"
+              type="button"
+              class="shot-tab"
+              role="tab"
+              aria-selected="true"
+              aria-controls="shot-panel-start"
+              tabindex="0"
+            >
+              <span class="mono">01</span>快速开始
+            </button>
+            <button
+              id="shot-tab-achievements"
+              type="button"
+              class="shot-tab"
+              role="tab"
+              aria-selected="false"
+              aria-controls="shot-panel-achievements"
+              tabindex="-1"
+            >
+              <span class="mono">02</span>成就管理
+            </button>
+            <button
+              id="shot-tab-library"
+              type="button"
+              class="shot-tab"
+              role="tab"
+              aria-selected="false"
+              aria-controls="shot-panel-library"
+              tabindex="-1"
+            >
+              <span class="mono">03</span>游戏库
+            </button>
+          </div>
+          <span class="shot-live mono"
+            ><i aria-hidden="true"></i>CAPTURED ON WINDOWS</span
+          >
+        </div>
+        <div class="shot-exhibition" data-live-shot>
+          <div class="shot-underlay" aria-hidden="true"></div>
+          <div class="shot-device">
+            <div class="shot-viewport">
+              <figure
+                id="shot-panel-start"
+                class="shot-panel"
+                role="tabpanel"
+                aria-labelledby="shot-tab-start"
+                tabindex="0"
+              >
+                <img
+                  src="./assets/screenshots/quick-start.png"
+                  width="1266"
+                  height="813"
+                  loading="lazy"
+                  decoding="async"
+                  alt="FlSteamLua 快速开始页：语言切换、主题模式、配色和侧栏样式。"
+                />
+                <figcaption>
+                  <span>从第一次见面，就按你的喜好。</span
+                  ><span class="mono">QUICK START</span>
+                </figcaption>
+              </figure>
+              <figure
+                id="shot-panel-achievements"
+                class="shot-panel"
+                role="tabpanel"
+                aria-labelledby="shot-tab-achievements"
+                tabindex="0"
+                hidden
+              >
+                <img
+                  src="./assets/screenshots/achievements.png"
+                  width="1586"
+                  height="1016"
+                  loading="lazy"
+                  decoding="async"
+                  alt="FlSteamLua 成就详情页，展示解锁状态、成就说明与单项目开关。"
+                />
+                <figcaption>
+                  <span>每段进度，都能清楚看见。</span
+                  ><span class="mono">ACHIEVEMENTS</span>
+                </figcaption>
+              </figure>
+              <figure
+                id="shot-panel-library"
+                class="shot-panel"
+                role="tabpanel"
+                aria-labelledby="shot-tab-library"
+                tabindex="0"
+                hidden
+              >
+                <img
+                  src="./assets/screenshots/library.png"
+                  width="1586"
+                  height="1016"
+                  loading="lazy"
+                  decoding="async"
+                  alt="FlSteamLua 游戏库页面，Lua 和 Steam 游戏在统一工作台中管理。"
+                />
+                <figcaption>
+                  <span>把文件与游戏，放回清楚的位置。</span
+                  ><span class="mono">YOUR LIBRARY</span>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+          <span class="shot-seal mono" aria-hidden="true"
+            >REAL<br />INTERFACE<br /><b>↗</b></span
+          >
+          <div class="shot-grid" aria-hidden="true"></div>
+        </div>
+        <p class="shot-footnote">
+          <span class="mono">NO MOCKUPS. JUST THE APP.</span
+          ><span>界面截图来自 FlSteamLua 客户端，内容会随版本更新。</span>
+        </p>
+      </section>
+
+      <section
+        id="workbench"
+        class="workbench section-pad"
+        aria-labelledby="workbench-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="section-index mono">[ 02 / THE WORKBENCH ]</p>
+            <h2 id="workbench-title">
+              把复杂，<br /><span>整理成顺手。</span>
+            </h2>
+          </div>
+          <p class="section-description">
+            三个切面，感受它的工作方式。<br /><span
+              >下方为交互示意，并非应用截图。</span
+            >
+          </p>
+        </div>
+        <div class="workbench-layout">
+          <div class="scene-tabs" role="tablist" aria-label="探索工作台">
+            <button
+              id="tab-library"
+              class="scene-tab"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-library"
+              tabindex="0"
+              data-scene="library"
+            >
+              <span class="tab-number mono">01</span
+              ><span><b>游戏与 Lua</b><small>EVERYTHING IN PLACE</small></span
+              ><svg aria-hidden="true"><use href="#arrow-right" /></svg>
+            </button>
+            <button
+              id="tab-saves"
+              class="scene-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-saves"
+              tabindex="-1"
+              data-scene="saves"
+            >
+              <span class="tab-number mono">02</span
+              ><span
+                ><b>每一份进度</b><small>YOUR PROGRESS, PRESERVED</small></span
+              ><svg aria-hidden="true"><use href="#arrow-right" /></svg>
+            </button>
+            <button
+              id="tab-transfer"
+              class="scene-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-transfer"
+              tabindex="-1"
+              data-scene="transfer"
+            >
+              <span class="tab-number mono">03</span
+              ><span><b>电脑之间</b><small>MOVE WHAT MATTERS</small></span
+              ><svg aria-hidden="true"><use href="#arrow-right" /></svg>
+            </button>
+            <div class="scene-annotation">
+              <span class="small-cross" aria-hidden="true">✳</span>
+              <p>清晰的入口。<br />可追溯的操作。<br />留有余地的选择。</p>
+            </div>
+          </div>
+          <div class="scene-stage">
+            <div class="stage-chrome">
+              <span><i></i><i></i><i></i></span
+              ><b class="mono">FLSTEAMLUA / FIELD NOTES</b
+              ><span class="stage-status mono">INTERACTIVE STUDY</span>
+            </div>
+            <div
+              id="panel-library"
+              class="scene-panel"
+              role="tabpanel"
+              aria-labelledby="tab-library"
+              tabindex="0"
+            >
+              <div class="library-composition">
+                <div class="library-spine mono">
+                  THE PERSONAL<br />COLLECTION.
+                </div>
+                <div class="library-main">
+                  <div class="library-toolbar">
+                    <span>你的游戏库</span
+                    ><span class="tiny-pill">Lua / Steam</span>
+                  </div>
+                  <div class="game-record">
+                    <span class="record-art art-one">A<span>01</span></span>
+                    <div>
+                      <b>Adventure, archived.</b
+                      ><small>已安装 · Lua 已配置</small>
+                    </div>
+                    <span class="record-play">↗</span>
+                  </div>
+                  <div class="game-record">
+                    <span class="record-art art-two">S<span>02</span></span>
+                    <div>
+                      <b>Somewhere new.</b><small>Steam 记录 · 随时启程</small>
+                    </div>
+                    <span class="record-play">↗</span>
+                  </div>
+                  <div class="lua-note">
+                    <span class="mono">CONFIG / LUA / PATHS</span>
+                    <div>
+                      <span class="folder-icon" aria-hidden="true"></span
+                      ><b>把常用目录放在前面。</b>
+                    </div>
+                    <p>固定目录与自定义路径，<br />各有位置，各有顺序。</p>
+                  </div>
+                </div>
+              </div>
+              <div class="scene-detail">
+                <p>从导入到启动，<br /><b>沿着一条清楚的路径。</b></p>
+                <span
+                  >Lua 与 Steam 双视图、拖拽导入、多目录排序，<br />让配置跟着你的习惯走。</span
+                >
+              </div>
+            </div>
+            <div
+              id="panel-saves"
+              class="scene-panel"
+              role="tabpanel"
+              aria-labelledby="tab-saves"
+              tabindex="0"
+              hidden
+            >
+              <div class="saves-composition">
+                <div class="save-orbits" aria-hidden="true">
+                  <span class="save-orbit"></span
+                  ><span class="save-orbit inner"></span
+                  ><span class="save-star">✳</span>
+                </div>
+                <div class="save-note">
+                  <span class="mono">A MOMENT WORTH KEEPING.</span>
+                  <h3>别让下一次，<br />从头开始。</h3>
+                  <div class="save-stamp">
+                    <span>BACKUP</span><b>已保留</b><span>NOTED & PINNED</span>
+                  </div>
+                </div>
+                <div class="snapshot-list">
+                  <div>
+                    <i class="snapshot-dot"></i><span>现在</span
+                    ><small>游戏原始存档</small>
+                  </div>
+                  <div>
+                    <i class="snapshot-dot"></i><span>更新之前</span
+                    ><small>备注 · 固定保留</small>
+                  </div>
+                  <div>
+                    <i class="snapshot-dot"></i><span>恢复之前</span
+                    ><small>自动保存快照</small>
+                  </div>
+                </div>
+              </div>
+              <div class="scene-detail">
+                <p>一次进度，<br /><b>值得认真对待。</b></p>
+                <span
+                  >多套存储配置、账号筛选、备份与完整恢复。<br />本地缓存和远端仓库，始终分得清。</span
+                >
+              </div>
+            </div>
+            <div
+              id="panel-transfer"
+              class="scene-panel"
+              role="tabpanel"
+              aria-labelledby="tab-transfer"
+              tabindex="0"
+              hidden
+            >
+              <div class="transfer-composition">
+                <div class="transfer-endpoint">
+                  <span class="computer-symbol" aria-hidden="true"><i></i></span
+                  ><span class="mono">DESKTOP A</span><b>这台电脑</b>
+                </div>
+                <div class="transfer-path" aria-hidden="true">
+                  <span class="path-line"></span
+                  ><span class="data-block block-one"></span
+                  ><span class="data-block block-two"></span
+                  ><span class="data-block block-three"></span
+                  ><svg viewBox="0 0 48 48">
+                    <path
+                      d="M9 24h30m-10-10 10 10-10 10"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    />
+                  </svg>
+                </div>
+                <div class="transfer-endpoint destination">
+                  <span class="computer-symbol" aria-hidden="true"><i></i></span
+                  ><span class="mono">DESKTOP B</span><b>下一台电脑</b>
+                </div>
+                <div class="transfer-ticket mono">
+                  <span>LOCAL NETWORK</span
+                  ><b>已校验的分块，<br />才继续向前。</b
+                  ><span>TLS · DELTA · RESUME</span>
+                </div>
+              </div>
+              <div class="scene-detail">
+                <p>换一个位置，<br /><b>继续同一段冒险。</b></p>
+                <span
+                  >局域网发现、接收确认、差量传输和断点恢复。<br />进度展示网络与磁盘的实际工作。</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="features"
+        class="features section-pad"
+        aria-labelledby="features-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="section-index mono">[ 03 / A CLOSER LOOK ]</p>
+            <h2 id="features-title">顺手之外，<br /><span>还有分寸。</span></h2>
+          </div>
+          <span class="features-symbol" aria-hidden="true">↘</span>
+        </div>
+        <div class="feature-ledger">
+          <article class="feature-row">
+            <span class="feature-index mono">01 / ENTRY</span>
+            <div class="feature-title">
+              <h3>第一眼，<br />就按你的喜好。</h3>
+              <span class="feature-tag">快速开始 · 个性外观</span>
+            </div>
+            <p>
+              语言先选，配色随后。主题、侧栏与基础配置即时生效；可以跳过，也可以随时回到设置重新开始。
+            </p>
+            <span class="feature-art palette-art" aria-hidden="true"
+              ><i></i><i></i><i></i><i></i
+            ></span>
+          </article>
+          <article class="feature-row">
+            <span class="feature-index mono">02 / IDENTITY</span>
+            <div class="feature-title">
+              <h3>每一次身份调整，<br />都由你来决定。</h3>
+              <span class="feature-tag">票据 · 备份 · 显式选择</span>
+            </div>
+            <p>
+              登录账号、票据所属账号与缓存授权身份分别展示。默认保留现有身份，写入前加密备份整组凭据，失败时回滚。
+            </p>
+            <span class="feature-art identity-art mono" aria-hidden="true"
+              ><i>A</i><b>↔</b><i>B</i></span
+            >
+          </article>
+          <article class="feature-row">
+            <span class="feature-index mono">03 / VERSIONS</span>
+            <div class="feature-title">
+              <h3>向前，或回看。<br />版本有迹可循。</h3>
+              <span class="feature-tag">Steam 客户端版本库</span>
+            </div>
+            <p>
+              浏览历史版本、在线发现与按需获取清单，安装前校验，操作前保留快照。自动更新控制保持独立。
+            </p>
+            <span class="feature-art version-art" aria-hidden="true"
+              ><span></span><i></i><i></i><i></i
+            ></span>
+          </article>
+          <article class="feature-row">
+            <span class="feature-index mono">04 / TOOLKIT</span>
+            <div class="feature-title">
+              <h3>工具各就各位，<br />需要时再打开。</h3>
+              <span class="feature-tag">成就 · DLC · 游戏工具</span>
+            </div>
+            <p>
+              成就与统计先修改、后确认保存。DLC
+              分析、文件校验、修改器和补丁工具，从对应游戏的上下文进入。
+            </p>
+            <span class="feature-art tools-art" aria-hidden="true">⌘</span>
+          </article>
+          <article class="feature-row">
+            <span class="feature-index mono">05 / HONEST DATA</span>
+            <div class="feature-title">
+              <h3>时间，<br />以 Steam 为准。</h3>
+              <span class="feature-tag">游玩记录 · 清楚的状态</span>
+            </div>
+            <p>
+              游玩时长与最近游玩直接读取 Steam
+              账号记录。客户端不另外累计时间，缺失数据也不会冒充零。
+            </p>
+            <span class="feature-art clock-art" aria-hidden="true"
+              ><i></i
+            ></span>
+          </article>
+        </div>
+      </section>
+
+      <section class="open-source section-pad" aria-labelledby="source-title">
+        <div class="source-top">
+          <p class="section-index mono">[ OPEN BY DESIGN ]</p>
+          <span class="source-license mono">GPL-3.0</span>
+        </div>
+        <div class="source-body">
+          <h2 id="source-title">
+            打开展示柜。<br /><span>也打开源代码。</span>
+          </h2>
+          <div>
+            <p>
+              界面与逻辑都在仓库里。<br />阅读、讨论、报告问题，<br />让下一版来自真实的使用。
+            </p>
+            <a class="source-link" href="https://github.com/LoyDgIk/FlSteamLua"
+              >LoyDgIk / FlSteamLua
+              <svg aria-hidden="true"><use href="#arrow-diagonal" /></svg
+            ></a>
+          </div>
+        </div>
+        <div class="source-rule">
+          <span class="mono">BUILT WITH FLUTTER · POWERED BY CURIOSITY</span>
+          <p>
+            界面参考 FlClash，功能依据 Fluent-Steam-Lua；<br />内核与插件相关能力对接
+            OpenSteamTool、CloudRedirect。
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="download"
+        class="download section-pad"
+        aria-labelledby="download-title"
+      >
+        <div class="download-meta">
+          <p class="section-index mono">[ YOUR NEXT SESSION ]</p>
+          <span class="mono">WINDOWS 10 / 11 · X64</span>
+        </div>
+        <div class="download-title">
+          <h2 id="download-title">好，<br />继续<span>游戏。</span></h2>
+          <a
+            class="download-orb"
+            href="https://github.com/LoyDgIk/FlSteamLua/releases/latest"
+            aria-label="前往 GitHub 下载最新 Windows 版本"
+            ><svg aria-hidden="true"><use href="#arrow-diagonal" /></svg
+          ></a>
+        </div>
+        <div class="download-bottom">
+          <div>
+            <a
+              class="button button-black"
+              href="https://github.com/LoyDgIk/FlSteamLua/releases/latest"
+              >获取最新版本
+              <svg aria-hidden="true"><use href="#arrow-down" /></svg
+            ></a>
+            <p>Windows 安装包 / ZIP 便携版 / 源码</p>
+          </div>
+          <div class="download-note">
+            <p>
+              FlSteamLua 是独立开源项目，与 Valve / Steam 无隶属关系。<br />游戏购买与本体安装交由
+              Steam；具体功能以游戏、账号及配置条件为准。
+            </p>
+            <a href="https://github.com/LoyDgIk/FlSteamLua/releases"
+              >查看更新日志
+              <svg aria-hidden="true"><use href="#arrow-right" /></svg
+            ></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="wordmark" href="#"
+        ><img
+          class="brand-mark"
+          src="./favicon.svg"
+          alt=""
+          width="38"
+          height="38"
+        />FlSteamLua</a
+      >
+      <p class="mono">KEEP THE PROGRESS. KEEP THE PLAY.</p>
+      <div>
+        <a href="https://github.com/LoyDgIk/FlSteamLua/issues">反馈问题</a
+        ><a
+          href="https://github.com/LoyDgIk/FlSteamLua/blob/master/THIRD-PARTY-NOTICES.md"
+          >开源致谢</a
+        ><a href="#" aria-label="回到页面顶部">回到顶部 ↑</a>
+      </div>
+    </footer>
+
+    <svg
+      class="icon-sprite"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <symbol id="arrow-diagonal" viewBox="0 0 24 24">
+        <path
+          d="M5 19 19 5M5 5h14v14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="arrow-down" viewBox="0 0 24 24">
+        <path
+          d="M12 3v17m-7-7 7 7 7-7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="arrow-right" viewBox="0 0 24 24">
+        <path
+          d="M3 12h17m-7-7 7 7-7 7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+    </svg>
+  </body>
+</html>

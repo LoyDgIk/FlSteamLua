@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,6 +26,7 @@ import '../ui/context.dart';
 import 'app_services.dart';
 import 'data_management_page.dart';
 import 'quick_start_page.dart';
+import 'support_sheet.dart';
 import 'theme_settings_page.dart';
 import 'widgets.dart';
 
@@ -48,11 +50,6 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = services.settings;
     final locale = resolveAppLocale(settings.language);
-    final coverSourceId = settings.get<String>('coverCdn', 'heybox');
-    final coverSource = NetworkPreferences.coverSources.firstWhere(
-      (source) => source.id == coverSourceId,
-      orElse: () => NetworkPreferences.coverSources.first,
-    );
     final kernel = services.kernel.installed;
     return ui.CommonScaffold(
       title: context.l10n.settings,
@@ -105,26 +102,12 @@ class SettingsPage extends StatelessWidget {
                 key: const ValueKey('steam-file-settings'),
                 glyph: ui.AppGlyphs.resources,
                 title: context.l10n.steamAndGameFiles,
-                subtitle: Text(
-                  settings.steamPath.isEmpty
-                      ? context.l10n.notConfigured
-                      : settings.steamPath,
-                ),
                 onPressed: () => onOpenPage(SteamFilesPage(services: services)),
-              ),
-              _SettingsRow(
-                key: const ValueKey('application-update-settings'),
-                glyph: ui.AppGlyphs.cloudDownload,
-                title: context.l10n.applicationUpdates,
-                subtitle: Text('v$appVersion'),
-                onPressed: () =>
-                    onOpenPage(_UpdateSettingsPage(services: services)),
               ),
               _SettingsRow(
                 key: const ValueKey('data-management-settings'),
                 glyph: ui.AppGlyphs.broom,
                 title: context.l10n.dataManagement,
-                subtitle: Text(services.paths.root),
                 onPressed: () =>
                     onOpenPage(DataManagementPage(services: services)),
               ),
@@ -177,7 +160,6 @@ class SettingsPage extends StatelessWidget {
               _SettingsRow(
                 glyph: ui.AppGlyphs.vpn,
                 title: context.l10n.networkAndDownloadSources,
-                subtitle: Text(coverSource.label(context.l10n)),
                 onPressed: () => onOpenPage(
                   NetworkSettingsPage(
                     settings: settings,
@@ -205,7 +187,7 @@ class SettingsPage extends StatelessWidget {
                 glyph: ui.AppGlyphs.info,
                 title: context.l10n.aboutFlsteamlua,
                 subtitle: Text('v$appVersion'),
-                onPressed: () => onOpenPage(const _AboutPage()),
+                onPressed: () => onOpenPage(AboutPage(services: services)),
               ),
             ],
           ),
@@ -556,18 +538,18 @@ class _SteamFilesPageState extends State<SteamFilesPage> {
   );
 }
 
-class _UpdateSettingsPage extends StatefulWidget {
-  const _UpdateSettingsPage({required this.services});
+class AboutPage extends StatefulWidget {
+  const AboutPage({super.key, required this.services});
 
   final AppServices services;
 
   @override
-  State<_UpdateSettingsPage> createState() => _UpdateSettingsPageState();
+  State<AboutPage> createState() => _AboutPageState();
 }
 
-class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
+class _AboutPageState extends State<AboutPage> {
   bool _checking = false;
-  AppChangelog? _changelog;
+  List<AppChangelog> _changelogs = const [];
 
   PreferencesController get preferences => widget.services.preferences;
   SettingsStore get settings => widget.services.settings;
@@ -576,18 +558,19 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
   void initState() {
     super.initState();
     preferences.addListener(_changed);
-    _loadChangelog();
+    _loadChangelogs();
   }
 
   void _changed() {
     if (mounted) setState(() {});
   }
 
-  Future<void> _loadChangelog() async {
+  Future<void> _loadChangelogs() async {
     try {
-      final changelog = await loadLatestAppChangelog();
-      if (mounted) setState(() => _changelog = changelog);
-    } catch (error) {
+      final data = await rootBundle.loadString('CHANGELOG.md');
+      final changelogs = parseAppChangelogs(data);
+      if (mounted) setState(() => _changelogs = changelogs);
+    } on Object catch (error) {
       debugPrint('Could not load CHANGELOG.md: $error');
     }
   }
@@ -620,46 +603,16 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
   }
 
   Future<void> _showRelease(ApplicationRelease release) async {
-    final download = await ui.showFlDialog<bool>(
+    final download = await ui.showModalSideSheet<bool>(
       context: context,
-      builder: (context) => ui.CommonDialog(
-        title: 'FlSteamLua ${release.version}',
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(context.l10n.later),
-          ),
-          TextButton(
-            onPressed: () => showAction(context, () async {
-              if (!await launchUrl(
-                release.url,
-                mode: LaunchMode.externalApplication,
-              )) {
-                throw StateError('Cannot open release page');
-              }
-            }),
-            child: Text(context.l10n.releasePage),
-          ),
-          if (release.windowsAsset != null)
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(context.l10n.downloadUpdate),
-            ),
-        ],
-        child: SizedBox(
-          width: 520,
-          child: SingleChildScrollView(
-            child: ui.ReleaseNotes(
-              baseUrl: release.url,
-              data: release.notes.isEmpty
-                  ? context.l10n.noReleaseNotesWereProvided
-                  : release.notes,
-            ),
-          ),
-        ),
-      ),
+      builder: (sheetContext) => ReleaseSheet(release: release),
     );
-    if (download != true || !mounted) return;
+    if (download == true && mounted) {
+      await _downloadRelease(release);
+    }
+  }
+
+  Future<void> _downloadRelease(ApplicationRelease release) async {
     final service = UpdateService(
       repository: appRepository,
       client: NetworkHttpClient(settings: settings),
@@ -724,116 +677,17 @@ class _UpdateSettingsPageState extends State<_UpdateSettingsPage> {
     }
   }
 
-  Widget _changelogSection(BuildContext context, AppChangelog changelog) {
-    final colorScheme = context.colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ui.ListHeader(
-          title: context.l10n.updateChangelog,
-          trailing: ui.MetaChip(label: 'v${changelog.version}'),
-        ),
-        ui.CommonCard(
-          key: const ValueKey('app-changelog'),
-          inert: true,
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (changelog.date case final date?)
-                Text(
-                  date,
-                  style: ui.AppTextStyle.footnote
-                      .of(context)
-                      .copyWith(color: colorScheme.onSurfaceVariant),
-                ),
-              const SizedBox(height: 16),
-              ui.ReleaseNotes(
-                data: changelog.markdown,
-                baseUrl: Uri.https(
-                  'github.com',
-                  '/$appRepository/releases/tag/v${changelog.version}',
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+  Future<void> _showChangelogHistory() async {
+    await ui.showModalSideSheet<void>(
+      context: context,
+      builder: (sheetContext) => ChangelogHistorySheet(changelogs: _changelogs),
     );
   }
 
   @override
   Widget build(BuildContext context) => ui.CommonScaffold(
-    title: context.l10n.applicationUpdates,
-    isLoading: _checking || preferences.isCheckingUpdate,
-    body: ListView(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        ui.pageContentTopInset,
-        16,
-        20 + MediaQuery.paddingOf(context).bottom,
-      ),
-      children: [
-        ui.generateSection(
-          title: context.l10n.applicationUpdates,
-          items: [
-            ui.ListItem<void>(
-              key: const ValueKey('check-update'),
-              leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
-              title: Text(context.l10n.checkForUpdates),
-              subtitle: Text('v$appVersion'),
-              onTap: _checking || preferences.isCheckingUpdate
-                  ? null
-                  : _checkUpdate,
-              trailing: _checking || preferences.isCheckingUpdate
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: ui.CommonCircleLoading(size: 18),
-                    )
-                  : const ui.GlyphIcon(ui.AppGlyphs.refresh, size: 18),
-            ),
-            if (preferences.updateRelease != null)
-              ui.ListItem<void>(
-                key: const ValueKey('view-available-update'),
-                leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
-                title: Text(
-                  context.l10n.viewNewVersion(
-                    (preferences.updateRelease!.version).toString(),
-                  ),
-                ),
-                onTap: () => _showRelease(preferences.updateRelease!),
-                trailing: const ui.GlyphIcon(
-                  ui.AppGlyphs.chevronForward,
-                  size: 18,
-                ),
-              ),
-          ],
-        ),
-        if (preferences.updateError != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: ui.CommonCard(
-              isError: true,
-              inert: true,
-              padding: const EdgeInsets.all(16),
-              child: SelectableText('${preferences.updateError}'),
-            ),
-          ),
-        if (_changelog case final changelog?) ...[
-          const SizedBox(height: 18),
-          _changelogSection(context, changelog),
-        ],
-      ],
-    ),
-  );
-}
-
-class _AboutPage extends StatelessWidget {
-  const _AboutPage();
-
-  @override
-  Widget build(BuildContext context) => ui.CommonScaffold(
     title: context.l10n.aboutFlsteamlua,
+    isLoading: _checking || preferences.isCheckingUpdate,
     body: ListView(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -893,8 +747,84 @@ class _AboutPage extends StatelessWidget {
           ),
         ),
         ui.generateSection(
+          title: context.l10n.applicationUpdates,
+          items: [
+            ui.ListItem<void>(
+              key: const ValueKey('check-update'),
+              leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
+              title: Text(context.l10n.checkForUpdates),
+              subtitle: Text('v$appVersion'),
+              onTap: _checking || preferences.isCheckingUpdate
+                  ? null
+                  : _checkUpdate,
+              trailing: _checking || preferences.isCheckingUpdate
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: ui.CommonCircleLoading(size: 18),
+                    )
+                  : const ui.GlyphIcon(ui.AppGlyphs.refresh, size: 18),
+            ),
+            if (preferences.updateRelease != null)
+              ui.ListItem<void>(
+                key: const ValueKey('view-available-update'),
+                leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),
+                title: Text(
+                  context.l10n.viewNewVersion(
+                    (preferences.updateRelease!.version).toString(),
+                  ),
+                ),
+                onTap: () => _showRelease(preferences.updateRelease!),
+                trailing: const ui.GlyphIcon(
+                  ui.AppGlyphs.chevronForward,
+                  size: 18,
+                ),
+              ),
+            ui.ListItem<void>(
+              key: const ValueKey('view-changelog-history'),
+              leading: const ui.GlyphIcon(ui.AppGlyphs.clock),
+              title: Text(context.l10n.viewChangelogHistory),
+              onTap: _changelogs.isEmpty ? null : _showChangelogHistory,
+              trailing: const ui.GlyphIcon(
+                ui.AppGlyphs.chevronForward,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
+        if (preferences.updateError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: ui.CommonCard(
+              isError: true,
+              inert: true,
+              padding: const EdgeInsets.all(16),
+              child: SelectableText('${preferences.updateError}'),
+            ),
+          ),
+        ui.generateSection(
           title: context.l10n.other,
           items: [
+            ui.ListItem<void>(
+              key: const ValueKey('feedback-group-entry'),
+              leading: const ui.GlyphIcon(ui.AppGlyphs.send),
+              title: Text(context.l10n.feedbackGroup),
+              subtitle: const Text('QQ $feedbackGroupNumber'),
+              onTap: () => showFeedbackGroupSheet(context),
+              trailing: const ui.GlyphIcon(
+                ui.AppGlyphs.chevronForward,
+                size: 18,
+              ),
+            ),
+            ui.ListItem<void>(
+              key: const ValueKey('support-author-entry'),
+              leading: const ui.GlyphIcon(ui.AppGlyphs.coffee),
+              title: Text(context.l10n.supportAuthor),
+              onTap: () => showSupportAuthorSheet(context),
+              trailing: const ui.GlyphIcon(
+                ui.AppGlyphs.chevronForward,
+                size: 18,
+              ),
+            ),
             ui.ListItem<void>(
               key: const ValueKey('open-licenses'),
               leading: const ui.GlyphIcon(ui.AppGlyphs.resources),
@@ -938,4 +868,143 @@ class _AboutPage extends StatelessWidget {
       ],
     ),
   );
+}
+
+class ChangelogHistorySheet extends StatelessWidget {
+  const ChangelogHistorySheet({super.key, required this.changelogs});
+
+  final List<AppChangelog> changelogs;
+
+  @override
+  Widget build(BuildContext context) => ui.SideSheetScaffold(
+    title: context.l10n.viewChangelogHistory,
+    body: ListView.separated(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        ui.SideSheetScaffold.headerHeight + 16,
+        24,
+        24 + MediaQuery.paddingOf(context).bottom,
+      ),
+      itemCount: changelogs.length,
+      separatorBuilder: (_, _) => const Divider(height: 28),
+      itemBuilder: (context, index) {
+        final changelog = changelogs[index];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              spacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  'v${changelog.version}',
+                  style: ui.AppTextStyle.headline.of(context),
+                ),
+                if (changelog.date case final date?) ui.MetaChip(label: date),
+              ],
+            ),
+            const SizedBox(height: 12),
+            LocalReleaseNotes(changelog: changelog),
+          ],
+        );
+      },
+    ),
+  );
+}
+
+class ReleaseSheet extends StatelessWidget {
+  const ReleaseSheet({super.key, required this.release});
+
+  final ApplicationRelease release;
+
+  @override
+  Widget build(BuildContext context) => ui.SideSheetScaffold(
+    title: 'FlSteamLua ${release.version}',
+    actions: [
+      ui.SideSheetHeaderButton(
+        tooltip: context.l10n.releasePage,
+        icon: const ui.GlyphIcon(ui.AppGlyphs.openExternal, size: 20),
+        onPressed: () => showAction(context, () async {
+          if (!await launchUrl(
+            release.url,
+            mode: LaunchMode.externalApplication,
+          )) {
+            throw StateError('Cannot open release page');
+          }
+        }),
+      ),
+    ],
+    body: ListView(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        ui.SideSheetScaffold.headerHeight + 16,
+        24,
+        24 + MediaQuery.paddingOf(context).bottom,
+      ),
+      children: [
+        if (release.publishedAt case final date?)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: ui.MetaChip(
+              label: date.toLocal().toString().split(' ').first,
+            ),
+          ),
+        ui.ReleaseNotes(
+          baseUrl: release.url,
+          data: release.notes.isEmpty
+              ? context.l10n.noReleaseNotesWereProvided
+              : release.notes,
+        ),
+        const SizedBox(height: 24),
+        if (release.windowsAsset != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ui.TonalButton(
+              key: const ValueKey('download-update-sheet'),
+              glyph: ui.AppGlyphs.cloudDownload,
+              label: context.l10n.downloadUpdate,
+              onPressed: () => Navigator.pop(context, true),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+class LocalReleaseNotes extends StatelessWidget {
+  const LocalReleaseNotes({super.key, required this.changelog});
+
+  final AppChangelog changelog;
+
+  @override
+  Widget build(BuildContext context) {
+    final language = Localizations.localeOf(context).languageCode;
+    final displayMarkdown = language == 'zh'
+        ? _localizedSection(changelog.markdown, '中文', 'English')
+        : _localizedSection(changelog.markdown, 'English');
+    return ui.ReleaseNotes(
+      data: displayMarkdown,
+      baseUrl: Uri.https(
+        'github.com',
+        '/$appRepository/releases/tag/v${changelog.version}',
+      ),
+    );
+  }
+
+  String _localizedSection(
+    String markdown,
+    String language, [
+    String? nextLanguage,
+  ]) {
+    final heading = '### $language';
+    final start = markdown.indexOf(heading);
+    if (start < 0) return markdown;
+    final contentStart = start + heading.length;
+    final next = nextLanguage == null
+        ? markdown.length
+        : markdown.indexOf('### $nextLanguage', contentStart);
+    return markdown
+        .substring(contentStart, next < 0 ? markdown.length : next)
+        .trim();
+  }
 }

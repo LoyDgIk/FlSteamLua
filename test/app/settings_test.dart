@@ -252,14 +252,16 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
   });
 
-  testWidgets('settings rows show current values instead of help copy', (
+  testWidgets('settings rows omit redundant path and source subtitles', (
     tester,
   ) async {
     final zh = localizationsFor('zh');
     await render(tester);
 
     expect(find.text(zh.followSystem), findsOneWidget);
-    expect(find.text(zh.notConfigured), findsWidgets);
+    expect(find.text(services.paths.root), findsNothing);
+    expect(find.text(zh.heyboxApi), findsNothing);
+    expect(find.text(zh.notConfigured), findsNothing);
 
     await tester.tap(find.byKey(const ValueKey('general-settings')));
     await tester.pumpAndSettle();
@@ -402,12 +404,11 @@ void main() {
   });
 
   testWidgets(
-    'update uses the fixed official repository without a source row',
+    'updates and complete changelog live in About without a source row',
     (tester) async {
       await render(tester);
-      await tester.tap(
-        find.byKey(const ValueKey('application-update-settings')),
-      );
+      await reveal(tester, find.byKey(const ValueKey('about-settings')));
+      await tester.tap(find.byKey(const ValueKey('about-settings')));
       await tester.pumpAndSettle();
       await reveal(tester, find.byKey(const ValueKey('check-update')));
       expect(find.text(appRepository), findsNothing);
@@ -420,9 +421,15 @@ void main() {
         findsNothing,
       );
       expect(find.byKey(const ValueKey('check-update')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('view-changelog-history')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('app-changelog')), findsNothing);
       expect(services.settings.releaseRepository, appRepository);
-      await reveal(tester, find.byKey(const ValueKey('app-changelog')));
-      expect(find.text('更新日志'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('view-changelog-history')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ChangelogHistorySheet), findsOneWidget);
     },
   );
 
@@ -433,13 +440,14 @@ void main() {
       'Release check failed: HTTP 403',
     );
     await render(tester);
-    await tester.tap(find.byKey(const ValueKey('application-update-settings')));
+    await reveal(tester, find.byKey(const ValueKey('about-settings')));
+    await tester.tap(find.byKey(const ValueKey('about-settings')));
     await tester.pumpAndSettle();
     final row = find.byKey(const ValueKey('check-update'));
     await reveal(tester, row);
     expect(
       ui.ItemPositionProvider.of(tester.element(row))?.position,
-      ui.ItemPosition.startAndEnd,
+      ui.ItemPosition.start,
     );
     final error = find.textContaining('Release check failed: HTTP 403');
     expect(error, findsOneWidget);

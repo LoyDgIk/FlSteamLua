@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.1.5"
+  #define AppVersion "0.1.6"
 #endif
 #ifndef BuildDir
   #define BuildDir "..\..\build\windows\x64\runner\Release"
@@ -54,7 +54,9 @@ var
 begin
   Exec(
     ExpandConstant('{sys}\taskkill.exe'),
-    '/F /T /IM ' + ImageName,
+    { Setup can be a descendant of the app that launched this update. }
+    { End only the named image; /T would also terminate Setup itself. }
+    '/F /IM ' + ImageName,
     '',
     SW_HIDE,
     ewWaitUntilTerminated,
@@ -68,6 +70,7 @@ begin
   KillApplicationProcess('fl_steam_lua.exe');
   KillApplicationProcess('steam_worker.exe');
   KillApplicationProcess('lan_transfer_engine.exe');
+  KillApplicationProcess('cloud_sync_worker.exe');
   Sleep(300);
   Result := '';
 end;
