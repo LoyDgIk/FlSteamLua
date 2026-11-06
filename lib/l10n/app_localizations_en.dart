@@ -1074,8 +1074,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst(
     String displayName,
   ) {
-    return 'Current kernel files will be backed up before installing $displayName. Close Steam first.';
+    return 'FlSteamLua will prepare the Steam signatures, back up and replace old kernel entries, and remove known incompatible injection files before installing $displayName. Close Steam first.';
   }
+
+  @override
+  String kernelSignaturesUnavailable(String build, String files, String error) {
+    return 'Could not prepare Steam signatures for build $build. Missing: $files. $error. The kernel was not installed.';
+  }
+
+  @override
+  String get kernelSignatureFallbackUnavailable =>
+      'Local signature generation did not produce all required files';
 
   @override
   String get noInstalledKernelFilesFound => 'No installed kernel files found.';
@@ -3753,7 +3762,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkKernelUpdate => 'Check for kernel updates';
 
   @override
-  String get installOrUpdateKernel => 'Install or update kernel';
+  String get installOrUpdateKernel => 'Install, update or repair kernel';
 
   @override
   String get installAndRuntime => 'Install and runtime';

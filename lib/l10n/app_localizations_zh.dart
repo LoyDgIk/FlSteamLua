@@ -1051,8 +1051,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst(
     String displayName,
   ) {
-    return '将备份当前内核文件，然后安装 $displayName。请先退出 Steam。';
+    return '安装 $displayName 前会先补齐当前 Steam 签名，备份并替换旧内核入口，同时备份并清理已知的不兼容注入文件。请先退出 Steam。';
   }
+
+  @override
+  String kernelSignaturesUnavailable(String build, String files, String error) {
+    return '无法为 Steam 构建 $build 准备内核签名。缺少：$files。$error。本次未安装内核。';
+  }
+
+  @override
+  String get kernelSignatureFallbackUnavailable => '本地生成也没有写出全部所需签名';
 
   @override
   String get noInstalledKernelFilesFound => '未发现已安装的内核文件。';
@@ -3663,7 +3671,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get checkKernelUpdate => '检查内核更新';
 
   @override
-  String get installOrUpdateKernel => '安装或更新内核';
+  String get installOrUpdateKernel => '安装、更新或修复内核';
 
   @override
   String get installAndRuntime => '安装与运行';

@@ -463,7 +463,7 @@
   "continueLabel": "Continue",
   "importKernelPackage": "Import kernel package",
   "switchKernel": "Switch kernel",
-  "currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst": "Current kernel files will be backed up before installing {displayName}. Close Steam first.",
+  "currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst": "FlSteamLua will prepare the Steam signatures, back up and replace old kernel entries, and remove known incompatible injection files before installing {displayName}. Close Steam first.",
   "@currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst": {
     "placeholders": {
       "displayName": {
@@ -471,6 +471,21 @@
       }
     }
   },
+  "kernelSignaturesUnavailable": "Could not prepare Steam signatures for build {build}. Missing: {files}. {error}. The kernel was not installed.",
+  "@kernelSignaturesUnavailable": {
+    "placeholders": {
+      "build": {
+        "type": "String"
+      },
+      "files": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "kernelSignatureFallbackUnavailable": "Local signature generation did not produce all required files",
   "noInstalledKernelFilesFound": "No installed kernel files found.",
   "uninstallKernel": "Uninstall kernel",
   "onlyTheseFilesWillBeRemovedAfterSavingABackupCloseSteamFirst": "Only these files will be removed, after saving a backup. Close Steam first.",
@@ -1567,7 +1582,7 @@
   "kernelUpdateAvailable": "Version {version} is available",
   "kernelUpToDate": "Up to date",
   "checkKernelUpdate": "Check for kernel updates",
-  "installOrUpdateKernel": "Install or update kernel",
+  "installOrUpdateKernel": "Install, update or repair kernel",
   "installAndRuntime": "Install and runtime",
   "repositorySubscription": "Repository subscription",
   "localKernelPackage": "Local kernel package",

@@ -15,6 +15,7 @@ import '../../core/app_paths.dart';
 import '../../core/settings_store.dart';
 import '../../core/steam_process_actions.dart';
 import '../../core/task_center.dart';
+import '../../ui/localization.dart';
 import '../content_sources/content_models.dart';
 import '../network/network_preferences.dart';
 import 'kernel_models.dart';
@@ -85,7 +86,22 @@ const _baseNames = [
   'dwmapi.dll',
   'version.dll',
   'bin/dwmapi.dll',
+  'bin/version.dll',
 ];
+const _tomlTargets = [
+  ('pattern', 'steamclient'),
+  ('pattern', 'steamui'),
+  ('ipc', 'steamclient'),
+];
+const _foreignKernelFiles = {
+  'hid.dll': 'SteamTools',
+  'zlib1.dll': 'SteamTools',
+  'user32.dll': 'TB/BIAO',
+  'midimap.dll': 'TB/BIAO',
+  'winmm.dll': 'TB/BIAO',
+  'CaigamerQ.dll': 'TB/BIAO',
+  'bin/winmm.dll': 'TB/BIAO',
+};
 const _dwmapiEntryNames = ['bin/dwmapi.dll', 'dwmapi.dll'];
 const _versionEntryNames = ['version.dll', 'bin/version.dll'];
 const _suffixes = ['', '.disabled', '.off'];
@@ -721,17 +737,19 @@ class KernelService extends ChangeNotifier {
       }
       final entries = await _decodePackageAsync(bytes);
       final priorMode = _currentInjectionMode(steam);
+      await _ensureSteamSignatures(steam, context: context);
       final backup = await _createBackup(
         steam,
         'Switch to ${package.displayName}',
+        includeForeignKernels: true,
       );
       try {
         context?.report('Installing ${package.displayName}');
-        for (final name in _baseNames) {
+        for (final name in await _existingManaged(steam)) {
           context?.checkCancelled();
-          final disabled = File(p.join(steam, '${_managedPath(name)}.off'));
-          if (await disabled.exists()) await disabled.delete();
+          await File(p.join(steam, name)).delete();
         }
+        await _removeForeignKernelFiles(steam, context: context);
         for (final entry in entries.entries) {
           context?.checkCancelled();
           await _fileWriter(File(p.join(steam, entry.key)), entry.value);
@@ -914,21 +932,10 @@ class KernelService extends ChangeNotifier {
   Future<List<ForeignKernelFile>> scanForeignKernels() async {
     final steam = settings.steamPath;
     if (steam.isEmpty || !await Directory(steam).exists()) return [];
-    final result = <ForeignKernelFile>[];
-    await for (final entity in Directory(steam).list(followLinks: false)) {
-      if (entity is! File) continue;
-      final name = p.basename(entity.path);
-      final lower = name.toLowerCase();
-      final owner = switch (lower) {
-        'hid.dll' || 'zlib1.dll' => 'SteamTools',
-        'user32.dll' => 'GreenLuma',
-        _ when lower.startsWith('greenluma') && lower.endsWith('.dll') =>
-          'GreenLuma',
-        _ => null,
-      };
-      if (owner != null) result.add(ForeignKernelFile(name, owner));
-    }
-    return result;
+    return [
+      for (final name in await _existingForeignKernelFiles(steam))
+        ForeignKernelFile(name, _foreignKernelOwner(name)),
+    ];
   }
 
   Future<KernelCleanupResult> cleanupForeign(
@@ -956,7 +963,9 @@ class KernelService extends ChangeNotifier {
       final file = File(p.join(steam, name));
       try {
         await _assertRegularFile(file);
-        await file.copy(p.join(backupDir.path, name));
+        final target = File(p.join(backupDir.path, name));
+        await target.parent.create(recursive: true);
+        await file.copy(target.path);
         await file.delete();
         removed.add(name);
       } catch (error) {
@@ -1359,19 +1368,15 @@ class KernelService extends ChangeNotifier {
     }
     final results = <TomlFetchResult>[];
     final channel = tomlChannelSettings;
-    for (final target in [
-      ('pattern', 'steamclient', resolved.clientSha),
-      ('pattern', 'steamui', resolved.uiSha),
-      ('ipc', 'steamclient', resolved.clientSha),
-    ]) {
+    for (final target in _tomlTargets) {
+      final sha = target.$2 == 'steamui' ? resolved.uiSha : resolved.clientSha;
       context?.checkCancelled();
-      final relative =
-          'opensteamtool/${target.$1}/${target.$2}/${target.$3}.toml';
+      final relative = 'opensteamtool/${target.$1}/${target.$2}/$sha.toml';
       final uri = Uri.parse(
         channel.urlTemplate
             .replaceAll('{channel}', target.$1)
             .replaceAll('{component}', target.$2)
-            .replaceAll('{sha256}', target.$3),
+            .replaceAll('{sha256}', sha),
       );
       context?.report('Fetching ${target.$1}/${target.$2}');
       try {
@@ -1414,6 +1419,56 @@ class KernelService extends ChangeNotifier {
       }
     }
     return results;
+  }
+
+  Future<void> _ensureSteamSignatures(
+    String steam, {
+    TaskContext? context,
+  }) async {
+    final info = await detectSteamDllInfo();
+    if (info == null) return;
+    var missing = await _missingSignatureFiles(steam, info);
+    if (missing.isEmpty) return;
+
+    context?.report('Downloading Steam signatures');
+    await fetchTomlFiles(context: context, info: info);
+    missing = await _missingSignatureFiles(steam, info);
+    if (missing.isEmpty) return;
+
+    Object? localError;
+    context?.report('Building missing Steam signatures');
+    try {
+      await _localTomlBuilderRunner(steamPath: steam);
+    } catch (error) {
+      localError = error;
+    }
+    missing = await _missingSignatureFiles(steam, info);
+    if (missing.isEmpty) return;
+    final localeText = localizationsFor(settings.language);
+    throw StateError(
+      localeText.kernelSignaturesUnavailable(
+        info.buildId ?? localeText.unknownVersion,
+        missing.join(', '),
+        localError?.toString() ?? localeText.kernelSignatureFallbackUnavailable,
+      ),
+    );
+  }
+
+  Future<List<String>> _missingSignatureFiles(
+    String steam,
+    SteamDllTomlInfo info,
+  ) async {
+    final missing = <String>[];
+    for (final target in _tomlTargets) {
+      final sha = target.$2 == 'steamui' ? info.uiSha : info.clientSha;
+      final file = File(
+        p.join(steam, 'opensteamtool', target.$1, target.$2, '$sha.toml'),
+      );
+      if (!await file.exists() || await file.length() == 0) {
+        missing.add('${target.$1}/${target.$2}/$sha.toml');
+      }
+    }
+    return missing;
   }
 
   Future<LocalTomlBuildReport> buildLocalTomlFiles({
@@ -1870,6 +1925,53 @@ class KernelService extends ChangeNotifier {
 
   static String _managedPath(String value) => p.joinAll(value.split('/'));
 
+  Future<List<String>> _existingForeignKernelFiles(String steam) async {
+    final result = <String>{};
+    for (final name in _foreignKernelFiles.keys) {
+      final path = p.joinAll(name.split('/'));
+      if (await FileSystemEntity.type(
+            p.join(steam, path),
+            followLinks: false,
+          ) ==
+          FileSystemEntityType.file) {
+        result.add(path);
+      }
+    }
+    await for (final entity in Directory(steam).list(followLinks: false)) {
+      if (entity is! File) continue;
+      final name = p.basename(entity.path);
+      if (RegExp(r'^greenluma.*\.dll$', caseSensitive: false).hasMatch(name)) {
+        result.add(name);
+      }
+    }
+    return result.toList()..sort();
+  }
+
+  static String _foreignKernelOwner(String name) {
+    final normalized = name.replaceAll('\\', '/');
+    final known = _foreignKernelFiles[normalized];
+    if (known != null) return known;
+    return RegExp(
+          r'^greenluma.*\.dll$',
+          caseSensitive: false,
+        ).hasMatch(p.basename(normalized))
+        ? 'GreenLuma'
+        : 'Unknown';
+  }
+
+  Future<void> _removeForeignKernelFiles(
+    String steam, {
+    TaskContext? context,
+  }) async {
+    for (final name in await _existingForeignKernelFiles(steam)) {
+      context?.checkCancelled();
+      final file = File(p.join(steam, name));
+      await _assertRegularFile(file);
+      context?.report('Removing conflicting $name');
+      await file.delete();
+    }
+  }
+
   Future<List<String>> _existingManaged(String steam) async {
     final result = <String>[];
     for (final name in _managedNames) {
@@ -1964,12 +2066,19 @@ class KernelService extends ChangeNotifier {
     }
   }
 
-  Future<KernelBackup> _createBackup(String steam, String reason) async {
+  Future<KernelBackup> _createBackup(
+    String steam,
+    String reason, {
+    bool includeForeignKernels = false,
+  }) async {
     final id =
         '${DateTime.now().microsecondsSinceEpoch}-${_key(reason).substring(0, 6)}';
     final directory = Directory(p.join(_backupDir, id));
     await directory.create(recursive: true);
-    final files = await _existingManaged(steam);
+    final files = {
+      ...await _existingManaged(steam),
+      if (includeForeignKernels) ...await _existingForeignKernelFiles(steam),
+    }.toList()..sort();
     for (final name in files) {
       final file = File(p.join(steam, name));
       await _assertRegularFile(file);
@@ -2007,7 +2116,7 @@ class KernelService extends ChangeNotifier {
         final id = json['id'] as String;
         final files = (json['files'] as List).cast<String>();
         if (id != p.basename(entry.path) ||
-            files.any((name) => !_managedNames.contains(name))) {
+            files.any((name) => !_isRestorableBackupFile(name))) {
           throw const FormatException('Invalid kernel backup manifest');
         }
         result.add(
@@ -2034,15 +2143,34 @@ class KernelService extends ChangeNotifier {
       await _assertRegularFile(file);
       contents[name] = await file.readAsBytes();
     }
-    for (final name in await _existingManaged(steam)) {
+    for (final name in {...await _existingManaged(steam), ...backup.files}) {
       final file = File(p.join(steam, name));
-      await _assertRegularFile(file);
-      await file.delete();
+      if (await file.exists()) {
+        await _assertRegularFile(file);
+        await file.delete();
+      }
     }
     for (final entry in contents.entries) {
       await _writeFile(File(p.join(steam, entry.key)), entry.value);
     }
     await _writeState(backup.activePackageId);
+  }
+
+  bool _isRestorableBackupFile(String name) {
+    final normalized = p.normalize(name);
+    if (p.isAbsolute(normalized) ||
+        normalized == '..' ||
+        normalized.startsWith('..${p.separator}')) {
+      return false;
+    }
+    if (_managedNames.contains(normalized)) return true;
+    final portable = normalized.replaceAll('\\', '/');
+    if (_foreignKernelFiles.containsKey(portable)) return true;
+    return p.dirname(normalized) == '.' &&
+        RegExp(
+          r'^greenluma.*\.dll$',
+          caseSensitive: false,
+        ).hasMatch(normalized);
   }
 
   Future<void> _detectInstalled() async {

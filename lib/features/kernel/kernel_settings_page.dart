@@ -270,10 +270,6 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
     );
     if (!mounted || info == null) return;
     _updateInfo = info;
-    if (!info.hasUpdate && service.installed.installed) {
-      ui.showAppFeedback(context, localeText.kernelNoUpdate);
-      return;
-    }
     final package = info.package;
     if (!await _confirmKernelSwitch(
       context,

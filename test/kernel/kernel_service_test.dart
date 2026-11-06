@@ -126,6 +126,125 @@ void main() {
     );
   });
 
+  test(
+    'switch prepares signatures and backs up conflicting kernel files',
+    () async {
+      await File(
+        p.join(steam.path, 'steamclient64.dll'),
+      ).writeAsBytes([1, 2, 3]);
+      await File(p.join(steam.path, 'steamui.dll')).writeAsBytes([4, 5, 6]);
+      await File(
+        p.join(steam.path, 'OpenSteamTool.dll'),
+      ).writeAsString('old core');
+      await File(p.join(steam.path, 'hid.dll')).writeAsString('steamtools');
+      await File(p.join(steam.path, 'winmm.dll')).writeAsString('tb');
+      await File(
+        p.join(steam.path, 'GreenLuma_2025.dll'),
+      ).writeAsString('greenluma');
+      final oldBinVersion = File(p.join(steam.path, 'bin', 'version.dll'));
+      await oldBinVersion.parent.create(recursive: true);
+      await oldBinVersion.writeAsString('old bin entry');
+      final package = await importFull('full.zip', 'v1');
+
+      service.dispose();
+      service = KernelService(
+        paths: paths,
+        settings: settings,
+        isSteamRunning: () async => false,
+        client: MockClient(
+          (request) async =>
+              http.Response('signature for ${request.url.path}', 200),
+        ),
+      );
+      await service.loadLocal();
+
+      final result = await service.switchTo(package);
+      expect(result.success, isTrue);
+      for (final name in [
+        'hid.dll',
+        'winmm.dll',
+        'GreenLuma_2025.dll',
+        p.join('bin', 'version.dll'),
+      ]) {
+        expect(await File(p.join(steam.path, name)).exists(), isFalse);
+      }
+      expect(
+        await File(p.join(steam.path, 'OpenSteamTool.dll')).readAsString(),
+        'core-v1',
+      );
+      final info = await service.detectSteamDllInfo();
+      for (final target in [
+        ('pattern', 'steamclient', info!.clientSha),
+        ('pattern', 'steamui', info.uiSha),
+        ('ipc', 'steamclient', info.clientSha),
+      ]) {
+        final file = File(
+          p.join(
+            steam.path,
+            'opensteamtool',
+            target.$1,
+            target.$2,
+            '${target.$3}.toml',
+          ),
+        );
+        expect(await file.exists(), isTrue);
+        expect(await file.length(), greaterThan(0));
+      }
+      await service.restore(result.backupId!);
+      expect(
+        await File(p.join(steam.path, 'OpenSteamTool.dll')).readAsString(),
+        'old core',
+      );
+      expect(
+        await File(p.join(steam.path, 'hid.dll')).readAsString(),
+        'steamtools',
+      );
+      expect(await File(p.join(steam.path, 'winmm.dll')).readAsString(), 'tb');
+      expect(
+        await File(p.join(steam.path, 'GreenLuma_2025.dll')).readAsString(),
+        'greenluma',
+      );
+      expect(await oldBinVersion.readAsString(), 'old bin entry');
+    },
+  );
+
+  test(
+    'missing Steam signatures stop installation before kernel files change',
+    () async {
+      await File(
+        p.join(steam.path, 'steamclient64.dll'),
+      ).writeAsBytes([1, 2, 3]);
+      await File(p.join(steam.path, 'steamui.dll')).writeAsBytes([4, 5, 6]);
+      await File(p.join(steam.path, 'hid.dll')).writeAsString('foreign');
+      final package = await importFull('full.zip', 'v1');
+      service.dispose();
+      service = KernelService(
+        paths: paths,
+        settings: settings,
+        isSteamRunning: () async => false,
+        client: MockClient((_) async => http.Response('missing', 404)),
+        localTomlBuilderRunner: ({required steamPath, onEvent}) async {
+          return const LocalTomlBuildReport(
+            clientSha: 'client',
+            uiSha: 'ui',
+            components: [],
+          );
+        },
+      );
+      await service.loadLocal();
+
+      await expectLater(service.switchTo(package), throwsStateError);
+      expect(
+        await File(p.join(steam.path, 'OpenSteamTool.dll')).exists(),
+        isFalse,
+      );
+      expect(
+        await File(p.join(steam.path, 'hid.dll')).readAsString(),
+        'foreign',
+      );
+    },
+  );
+
   test('detects and toggles the bin/dwmapi injection entry', () async {
     final bin = await Directory(p.join(steam.path, 'bin')).create();
     await File(p.join(steam.path, 'OpenSteamTool.dll')).writeAsString('core');

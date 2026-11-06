@@ -83,7 +83,7 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      final action = find.text('Install or update kernel');
+      final action = find.text('Install, update or repair kernel');
       await tester.scrollUntilVisible(
         action,
         250,

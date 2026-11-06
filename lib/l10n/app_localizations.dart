@@ -2040,10 +2040,22 @@ abstract class AppLocalizations {
   /// No description provided for @currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst.
   ///
   /// In en, this message translates to:
-  /// **'Current kernel files will be backed up before installing {displayName}. Close Steam first.'**
+  /// **'FlSteamLua will prepare the Steam signatures, back up and replace old kernel entries, and remove known incompatible injection files before installing {displayName}. Close Steam first.'**
   String currentKernelFilesWillBeBackedUpBeforeInstallingCloseSteamFirst(
     String displayName,
   );
+
+  /// No description provided for @kernelSignaturesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not prepare Steam signatures for build {build}. Missing: {files}. {error}. The kernel was not installed.'**
+  String kernelSignaturesUnavailable(String build, String files, String error);
+
+  /// No description provided for @kernelSignatureFallbackUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Local signature generation did not produce all required files'**
+  String get kernelSignatureFallbackUnavailable;
 
   /// No description provided for @noInstalledKernelFilesFound.
   ///
@@ -6912,7 +6924,7 @@ abstract class AppLocalizations {
   /// No description provided for @installOrUpdateKernel.
   ///
   /// In en, this message translates to:
-  /// **'Install or update kernel'**
+  /// **'Install, update or repair kernel'**
   String get installOrUpdateKernel;
 
   /// No description provided for @installAndRuntime.
