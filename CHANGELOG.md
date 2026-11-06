@@ -5,6 +5,24 @@ Each release lists Chinese notes first, followed by English.
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-11-06
+
+### 中文
+
+#### 修复
+
+- 内核安装、更新或修复前会根据当前 Steam DLL 指纹自动补齐三份签名文件；远程签名不可用时会尝试本地生成，全部准备成功后才替换内核，避免安装后弹出 Steam 版本不受支持。
+- “安装或更新内核”扩展为“安装、更新或修复内核”，已安装同一版本的客户端也可以直接修复缺失签名和冲突环境。
+- 内核切换会先备份，再清理旧内核入口、旧 `.disabled`/`.off` 副本以及 SteamTools、TB/BIAO、GreenLuma 等已知不兼容注入文件；安装失败时完整恢复原状。
+
+### English
+
+#### Fixed
+
+- Kernel install, update and repair now prepare all three signature files from the installed Steam DLL fingerprints before touching kernel files. Remote signatures are preferred, local generation is used as fallback, and installation stops if signatures cannot be completed.
+- The install/update action now also repairs an already installed version instead of stopping when no newer release is available.
+- Kernel switching backs up and removes old entry copies plus known incompatible SteamTools, TB/BIAO and GreenLuma injectors, then restores the complete preimage on failure.
+
 ## [0.1.6] - 2026-11-06
 
 ### 中文
