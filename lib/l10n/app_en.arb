@@ -67,6 +67,10 @@
   "ownershipUnknown": "Ownership unknown",
   "stopGame": "Stop game",
   "play": "Play",
+  "onlineLaunch": "Launch online",
+  "onlineLaunchOptions": "Online launch options",
+  "onlineFixOnly": "Online launch (-onlinefix)",
+  "onlineFixWithRealAppId": "Online launch (-onlinefix -realappid)",
   "installWithSteam": "Install with Steam",
   "getLuaManifests": "Get Lua / manifests",
   "addToLibrary": "Add to Lua library",
@@ -945,7 +949,28 @@
     }
   },
   "checkForApplicationUpdatesAutomatically": "Check for application updates automatically",
-  "checkAtStartupAndEvery24HoursUsingTheConfiguredFlutterApplicationReleaseRepository": "Check at startup and every 24 hours using the configured Flutter application release repository.",
+  "checkAtStartupAndEvery24HoursUsingTheConfiguredFlutterApplicationReleaseRepository": "Check when the selected interval has elapsed using the configured Flutter application release repository.",
+  "applicationUpdateCheckInterval": "Application update interval",
+  "checkForKernelUpdatesAutomatically": "Check for kernel updates automatically",
+  "kernelUpdateCheckInterval": "Kernel update interval",
+  "everyHour": "Every hour",
+  "everyDay": "Every day",
+  "everyHours": "Every {hours} hours",
+  "@everyHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "everyDays": "Every {days} days",
+  "@everyDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "updateKeySubscriptionsAutomatically": "Update key subscriptions automatically",
   "whenEnabledCheckEnabledSubscriptionsHourlyAndDownloadUpdatesWhenTheirSourceIntervalIs": "When enabled, check enabled subscriptions hourly and download updates when their source interval is due.",
   "newVersion": "New version {version}",
@@ -1199,13 +1224,13 @@
   "manifestSources": "Manifests",
   "enabledSources": "Enabled",
   "failedSources": "Needs attention",
-  "subscriptionSource": "Subscription",
+  "subscriptionSource": "Key subscription",
   "scriptSource": "JS script",
   "localSource": "Local",
   "manifestIds": "Manifest IDs",
   "manifestFiles": "Manifest files",
   "addContentSource": "Add content source",
-  "addSubscriptionSource": "Add subscription source",
+  "addSubscriptionSource": "Add key subscription",
   "importScriptSource": "Import JS content source",
   "importLocalContent": "Import local content",
   "editSource": "Edit",
@@ -1240,6 +1265,14 @@
   "sourceName": "Name",
   "depotKeysUrl": "Depot keys JSON URL",
   "appTokensUrl": "App tokens JSON URL",
+  "addressSourceMode": "Address source",
+  "useFixedLinks": "Fixed links",
+  "useDynamicScript": "Script",
+  "dynamicSubscriptionSource": "Dynamic address script",
+  "editDynamicScript": "Edit dynamic script",
+  "dynamicSubscriptionScriptConfigured": "Configured",
+  "dynamicSubscriptionScriptNotConfigured": "Not configured",
+  "dynamicSubscriptionScriptDescription": "Runs custom JavaScript before every update. Define async function download(ctx) and return depotKeysUrl and tokenKeysUrl.",
   "sourceUpdateInterval": "Update interval (hours)",
   "sourceEnabled": "Enable this content source",
   "requiredField": "Required",
@@ -2160,7 +2193,7 @@
   "confirmApplyTickets": "Confirm ticket application",
   "reviewExtractedTickets": "Review and apply these tickets",
   "extractTrainerBeforeBinding": "Extract this archive first, then select the trainer executable to bind it to a game.",
-  "testAndUpdateSubscription": "Test and update subscription",
+  "testAndUpdateSubscription": "Test and update key subscription",
   "cloudOperationBusy": "Wait for the current save operation to finish.",
   "cloudInvalidBackup": "Invalid backup record.",
   "cloudBackupChecksumFailed": "Backup checksum failed. Saves were not overwritten.",

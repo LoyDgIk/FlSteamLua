@@ -103,11 +103,6 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
   Future<void> _load() async {
     try {
       await service.loadLocal();
-      if (service.installed.installed &&
-          service.sourceMode == KernelSourceMode.repository &&
-          widget.settings.autoCheckKernelUpdate) {
-        _updateInfo = service.updateInfo ?? await service.checkForUpdate();
-      }
     } catch (error) {
       _showError(error);
     }
@@ -250,6 +245,8 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
       announce: false,
     );
     if (!mounted || info == null) return;
+    await _markUpdateChecked();
+    if (!mounted) return;
     _updateInfo = info;
     setState(() {});
     if (!info.hasUpdate) {
@@ -269,6 +266,8 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
       announce: false,
     );
     if (!mounted || info == null) return;
+    await _markUpdateChecked();
+    if (!mounted) return;
     _updateInfo = info;
     final package = info.package;
     if (!await _confirmKernelSwitch(
@@ -433,9 +432,10 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
     });
   }
 
-  Future<void> _setAutoCheck(bool value) async {
-    await widget.settings.set('autoCheckKernelUpdate', value);
-  }
+  Future<void> _markUpdateChecked() => widget.settings.set(
+    'kernelUpdateLastCheckAt',
+    DateTime.now().toUtc().toIso8601String(),
+  );
 
   String _stateLabel(BuildContext context) {
     final installed = service.installed;
@@ -723,12 +723,6 @@ class _KernelSettingsPageState extends State<KernelSettingsPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      ui.ListItem.toggle(
-                        leading: const ui.GlyphIcon(ui.AppGlyphs.settings),
-                        title: Text(localeText.kernelUpdateCheckOnStartup),
-                        value: widget.settings.autoCheckKernelUpdate,
-                        onChanged: _busy ? null : _setAutoCheck,
                       ),
                       ui.DecorationListItem(
                         leading: const ui.GlyphIcon(ui.AppGlyphs.cloudDownload),

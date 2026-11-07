@@ -202,3 +202,17 @@ and SegmentedControl. FlClash has no bundled payment-code business workflow,
 so support_sheet.dart only adapts the supplied local images and QQ group number;
 it adds no independent presentation layer. The coffee glyph extends the shared
 AppGlyphs system using its existing path primitives.
+
+## Title menus and key subscriptions (2026-11-07)
+
+`CommonScaffold.titleMenuItems` is restored from FlClash
+`ui/scaffold.dart::_buildTitle`, including its title-side chevron and popup
+placement. The library uses it for the Lua/Steam scope switch instead of a
+toolbar selector. Content-source cards retain `ContextMenuRegion` as their only
+per-item menu and use shared `DashboardIconButton` toolbar actions.
+
+Key subscriptions add a user-authored JavaScript resolver following the existing
+QuickJS manifest runner contract. Updates invoke `async function download(ctx)`
+before downloading key files. The built-in SteamToolbox source supplies an
+editable script for its changing addresses; URL parsing lives in that script,
+not in Dart. Existing persisted SteamToolbox profiles are upgraded in place.

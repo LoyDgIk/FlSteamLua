@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:fl_steam_lua/features/manifests/manifest_script_runner.dart';
+import 'package:fl_steam_lua/features/key_cache/key_cache_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -42,6 +43,33 @@ void main() {
       'filename': '440.lua',
       'encoding': 'text',
       'content': 'addappid(440)',
+    });
+  });
+
+  test('SteamToolbox dynamic script resolves current key addresses', () async {
+    final result = await const QuickJsManifestRunner().invoke(
+      script: steamToolboxDynamicScript,
+      function: 'download',
+      params: const {},
+      request: (payload) async {
+        expect(
+          payload['url'],
+          'https://gitee.com/biaogeNB/SteamToolbox/raw/master/toolbox2.txt',
+        );
+        return {
+          'status': 200,
+          'ok': true,
+          'text': '''
+appaccesstokens：https://pan.invalid/current/appaccesstokens.json
+depotkeys：https://pan.invalid/current/depotkeys.json
+''',
+        };
+      },
+      log: (_) {},
+    );
+    expect(result, {
+      'depotKeysUrl': 'https://pan.invalid/current/depotkeys.json',
+      'tokenKeysUrl': 'https://pan.invalid/current/appaccesstokens.json',
     });
   });
 

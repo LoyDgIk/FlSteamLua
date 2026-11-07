@@ -102,6 +102,34 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     : (value) =>
                           _save(() => controller.setAutoUpdateCheck(value)),
               ),
+              _updateIntervalRow(
+                key: const ValueKey('app-update-interval'),
+                title: context.l10n.applicationUpdateCheckInterval,
+                enabled: !_saving && controller.autoUpdateCheck,
+                value: controller.appUpdateIntervalSeconds,
+                onChanged: (seconds) => _save(
+                  () => controller.setAppUpdateIntervalSeconds(seconds),
+                ),
+              ),
+              ui.ListItem.toggle(
+                key: const ValueKey('auto-kernel-update-check'),
+                title: Text(context.l10n.checkForKernelUpdatesAutomatically),
+                value: controller.autoKernelUpdateCheck,
+                onChanged: _saving
+                    ? null
+                    : (value) => _save(
+                        () => controller.setAutoKernelUpdateCheck(value),
+                      ),
+              ),
+              _updateIntervalRow(
+                key: const ValueKey('kernel-update-interval'),
+                title: context.l10n.kernelUpdateCheckInterval,
+                enabled: !_saving && controller.autoKernelUpdateCheck,
+                value: controller.kernelUpdateIntervalSeconds,
+                onChanged: (seconds) => _save(
+                  () => controller.setKernelUpdateIntervalSeconds(seconds),
+                ),
+              ),
               ui.ListItem.toggle(
                 key: const ValueKey('auto-key-cache-update'),
                 title: Text(context.l10n.updateKeySubscriptionsAutomatically),
@@ -182,6 +210,26 @@ class _PreferencesPageState extends State<PreferencesPage> {
           : null,
     );
   }
+
+  Widget _updateIntervalRow({
+    required Key key,
+    required String title,
+    required bool enabled,
+    required int value,
+    required ValueChanged<int> onChanged,
+  }) => ui.ListItem<int>.options(
+    key: key,
+    title: Text(title),
+    options: const [3600, 21600, 86400, 604800],
+    value: value,
+    textBuilder: (seconds) => switch (seconds) {
+      3600 => context.l10n.everyHour,
+      86400 => context.l10n.everyDay,
+      >= 86400 => context.l10n.everyDays('${seconds ~/ 86400}'),
+      _ => context.l10n.everyHours('${seconds ~/ 3600}'),
+    },
+    onChanged: enabled ? onChanged : null,
+  );
 
   Widget _errorCard(String error) => Padding(
     padding: const EdgeInsets.only(top: 12),

@@ -491,9 +491,14 @@ void main() {
     await write(p.join(steam.path, 'config', 'lua', '10.lua'), 'addappid(10)');
     await library.scan();
     await library.launch(10);
+    await library.launch(
+      10,
+      launchArguments: const ['-onlinefix', '-realappid'],
+    );
     await library.install(10);
     expect(opened.map((uri) => uri.toString()), [
       'steam://rungameid/10',
+      'steam://rungameid/10//-onlinefix%20-realappid',
       'steam://install/10',
     ]);
     expect(library.games.single.isRunning, isFalse);

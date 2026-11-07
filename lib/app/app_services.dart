@@ -97,6 +97,17 @@ class AppServices extends ChangeNotifier {
         localizationsFor(settings.language).updateKeySubscriptions,
         (task) => keyCache.updateDue(task: task),
       ),
+      kernelUpdateCheck: () async {
+        await kernel.loadLocal();
+        if (!kernel.installed.installed ||
+            kernel.sourceMode == KernelSourceMode.local) {
+          return;
+        }
+        await tasks.run(
+          localizationsFor(settings.language).checkKernelUpdate,
+          (task) => kernel.checkForUpdate(context: task),
+        );
+      },
     );
     settings.addListener(_settingsChanged);
     _trainerLifecycle = TrainerLifecycle(

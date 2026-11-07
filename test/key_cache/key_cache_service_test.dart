@@ -5,6 +5,7 @@ import 'package:fl_steam_lua/core/app_paths.dart';
 import 'package:fl_steam_lua/core/settings_store.dart';
 import 'package:fl_steam_lua/core/task_center.dart';
 import 'package:fl_steam_lua/features/key_cache/key_cache_service.dart';
+import 'package:fl_steam_lua/features/manifests/manifest_script_runner.dart';
 import 'package:fl_steam_lua/features/steam_protocol/app_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +16,27 @@ String protect(String value) => base64Encode(utf8.encode(value));
 String unprotect(String value) => utf8.decode(base64Decode(value));
 String key(String character) => List.filled(64, character).join();
 
+class _DynamicScriptRunner implements ManifestScriptRunner {
+  _DynamicScriptRunner(this.result);
+  final Object? result;
+  String? executedScript;
+
+  @override
+  Future<Object?> invoke({
+    required String script,
+    required String function,
+    required Map<String, Object?> params,
+    required ManifestRequestHandler request,
+    required void Function(String) log,
+    TaskContext? task,
+  }) async {
+    executedScript = script;
+    final value = result;
+    if (value is Exception) throw value;
+    return result;
+  }
+}
+
 void main() {
   late Directory directory;
   late AppPaths paths;
@@ -23,12 +45,16 @@ void main() {
   var invalidTokens = false;
   var networkCalls = 0;
 
-  KeyCacheService service({KeyCacheMetadataLoader? loader}) {
+  KeyCacheService service({
+    KeyCacheMetadataLoader? loader,
+    ManifestScriptRunner? dynamicRunner,
+  }) {
     final value = KeyCacheService(
       paths: paths,
       settings: settings,
       protect: protect,
       unprotect: unprotect,
+      dynamicScriptRunner: dynamicRunner,
       metadataLoader: loader,
       httpClient: MockClient((request) async {
         networkCalls++;
@@ -81,22 +107,87 @@ void main() {
     final toolboxSource = cache.subscriptions.firstWhere(
       (source) => source.id == 'steam-toolbox',
     );
+    expect(toolboxSource.name, 'SteamToolbox');
+    expect(toolboxSource.addressMode, KeySubscriptionAddressMode.script);
+    expect(toolboxSource.depotKeysUrl, isEmpty);
+    expect(toolboxSource.tokenKeysUrl, isEmpty);
     expect(
       defaultSource.depotKeysUrl,
       'https://api.993499094.xyz/depotkeys.json',
     );
-    expect(
-      toolboxSource.depotKeysUrl,
-      'https://pan.qzyun.net/f/d/QQBkSX/depotkeys.json',
-    );
-    expect(
-      toolboxSource.tokenKeysUrl,
-      'https://pan.qzyun.net/f/d/z204cw/appaccesstokens.json',
-    );
+    expect(toolboxSource.dynamicScript, contains('toolbox2.txt'));
     expect(await cache.readCache('default'), isA<KeyCacheData>());
     expect((await cache.readCache('default')).depotKeys, isEmpty);
     expect(networkCalls, 0);
   });
+
+  test(
+    'dynamic address scripts provide current URLs before download',
+    () async {
+      const dynamic = KeyCacheSubscription(
+        id: 'dynamic',
+        name: 'Dynamic source',
+        depotKeysUrl: '',
+        tokenKeysUrl: '',
+        dynamicScript: '''
+async function download(ctx) {
+  return {
+    depotKeysUrl: "https://dynamic.invalid/depotkeys.json",
+    tokenKeysUrl: "https://dynamic.invalid/appaccesstokens.json"
+  };
+}
+''',
+        addressMode: KeySubscriptionAddressMode.script,
+      );
+      final runner = _DynamicScriptRunner({
+        'depotKeysUrl': 'https://dynamic.invalid/depotkeys.json',
+        'tokenKeysUrl': 'https://dynamic.invalid/appaccesstokens.json',
+      });
+      final cache = service(dynamicRunner: runner);
+      await cache.upsert(dynamic);
+      await cache.update(dynamic.id);
+      expect(runner.executedScript, contains('function download'));
+      final resolved = cache.subscriptions.firstWhere(
+        (source) => source.id == dynamic.id,
+      );
+      expect(resolved.depotKeysUrl, 'https://dynamic.invalid/depotkeys.json');
+      expect(
+        resolved.tokenKeysUrl,
+        'https://dynamic.invalid/appaccesstokens.json',
+      );
+      expect((await cache.readCache(dynamic.id)).depotKeys[11], key('b'));
+    },
+  );
+
+  test(
+    'persisted SteamToolbox source upgrades to the dynamic script',
+    () async {
+      final legacy = KeyCacheSubscription(
+        id: 'steam-toolbox',
+        name: 'SteamToolbox 兼容缓存',
+        depotKeysUrl: 'https://legacy.invalid/depotkeys.json',
+        tokenKeysUrl: 'https://legacy.invalid/appaccesstokens.json',
+      );
+      final file = File(paths.file('data/key-cache-subscriptions.json'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString(
+        protect(
+          jsonEncode({
+            'sources': [legacy.toJson()],
+          }),
+        ),
+      );
+
+      final cache = service();
+      await cache.load();
+      final upgraded = cache.subscriptions.single;
+      expect(upgraded.name, 'SteamToolbox');
+      expect(upgraded.addressMode, KeySubscriptionAddressMode.script);
+      expect(upgraded.dynamicScript, contains('toolbox2.txt'));
+      expect(upgraded.depotKeysUrl, isEmpty);
+      expect(upgraded.tokenKeysUrl, isEmpty);
+    },
+  );
 
   test('CRUD, encrypted configuration and per-source cache persist', () async {
     final cache = service();

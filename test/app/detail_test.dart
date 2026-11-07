@@ -55,7 +55,10 @@ class _Library extends LibraryService {
   }
 
   @override
-  Future<void> launch(int appId) async {
+  Future<void> launch(
+    int appId, {
+    List<String> launchArguments = const [],
+  }) async {
     launches++;
   }
 

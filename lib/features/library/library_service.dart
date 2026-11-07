@@ -889,14 +889,20 @@ class LibraryService extends ChangeNotifier {
     written.add(target.path);
   }
 
-  Future<void> launch(int appId) async {
+  Future<void> launch(
+    int appId, {
+    List<String> launchArguments = const [],
+  }) async {
     final game = _game(appId);
     if (game.isRunning) {
       throw StateError('Game is already running');
     }
     final executable = game.executablePath;
     if (executable == null || !await File(executable).exists()) {
-      await _launchSteamUri('steam://rungameid/$appId');
+      final suffix = launchArguments.isEmpty
+          ? ''
+          : '//${Uri.encodeComponent(launchArguments.join(' '))}';
+      await _launchSteamUri('steam://rungameid/$appId$suffix');
       return;
     }
     if (Platform.isWindows) {
@@ -904,7 +910,7 @@ class LibraryService extends ChangeNotifier {
     }
     final process = await Process.start(
       executable,
-      const [],
+      launchArguments,
       workingDirectory: p.dirname(executable),
       environment: {'SteamAppId': '$appId', 'SteamGameId': '$appId'},
     );

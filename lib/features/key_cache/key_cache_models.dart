@@ -1,11 +1,15 @@
 // Functional reference: Fluent-Steam-Lua KeyCacheSubscriptionService.
 // Its zlib notice is retained in assets/licenses/Fluent-Steam-Lua-zlib.txt.
+enum KeySubscriptionAddressMode { links, script }
+
 class KeyCacheSubscription {
   const KeyCacheSubscription({
     required this.id,
     required this.name,
     required this.depotKeysUrl,
     required this.tokenKeysUrl,
+    this.dynamicScript = '',
+    this.addressMode = KeySubscriptionAddressMode.links,
     this.intervalHours = 24,
     this.enabled = true,
     this.lastUpdated,
@@ -17,6 +21,8 @@ class KeyCacheSubscription {
   final String name;
   final String depotKeysUrl;
   final String tokenKeysUrl;
+  final String dynamicScript;
+  final KeySubscriptionAddressMode addressMode;
   final int intervalHours;
   final bool enabled;
   final DateTime? lastUpdated;
@@ -27,6 +33,8 @@ class KeyCacheSubscription {
     String? name,
     String? depotKeysUrl,
     String? tokenKeysUrl,
+    String? dynamicScript,
+    KeySubscriptionAddressMode? addressMode,
     int? intervalHours,
     bool? enabled,
     DateTime? lastUpdated,
@@ -37,6 +45,8 @@ class KeyCacheSubscription {
     name: name ?? this.name,
     depotKeysUrl: depotKeysUrl ?? this.depotKeysUrl,
     tokenKeysUrl: tokenKeysUrl ?? this.tokenKeysUrl,
+    dynamicScript: dynamicScript ?? this.dynamicScript,
+    addressMode: addressMode ?? this.addressMode,
     intervalHours: intervalHours ?? this.intervalHours,
     enabled: enabled ?? this.enabled,
     lastUpdated: lastUpdated ?? this.lastUpdated,
@@ -49,6 +59,8 @@ class KeyCacheSubscription {
     'name': name,
     'depotKeysUrl': depotKeysUrl,
     'tokenKeysUrl': tokenKeysUrl,
+    'dynamicScript': dynamicScript,
+    'addressMode': addressMode.name,
     'intervalHours': intervalHours,
     'enabled': enabled,
     'lastUpdated': lastUpdated?.toUtc().toIso8601String(),
@@ -74,6 +86,14 @@ class KeyCacheSubscription {
       name: data['name'] as String,
       depotKeysUrl: data['depotKeysUrl'] as String,
       tokenKeysUrl: data['tokenKeysUrl'] as String,
+      dynamicScript: data['dynamicScript'] as String? ?? '',
+      addressMode:
+          KeySubscriptionAddressMode.values
+              .where((value) => value.name == data['addressMode'])
+              .firstOrNull ??
+          ((data['dynamicScript'] as String? ?? '').trim().isNotEmpty
+              ? KeySubscriptionAddressMode.script
+              : KeySubscriptionAddressMode.links),
       intervalHours: data['intervalHours'] as int,
       enabled: data['enabled'] as bool,
       lastUpdated: stamp == null ? null : DateTime.parse(stamp),

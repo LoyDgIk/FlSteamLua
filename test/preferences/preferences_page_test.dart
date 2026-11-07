@@ -134,12 +134,19 @@ void main() {
       expect(tasks.tasks, isEmpty);
       await changeSwitch(tester, 'auto-library-refresh', false);
       await changeSwitch(tester, 'auto-update-check', false);
+      expect(find.byKey(const ValueKey('app-update-interval')), findsOneWidget);
+      await changeSwitch(tester, 'auto-kernel-update-check', false);
+      expect(
+        find.byKey(const ValueKey('kernel-update-interval')),
+        findsOneWidget,
+      );
       await changeSwitch(tester, 'auto-key-cache-update', true);
       await changeSwitch(tester, 'startup-switch', true);
       final loaded = SettingsStore(paths);
       await tester.runAsync(loaded.load);
       expect(loaded.get<bool>('autoLibraryRefresh', true), isFalse);
       expect(loaded.get<bool>('autoCheckUpdates', true), isFalse);
+      expect(loaded.get<bool>('autoCheckKernelUpdate', true), isFalse);
       expect(loaded.get<bool>('autoUpdateKeyCache', false), isTrue);
       loaded.dispose();
       expect(controller.startupEnabled, isTrue);

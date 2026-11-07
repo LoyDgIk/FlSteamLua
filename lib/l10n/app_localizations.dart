@@ -387,6 +387,30 @@ abstract class AppLocalizations {
   /// **'Play'**
   String get play;
 
+  /// No description provided for @onlineLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch online'**
+  String get onlineLaunch;
+
+  /// No description provided for @onlineLaunchOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Online launch options'**
+  String get onlineLaunchOptions;
+
+  /// No description provided for @onlineFixOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Online launch (-onlinefix)'**
+  String get onlineFixOnly;
+
+  /// No description provided for @onlineFixWithRealAppId.
+  ///
+  /// In en, this message translates to:
+  /// **'Online launch (-onlinefix -realappid)'**
+  String get onlineFixWithRealAppId;
+
   /// No description provided for @installWithSteam.
   ///
   /// In en, this message translates to:
@@ -3815,9 +3839,51 @@ abstract class AppLocalizations {
   /// No description provided for @checkAtStartupAndEvery24HoursUsingTheConfiguredFlutterApplicationReleaseRepository.
   ///
   /// In en, this message translates to:
-  /// **'Check at startup and every 24 hours using the configured Flutter application release repository.'**
+  /// **'Check when the selected interval has elapsed using the configured Flutter application release repository.'**
   String
   get checkAtStartupAndEvery24HoursUsingTheConfiguredFlutterApplicationReleaseRepository;
+
+  /// No description provided for @applicationUpdateCheckInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Application update interval'**
+  String get applicationUpdateCheckInterval;
+
+  /// No description provided for @checkForKernelUpdatesAutomatically.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for kernel updates automatically'**
+  String get checkForKernelUpdatesAutomatically;
+
+  /// No description provided for @kernelUpdateCheckInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Kernel update interval'**
+  String get kernelUpdateCheckInterval;
+
+  /// No description provided for @everyHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Every hour'**
+  String get everyHour;
+
+  /// No description provided for @everyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get everyDay;
+
+  /// No description provided for @everyHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {hours} hours'**
+  String everyHours(String hours);
+
+  /// No description provided for @everyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {days} days'**
+  String everyDays(String days);
 
   /// No description provided for @updateKeySubscriptionsAutomatically.
   ///
@@ -5120,7 +5186,7 @@ abstract class AppLocalizations {
   /// No description provided for @subscriptionSource.
   ///
   /// In en, this message translates to:
-  /// **'Subscription'**
+  /// **'Key subscription'**
   String get subscriptionSource;
 
   /// No description provided for @scriptSource.
@@ -5156,7 +5222,7 @@ abstract class AppLocalizations {
   /// No description provided for @addSubscriptionSource.
   ///
   /// In en, this message translates to:
-  /// **'Add subscription source'**
+  /// **'Add key subscription'**
   String get addSubscriptionSource;
 
   /// No description provided for @importScriptSource.
@@ -5362,6 +5428,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'App tokens JSON URL'**
   String get appTokensUrl;
+
+  /// No description provided for @addressSourceMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Address source'**
+  String get addressSourceMode;
+
+  /// No description provided for @useFixedLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed links'**
+  String get useFixedLinks;
+
+  /// No description provided for @useDynamicScript.
+  ///
+  /// In en, this message translates to:
+  /// **'Script'**
+  String get useDynamicScript;
+
+  /// No description provided for @dynamicSubscriptionSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic address script'**
+  String get dynamicSubscriptionSource;
+
+  /// No description provided for @editDynamicScript.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit dynamic script'**
+  String get editDynamicScript;
+
+  /// No description provided for @dynamicSubscriptionScriptConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Configured'**
+  String get dynamicSubscriptionScriptConfigured;
+
+  /// No description provided for @dynamicSubscriptionScriptNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Not configured'**
+  String get dynamicSubscriptionScriptNotConfigured;
+
+  /// No description provided for @dynamicSubscriptionScriptDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs custom JavaScript before every update. Define async function download(ctx) and return depotKeysUrl and tokenKeysUrl.'**
+  String get dynamicSubscriptionScriptDescription;
 
   /// No description provided for @sourceUpdateInterval.
   ///
@@ -8906,7 +9020,7 @@ abstract class AppLocalizations {
   /// No description provided for @testAndUpdateSubscription.
   ///
   /// In en, this message translates to:
-  /// **'Test and update subscription'**
+  /// **'Test and update key subscription'**
   String get testAndUpdateSubscription;
 
   /// No description provided for @cloudOperationBusy.

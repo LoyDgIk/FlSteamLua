@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 
 import 'button.dart';
 import 'context.dart';
+import 'icons/icons.dart';
 import 'loading.dart';
 import 'metrics.dart';
+import 'popup.dart';
+import 'shape.dart';
 import 'surface.dart';
 import 'search_state.dart';
 import 'toolbar_search.dart';
@@ -18,6 +21,7 @@ class CommonScaffold extends StatelessWidget {
     required this.body,
     this.title,
     this.titleWidget,
+    this.titleMenuItems = const [],
     this.actions = const [],
     this.trailingAction,
     this.bottom,
@@ -31,6 +35,7 @@ class CommonScaffold extends StatelessWidget {
   final Widget body;
   final String? title;
   final Widget? titleWidget;
+  final List<CommonPopupMenuItem> titleMenuItems;
   final List<Widget> actions;
   final Widget? trailingAction;
   final PreferredSizeWidget? bottom;
@@ -49,16 +54,23 @@ class CommonScaffold extends StatelessWidget {
         backgroundColor ?? SurfaceLevel.page.colorOf(context.colorScheme);
     final titleContent =
         titleWidget ??
-        AnimatedSwitcher(
-          duration: context.motionDuration(midDuration),
-          child: Text(
-            title!,
-            key: ValueKey(title),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.pageTitle.of(context),
-          ),
-        );
+        (titleMenuItems.isEmpty
+            ? AnimatedSwitcher(
+                duration: context.motionDuration(midDuration),
+                child: Text(
+                  title!,
+                  key: ValueKey(title),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.pageTitle.of(context),
+                ),
+              )
+            : CommonPopupBox(
+                placement: PopupPlacement.overAnchorStart,
+                targetBuilder: (open) =>
+                    _TitleMenuButton(title: title!, onPressed: open),
+                popupBuilder: (_) => CommonPopupMenu(items: titleMenuItems),
+              ));
     return Scaffold(
       backgroundColor: pageColor,
       body: Stack(
@@ -115,6 +127,42 @@ class CommonScaffold extends StatelessWidget {
       ),
     );
   }
+}
+
+class _TitleMenuButton extends StatelessWidget {
+  const _TitleMenuButton({required this.title, required this.onPressed});
+
+  final String title;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    key: const ValueKey('scaffold-title-menu'),
+    onTap: onPressed,
+    customBorder: AppShape.sm,
+    hoverColor: Colors.transparent,
+    highlightColor: Colors.transparent,
+    splashFactory: NoSplash.splashFactory,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 4,
+      children: [
+        Flexible(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.pageTitle.of(context),
+          ),
+        ),
+        GlyphIcon(
+          AppGlyphs.chevronDown,
+          size: 20,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+      ],
+    ),
+  );
 }
 
 class _HeaderScrim extends StatelessWidget {

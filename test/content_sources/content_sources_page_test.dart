@@ -197,11 +197,35 @@ void main() {
         fields.at(2),
         'https://example.com/appaccesstokens.json',
       );
+      expect(find.text('Depot keys JSON URL'), findsOneWidget);
+      expect(find.text('App tokens JSON URL'), findsOneWidget);
+      await tester.tap(find.text('Script'));
+      await tester.pumpAndSettle();
+      expect(find.text('Depot keys JSON URL'), findsNothing);
+      expect(find.text('App tokens JSON URL'), findsNothing);
+      final editDynamic = find.byKey(
+        const ValueKey('dynamic-subscription-script-edit'),
+      );
+      tester.widget<ui.DecorationListItem>(editDynamic).onPressed!();
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('dynamic-subscription-script-editor')),
+        'async function download(ctx) { return { depotKeysUrl: "https://example.com/a", tokenKeysUrl: "https://example.com/b" }; }',
+      );
+      await tester.pump();
+      await tester.tap(
+        find.byKey(const ValueKey('dynamic-subscription-script-save')),
+      );
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
       expect(result?.name, 'My Keys');
       expect(result?.intervalHours, 24);
       expect(result?.enabled, isTrue);
+      expect(result?.dynamicScript, contains('function download'));
+      expect(result?.addressMode, KeySubscriptionAddressMode.script);
+      expect(result?.depotKeysUrl, isEmpty);
+      expect(result?.tokenKeysUrl, isEmpty);
       expect(find.text('Active'), findsNothing);
     },
   );
@@ -227,6 +251,13 @@ void main() {
       expect(
         items.map((item) => item.label),
         containsAll(['Edit script', 'Configure source', 'Validate script']),
+      );
+      expect(
+        find.descendant(
+          of: scriptCard,
+          matching: find.byType(ui.CommonPopupBox),
+        ),
+        findsNothing,
       );
 
       await tester.pumpWidget(const SizedBox.shrink());

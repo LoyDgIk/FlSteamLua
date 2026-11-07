@@ -55,7 +55,11 @@ class ContentSourceRegistry extends ChangeNotifier {
         description: value.depotKeysUrl,
         lastUpdated: value.lastUpdated,
         configurationComplete:
-            value.depotKeysUrl.isNotEmpty && value.tokenKeysUrl.isNotEmpty,
+            value.addressMode == KeySubscriptionAddressMode.script
+            ? RegExp(
+                r'\bfunction\s+download\s*\(',
+              ).hasMatch(value.dynamicScript)
+            : value.depotKeysUrl.isNotEmpty && value.tokenKeysUrl.isNotEmpty,
         lastTestSucceeded: _tests['subscription:${value.id}']?.success,
         lastTestMessage: _tests['subscription:${value.id}']?.message,
       ),

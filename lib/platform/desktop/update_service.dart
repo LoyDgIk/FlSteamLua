@@ -215,7 +215,33 @@ class UpdateService {
       await file.delete();
       throw const FormatException('Downloaded update SHA256 mismatch');
     }
+    await _pruneOlderReleasePackages(directory, keep: file);
     return file;
+  }
+
+  Future<void> _pruneOlderReleasePackages(
+    Directory directory, {
+    required File keep,
+  }) async {
+    final keepPath = p.normalize(p.absolute(keep.path)).toLowerCase();
+    final packageName = RegExp(
+      r'^FlSteamLua-.+-windows-x64(?:-setup)?\.(?:exe|zip)$',
+      caseSensitive: false,
+    );
+    await for (final entity in directory.list(followLinks: false)) {
+      if (entity is! File) continue;
+      final path = p.normalize(p.absolute(entity.path));
+      if (path.toLowerCase() == keepPath ||
+          !packageName.hasMatch(p.basename(path))) {
+        continue;
+      }
+      try {
+        await entity.delete();
+      } on FileSystemException {
+        // A running legacy installer can stay locked; the verified new package
+        // remains available and cleanup can succeed on the next download.
+      }
+    }
   }
 
   void dispose() {

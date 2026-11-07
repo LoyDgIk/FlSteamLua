@@ -97,6 +97,7 @@ void main() {
   PreferencesController create({
     Future<void> Function()? refresh,
     Future<void> Function()? keyCacheUpdate,
+    Future<void> Function()? kernelUpdate,
     PreferencesUpdateFactory? updates,
     StartupRegistration? startup,
     bool supportsStartup = false,
@@ -109,6 +110,7 @@ void main() {
       periodicTimer: timers.create,
       libraryRefresh: refresh ?? () async {},
       keyCacheUpdateDue: keyCacheUpdate,
+      kernelUpdateCheck: kernelUpdate,
       updateFactory: updates,
       startup: startup,
       supportsStartup: supportsStartup,
@@ -215,6 +217,98 @@ void main() {
     expect(timers.at(const Duration(seconds: 30)).isActive, isTrue);
   });
 
+  test('automatic update intervals default to one day', () {
+    final preferences = create();
+    expect(preferences.appUpdateIntervalSeconds, 86400);
+    expect(preferences.kernelUpdateIntervalSeconds, 86400);
+  });
+
+  test('automatic update intervals can be configured independently', () async {
+    final preferences = create();
+    await preferences.setAppUpdateIntervalSeconds(3600);
+    await preferences.setKernelUpdateIntervalSeconds(604800);
+    expect(preferences.appUpdateIntervalSeconds, 3600);
+    expect(preferences.kernelUpdateIntervalSeconds, 604800);
+  });
+
+  test(
+    'application update checks honor the persisted interval and default day',
+    () async {
+      await settings.set('autoLibraryRefresh', false);
+      await settings.set('autoCheckUpdates', true);
+      await settings.set('appUpdateIntervalSeconds', 21600);
+      await settings.set(
+        'appUpdateLastCheckAt',
+        DateTime.now().toUtc().toIso8601String(),
+      );
+      var requests = 0;
+      final preferences = create(
+        updates: (repository) => UpdateService(
+          repository: repository,
+          client: MockClient((_) async {
+            requests++;
+            return http.Response(_releaseJson(), 200);
+          }),
+        ),
+      );
+      await preferences.initialize();
+      await _drain();
+      expect(requests, 0);
+      final timer = timers.at(const Duration(hours: 6));
+      timer.fire();
+      await _drain();
+      expect(requests, 0);
+
+      await settings.set(
+        'appUpdateLastCheckAt',
+        DateTime.now()
+            .toUtc()
+            .subtract(const Duration(hours: 7))
+            .toIso8601String(),
+      );
+      timer.fire();
+      await _drain();
+      expect(requests, 1);
+      expect(preferences.appUpdateIntervalSeconds, 21600);
+    },
+  );
+
+  test(
+    'kernel update checks use their own interval and can be disabled',
+    () async {
+      await settings.set('autoLibraryRefresh', false);
+      await settings.set('autoCheckUpdates', false);
+      await settings.set('autoCheckKernelUpdate', true);
+      await settings.set('kernelUpdateIntervalSeconds', 21600);
+      await settings.set(
+        'kernelUpdateLastCheckAt',
+        DateTime.now().toUtc().toIso8601String(),
+      );
+      var checks = 0;
+      final preferences = create(
+        kernelUpdate: () async {
+          checks++;
+        },
+      );
+      await preferences.initialize();
+      await _drain();
+      expect(checks, 0);
+      final timer = timers.at(const Duration(hours: 6));
+      await settings.set(
+        'kernelUpdateLastCheckAt',
+        DateTime.now()
+            .toUtc()
+            .subtract(const Duration(hours: 7))
+            .toIso8601String(),
+      );
+      timer.fire();
+      await _drain();
+      expect(checks, 1);
+      await preferences.setAutoKernelUpdateCheck(false);
+      expect(timer.isActive, isFalse);
+    },
+  );
+
   test(
     'automatic and manual update checks share one in-flight request',
     () async {
@@ -294,7 +388,7 @@ void main() {
             UpdateService(repository: repository, client: client),
       );
       await preferences.initialize();
-      await _drain();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(preferences.updateError, isA<HttpException>());
       expect(preferences.backgroundError, isA<HttpException>());
       expect(tasks.tasks.single.status, TaskStatus.failed);

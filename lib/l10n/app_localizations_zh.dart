@@ -163,6 +163,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get play => '开始游玩';
 
   @override
+  String get onlineLaunch => '联机启动';
+
+  @override
+  String get onlineLaunchOptions => '联机启动参数';
+
+  @override
+  String get onlineFixOnly => '联机启动（-onlinefix）';
+
+  @override
+  String get onlineFixWithRealAppId => '联机启动（-onlinefix -realappid）';
+
+  @override
   String get installWithSteam => '在 Steam 中安装';
 
   @override
@@ -2032,7 +2044,32 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String
   get checkAtStartupAndEvery24HoursUsingTheConfiguredFlutterApplicationReleaseRepository =>
-      '启动时和每 24 小时检查一次，仅使用设置中填写的 Flutter 应用发布仓库。';
+      '仅在所选间隔到期后检查，并使用固定的 Flutter 应用发布仓库。';
+
+  @override
+  String get applicationUpdateCheckInterval => '应用更新检测间隔';
+
+  @override
+  String get checkForKernelUpdatesAutomatically => '自动检查内核更新';
+
+  @override
+  String get kernelUpdateCheckInterval => '内核更新检测间隔';
+
+  @override
+  String get everyHour => '每小时';
+
+  @override
+  String get everyDay => '每天';
+
+  @override
+  String everyHours(String hours) {
+    return '每 $hours 小时';
+  }
+
+  @override
+  String everyDays(String days) {
+    return '每 $days 天';
+  }
 
   @override
   String get updateKeySubscriptionsAutomatically => '自动更新密钥订阅';
@@ -2040,7 +2077,7 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String
   get whenEnabledCheckEnabledSubscriptionsHourlyAndDownloadUpdatesWhenTheirSourceIntervalIs =>
-      '开启后每小时检查已启用订阅的到期时间，并按来源间隔联网更新。';
+      '开启后每小时检查已启用密钥订阅的到期时间，并按来源间隔联网更新。';
 
   @override
   String newVersion(String version) {
@@ -2718,7 +2755,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get failedSources => '异常';
 
   @override
-  String get subscriptionSource => '订阅';
+  String get subscriptionSource => '密钥订阅';
 
   @override
   String get scriptSource => 'JS 脚本';
@@ -2736,7 +2773,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get addContentSource => '添加内容源';
 
   @override
-  String get addSubscriptionSource => '添加订阅源';
+  String get addSubscriptionSource => '添加密钥订阅';
 
   @override
   String get importScriptSource => '导入 JS 内容源';
@@ -2839,6 +2876,31 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appTokensUrl => '访问令牌 JSON URL';
+
+  @override
+  String get addressSourceMode => '地址获取方式';
+
+  @override
+  String get useFixedLinks => '填写链接';
+
+  @override
+  String get useDynamicScript => '脚本获取';
+
+  @override
+  String get dynamicSubscriptionSource => '动态地址脚本';
+
+  @override
+  String get editDynamicScript => '编辑动态脚本';
+
+  @override
+  String get dynamicSubscriptionScriptConfigured => '已配置';
+
+  @override
+  String get dynamicSubscriptionScriptNotConfigured => '未配置';
+
+  @override
+  String get dynamicSubscriptionScriptDescription =>
+      '每次更新前运行自定义 JavaScript。脚本需定义 async function download(ctx)，并返回 depotKeysUrl 与 tokenKeysUrl。';
 
   @override
   String get sourceUpdateInterval => '更新间隔（小时）';
@@ -3144,7 +3206,7 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String
   get manageSubscriptionsScriptsAndTheirLuaManifestIdAndManifestFileCapabilities =>
-      '管理订阅、JS 脚本及其提供的 Lua、清单 ID 和清单文件。';
+      '管理密钥订阅、JS 脚本及其提供的 Lua、清单 ID 和清单文件。';
 
   @override
   String get kernelManager => '内核管理';
@@ -3207,7 +3269,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get stopGame2 => '停止游戏';
 
   @override
-  String get updateSubscriptionCaches => '更新订阅缓存';
+  String get updateSubscriptionCaches => '更新密钥订阅缓存';
 
   @override
   String get refreshLibrary => '刷新游戏库';
@@ -3348,10 +3410,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get doNotUseAContentSourceCache => '不使用内容源缓存';
 
   @override
-  String get contentSourceSubscriptionOptional => '内容源订阅（可选）';
+  String get contentSourceSubscriptionOptional => '密钥订阅（可选）';
 
   @override
-  String get doNotUseASubscriptionCache => '不使用订阅缓存';
+  String get doNotUseASubscriptionCache => '不使用密钥订阅缓存';
 
   @override
   String get existingLuaFile => '现有 Lua 文件';
@@ -4651,7 +4713,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get httpsUrlRequired => '请输入有效的 HTTPS 地址。';
 
   @override
-  String get subscriptionAutoUpdateScope => '对所有订阅生效；开启后按各自间隔更新。';
+  String get subscriptionAutoUpdateScope => '对所有密钥订阅生效；开启后按各自间隔更新。';
 
   @override
   String get subscriptionIntervalDescription => '间隔为 0 时仅手动更新。自动更新需要开启上方开关。';
@@ -4752,7 +4814,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get extractTrainerBeforeBinding => '压缩包需先解压，再选择修改器程序绑定游戏。';
 
   @override
-  String get testAndUpdateSubscription => '测试并更新订阅';
+  String get testAndUpdateSubscription => '测试并更新密钥订阅';
 
   @override
   String get cloudOperationBusy => '请等待当前存档操作完成。';

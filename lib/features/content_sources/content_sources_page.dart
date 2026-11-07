@@ -15,6 +15,20 @@ import '../manifests/manifest_script_parser.dart';
 import 'content_source_registry.dart';
 import 'script_source_editor_page.dart';
 
+const _dynamicSubscriptionScriptExample = r'''async function download(ctx) {
+  const response = await ctx.http.get("https://example.com/addresses.txt", {
+    responseType: "text",
+    timeout: 30,
+    allowNonSuccess: true
+  });
+  if (!response.ok) throw new Error("HTTP " + response.status);
+  return {
+    depotKeysUrl: "https://example.com/depotkeys.json",
+    tokenKeysUrl: "https://example.com/appaccesstokens.json"
+  };
+}
+''';
+
 class ContentSourcesPage extends StatefulWidget {
   const ContentSourcesPage({
     super.key,
@@ -36,7 +50,6 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
   String _filter = 'all';
   String _density = 'standard';
   String _search = '';
-  String? _error;
   bool _busy = false;
   late final ui.AppBarSearchState _searchState;
 
@@ -57,13 +70,11 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
   Future<void> _run(Future<void> Function() action) async {
     setState(() {
       _busy = true;
-      _error = null;
     });
     try {
       await action();
     } catch (error) {
       if (mounted) {
-        setState(() => _error = ui.appErrorText(context, error));
         ui.showAppError(context, error);
       }
     } finally {
@@ -376,16 +387,10 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
     searchState: _searchState,
     trailingAction: ui.CommonPopupBox(
       key: const ValueKey('content-source-add'),
-      targetBuilder: (open) => IconButton(
-        onPressed: _busy ? null : open,
+      targetBuilder: (open) => ui.DashboardIconButton(
+        glyph: ui.AppGlyphs.add,
         tooltip: context.l10n.addContentSource,
-        style: IconButton.styleFrom(
-          minimumSize: const Size.square(40),
-          fixedSize: const Size.square(40),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          shape: const CircleBorder(),
-        ),
-        icon: const ui.GlyphIcon(ui.AppGlyphs.add, size: 20),
+        onPressed: _busy ? null : open,
       ),
       popupBuilder: (_) => ui.CommonPopupMenu(
         items: [
@@ -440,35 +445,23 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
         ),
       ),
       ui.CommonPopupBox(
-        targetBuilder: (open) => IconButton(
-          onPressed: _busy ? null : open,
+        targetBuilder: (open) => ui.DashboardIconButton(
+          glyph: ui.AppGlyphs.sort,
           tooltip: context.l10n.layout,
-          style: IconButton.styleFrom(
-            minimumSize: const Size.square(40),
-            fixedSize: const Size.square(40),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            shape: const CircleBorder(),
-          ),
-          icon: const ui.GlyphIcon(ui.AppGlyphs.sort, size: 20),
+          onPressed: _busy ? null : open,
         ),
         popupBuilder: (_) => ui.CommonPopupMenu(
           items: [
-            ui.CommonPopupMenuItem(
-              label: context.l10n.layout,
-              glyph: ui.AppGlyphs.sort,
-              subItems: [
-                for (final option in [
-                  ('comfortable', context.l10n.comfortable),
-                  ('standard', context.l10n.standard),
-                  ('compact', context.l10n.compact),
-                ])
-                  ui.CommonPopupMenuItem(
-                    label: option.$2,
-                    checked: _density == option.$1,
-                    onPressed: () => setState(() => _density = option.$1),
-                  ),
-              ],
-            ),
+            for (final option in [
+              ('comfortable', context.l10n.comfortable),
+              ('standard', context.l10n.standard),
+              ('compact', context.l10n.compact),
+            ])
+              ui.CommonPopupMenuItem(
+                label: option.$2,
+                checked: _density == option.$1,
+                onPressed: () => setState(() => _density = option.$1),
+              ),
           ],
         ),
       ),
@@ -478,21 +471,21 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
       builder: (context, _) {
         final sources = widget.registry.sources.where(_matches).toList();
         final padding = switch (_density) {
-          'comfortable' => 22.0,
+          'comfortable' => 18.0,
           'compact' => 12.0,
-          _ => 18.0,
+          _ => 14.0,
         };
         final gap = switch (_density) {
           'comfortable' => 16.0,
           'compact' => 8.0,
-          _ => 12.0,
+          _ => 10.0,
         };
         final descriptionLines = switch (_density) {
           'comfortable' => 3,
           'compact' => 1,
           _ => 2,
         };
-        final topPadding = _error == null ? ui.pageContentTopInset : 0.0;
+        final topPadding = ui.pageContentTopInset;
         return Padding(
           padding: EdgeInsets.fromLTRB(
             _density == 'compact' ? 16 : 20,
@@ -502,19 +495,6 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
           ),
           child: Column(
             children: [
-              if (_error != null)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: ui.pageContentTopInset,
-                    bottom: 8,
-                  ),
-                  child: ui.LogRecordCard(
-                    time: '',
-                    level: context.l10n.operationFailed,
-                    message: _error!,
-                    tone: ui.RecordTone.error,
-                  ),
-                ),
               Expanded(
                 child: ui.NullStatusSwitcher(
                   isEmpty: sources.isEmpty,
@@ -538,11 +518,11 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
                   child: GridView.builder(
                     padding: EdgeInsets.fromLTRB(0, topPadding, 0, 24),
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 540,
+                      maxCrossAxisExtent: 500,
                       mainAxisExtent: switch (_density) {
-                        'comfortable' => 168,
-                        'compact' => 126,
-                        _ => 148,
+                        'comfortable' => 148,
+                        'compact' => 110,
+                        _ => 130,
                       },
                       crossAxisSpacing: gap,
                       mainAxisSpacing: gap,
@@ -551,24 +531,40 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
                     itemBuilder: (context, index) {
                       final source = sources[index];
                       final actions = _actions(source);
+                      final description = source.description.isNotEmpty
+                          ? source.description
+                          : source.kind == ContentSourceKind.subscription
+                          ? context.l10n.dynamicSubscriptionSource
+                          : '';
                       return ui.ContextMenuRegion(
                         menuItems: actions,
                         child: ui.CommonCard(
                           key: ValueKey('content-source-${source.id}'),
                           padding: EdgeInsets.all(padding),
-                          radius: 22,
+                          radius: 18,
                           enterActionsOnRight: true,
                           onPressed: () => _edit(source),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ui.GlyphIcon(
-                                source.kind == ContentSourceKind.subscription
-                                    ? ui.AppGlyphs.link
-                                    : ui.AppGlyphs.code,
-                                size: 20,
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: context.colorScheme.primaryContainer
+                                      .withValues(alpha: .42),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                alignment: Alignment.center,
+                                child: ui.GlyphIcon(switch (source.kind) {
+                                  ContentSourceKind.subscription =>
+                                    ui.AppGlyphs.key,
+                                  ContentSourceKind.script => ui.AppGlyphs.code,
+                                  ContentSourceKind.local =>
+                                    ui.AppGlyphs.resources,
+                                }, size: 20),
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 14),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,23 +584,6 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
                                         ),
                                         const SizedBox(width: 8),
                                         _statusIcon(context, source),
-                                        const SizedBox(width: 4),
-                                        ui.CommonPopupBox(
-                                          targetBuilder: (open) => IconButton(
-                                            onPressed: _busy ? null : open,
-                                            tooltip: context.l10n.manage,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            icon: const ui.GlyphIcon(
-                                              ui.AppGlyphs.more,
-                                              size: 18,
-                                            ),
-                                          ),
-                                          popupBuilder: (_) =>
-                                              ui.CommonPopupMenu(
-                                                items: actions,
-                                              ),
-                                        ),
                                       ],
                                     ),
                                     const SizedBox(height: 6),
@@ -620,11 +599,11 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
                                           ),
                                       ],
                                     ),
-                                    if (source.description.isNotEmpty)
+                                    if (description.isNotEmpty)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 6),
                                         child: Text(
-                                          source.description,
+                                          description,
                                           maxLines: descriptionLines,
                                           overflow: TextOverflow.ellipsis,
                                           style: ui.AppTextStyle.caption1
@@ -637,23 +616,36 @@ class _ContentSourcesPageState extends State<ContentSourcesPage> {
                                               ),
                                         ),
                                       ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      source.lastUpdated == null
-                                          ? context.l10n.sourceNeverUpdated
-                                          : MaterialLocalizations.of(
-                                              context,
-                                            ).formatMediumDate(
-                                              source.lastUpdated!.toLocal(),
-                                            ),
-                                      style: ui.AppTextStyle.caption2
-                                          .of(context)
-                                          .copyWith(
-                                            color: context
-                                                .colorScheme
-                                                .onSurfaceVariant
-                                                .withValues(alpha: .62),
-                                          ),
+                                    const Spacer(),
+                                    Row(
+                                      children: [
+                                        ui.GlyphIcon(
+                                          ui.AppGlyphs.clock,
+                                          size: 13,
+                                          color: context
+                                              .colorScheme
+                                              .onSurfaceVariant
+                                              .withValues(alpha: .58),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          source.lastUpdated == null
+                                              ? context.l10n.sourceNeverUpdated
+                                              : MaterialLocalizations.of(
+                                                  context,
+                                                ).formatMediumDate(
+                                                  source.lastUpdated!.toLocal(),
+                                                ),
+                                          style: ui.AppTextStyle.caption2
+                                              .of(context)
+                                              .copyWith(
+                                                color: context
+                                                    .colorScheme
+                                                    .onSurfaceVariant
+                                                    .withValues(alpha: .62),
+                                              ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -691,21 +683,32 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
   late final _tokens = TextEditingController(
     text: widget.source?.tokenKeysUrl ?? '',
   );
+  late final _dynamic = TextEditingController(
+    text: widget.source?.dynamicScript ?? '',
+  );
   late final _interval = TextEditingController(
     text: '${widget.source?.intervalHours ?? 24}',
   );
   late bool _enabled = widget.source?.enabled ?? true;
+  late KeySubscriptionAddressMode _mode =
+      widget.source?.addressMode ??
+      ((widget.source?.dynamicScript.trim().isNotEmpty ?? false)
+          ? KeySubscriptionAddressMode.script
+          : KeySubscriptionAddressMode.links);
   String? _error;
   var _nameInvalid = false;
   var _depotsInvalid = false;
   var _tokensInvalid = false;
+  var _dynamicInvalid = false;
   var _intervalInvalid = false;
+  final _modeKey = GlobalKey();
 
   @override
   void dispose() {
     _name.dispose();
     _depots.dispose();
     _tokens.dispose();
+    _dynamic.dispose();
     _interval.dispose();
     super.dispose();
   }
@@ -721,24 +724,68 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
         : null;
   }
 
+  Future<void> _editDynamicScript() async {
+    final value = await Navigator.of(context).push<String>(
+      ui.buildAppPageRoute(
+        builder: (_) => DynamicSubscriptionScriptPage(
+          script: _dynamic.text.trim().isEmpty
+              ? _dynamicSubscriptionScriptExample
+              : _dynamic.text,
+        ),
+      ),
+    );
+    if (value == null || !mounted) return;
+    setState(() {
+      _dynamic.text = value;
+      _dynamicInvalid = false;
+      _error = null;
+    });
+  }
+
+  void _setMode(KeySubscriptionAddressMode value) {
+    setState(() {
+      _mode = value;
+      _error = null;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _modeKey.currentContext;
+      if (target == null) return;
+      Scrollable.ensureVisible(
+        target,
+        alignment: .25,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+      );
+    });
+  }
+
   void _save() {
     final name = _name.text.trim();
-    final depotError = _url(_depots.text);
-    final tokenError = _url(_tokens.text);
+    final dynamicScript = _dynamic.text.trim();
+    final scriptMode = _mode == KeySubscriptionAddressMode.script;
+    final depotError = scriptMode ? null : _url(_depots.text);
+    final tokenError = scriptMode ? null : _url(_tokens.text);
+    final dynamicInvalid =
+        scriptMode &&
+        !RegExp(r'\bfunction\s+download\s*\(').hasMatch(dynamicScript);
     final interval = int.tryParse(_interval.text.trim());
     final intervalInvalid = interval == null || interval < 0 || interval > 8760;
     final nameInvalid = name.isEmpty;
     if (nameInvalid ||
         depotError != null ||
         tokenError != null ||
+        dynamicInvalid ||
         intervalInvalid) {
       setState(() {
         _nameInvalid = nameInvalid;
         _depotsInvalid = depotError != null;
         _tokensInvalid = tokenError != null;
+        _dynamicInvalid = dynamicInvalid;
         _intervalInvalid = intervalInvalid;
         _error = nameInvalid
             ? context.l10n.requiredField
+            : dynamicInvalid
+            ? context.l10n.dynamicSubscriptionScriptDescription
             : depotError ?? tokenError ?? context.l10n.invalidUpdateInterval;
       });
       return;
@@ -749,8 +796,10 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
       KeyCacheSubscription(
         id: source?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
         name: name,
-        depotKeysUrl: _depots.text.trim(),
-        tokenKeysUrl: _tokens.text.trim(),
+        depotKeysUrl: scriptMode ? '' : _depots.text.trim(),
+        tokenKeysUrl: scriptMode ? '' : _tokens.text.trim(),
+        dynamicScript: dynamicScript,
+        addressMode: _mode,
         intervalHours: interval,
         enabled: _enabled,
         lastUpdated: source?.lastUpdated,
@@ -768,6 +817,52 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
     onSave: _save,
     error: _error,
     children: [
+      KeyedSubtree(
+        key: _modeKey,
+        child: ui.generateSection(
+          title: context.l10n.addressSourceMode,
+          items: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: ui.SegmentedControl<KeySubscriptionAddressMode>(
+                value: _mode,
+                segments: [
+                  (
+                    KeySubscriptionAddressMode.links,
+                    context.l10n.useFixedLinks,
+                  ),
+                  (
+                    KeySubscriptionAddressMode.script,
+                    context.l10n.useDynamicScript,
+                  ),
+                ],
+                onChanged: _setMode,
+              ),
+            ),
+            if (_mode == KeySubscriptionAddressMode.script) ...[
+              ui.DecorationListItem(
+                key: const ValueKey('dynamic-subscription-script-edit'),
+                leading: const ui.GlyphIcon(ui.AppGlyphs.code, size: 20),
+                title: Text(context.l10n.dynamicSubscriptionSource),
+                subtitle: Text(
+                  _dynamic.text.trim().isEmpty
+                      ? context.l10n.dynamicSubscriptionScriptNotConfigured
+                      : context.l10n.dynamicSubscriptionScriptConfigured,
+                ),
+                invalid: _dynamicInvalid,
+                onPressed: _editDynamicScript,
+                trailing: const ui.GlyphIcon(
+                  ui.AppGlyphs.chevronForward,
+                  size: 18,
+                ),
+              ),
+            ],
+          ],
+          footer: _mode == KeySubscriptionAddressMode.script
+              ? context.l10n.dynamicSubscriptionScriptDescription
+              : null,
+        ),
+      ),
       ui.generateSection(
         title: context.l10n.basicInfo,
         items: [
@@ -784,38 +879,40 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
               }),
             ),
           ),
-          ui.FormRow(
-            title: context.l10n.depotKeysUrl,
-            invalid: _depotsInvalid,
-            trailing: ui.FormRowTextField(
-              controller: _depots,
-              hintText: 'https://',
-              keyboardType: TextInputType.url,
-              textInputAction: TextInputAction.next,
-              autocorrect: false,
-              enableSuggestions: false,
-              onChanged: (_) => setState(() {
-                _depotsInvalid = false;
-                _error = null;
-              }),
+          if (_mode == KeySubscriptionAddressMode.links) ...[
+            ui.FormRow(
+              title: context.l10n.depotKeysUrl,
+              invalid: _depotsInvalid,
+              trailing: ui.FormRowTextField(
+                controller: _depots,
+                hintText: 'https://',
+                keyboardType: TextInputType.url,
+                textInputAction: TextInputAction.next,
+                autocorrect: false,
+                enableSuggestions: false,
+                onChanged: (_) => setState(() {
+                  _depotsInvalid = false;
+                  _error = null;
+                }),
+              ),
             ),
-          ),
-          ui.FormRow(
-            title: context.l10n.appTokensUrl,
-            invalid: _tokensInvalid,
-            trailing: ui.FormRowTextField(
-              controller: _tokens,
-              hintText: 'https://',
-              keyboardType: TextInputType.url,
-              textInputAction: TextInputAction.next,
-              autocorrect: false,
-              enableSuggestions: false,
-              onChanged: (_) => setState(() {
-                _tokensInvalid = false;
-                _error = null;
-              }),
+            ui.FormRow(
+              title: context.l10n.appTokensUrl,
+              invalid: _tokensInvalid,
+              trailing: ui.FormRowTextField(
+                controller: _tokens,
+                hintText: 'https://',
+                keyboardType: TextInputType.url,
+                textInputAction: TextInputAction.next,
+                autocorrect: false,
+                enableSuggestions: false,
+                onChanged: (_) => setState(() {
+                  _tokensInvalid = false;
+                  _error = null;
+                }),
+              ),
             ),
-          ),
+          ],
           ui.FormRow(
             title: context.l10n.sourceUpdateInterval,
             invalid: _intervalInvalid,
@@ -855,6 +952,106 @@ class _SubscriptionSourceEditorState extends State<SubscriptionSourceEditor> {
         footer: context.l10n.subscriptionIntervalDescription,
       ),
     ],
+  );
+}
+
+class DynamicSubscriptionScriptPage extends StatefulWidget {
+  const DynamicSubscriptionScriptPage({super.key, required this.script});
+
+  final String script;
+
+  @override
+  State<DynamicSubscriptionScriptPage> createState() =>
+      _DynamicSubscriptionScriptPageState();
+}
+
+class _DynamicSubscriptionScriptPageState
+    extends State<DynamicSubscriptionScriptPage> {
+  late final TextEditingController _editor;
+  late final FocusNode _focus;
+  bool _dirty = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _editor = TextEditingController(text: widget.script);
+    _focus = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _editor.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    Navigator.pop(context, _editor.text.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) => ui.CommonScaffold(
+    title: context.l10n.dynamicSubscriptionSource,
+    actions: [
+      ui.DashboardIconButton(
+        key: const ValueKey('dynamic-subscription-script-save'),
+        glyph: ui.AppGlyphs.check,
+        tooltip: context.l10n.save,
+        onPressed: _dirty ? _save : null,
+      ),
+    ],
+    body: Padding(
+      padding: const EdgeInsets.fromLTRB(20, ui.pageContentTopInset, 20, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            context.l10n.dynamicSubscriptionScriptDescription,
+            style: ui.AppTextStyle.caption1
+                .of(context)
+                .copyWith(color: context.colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: ui.FilledInputTheme(
+              borderRadius: ui.AppRadius.lg,
+              child: TextField(
+                key: const ValueKey('dynamic-subscription-script-editor'),
+                controller: _editor,
+                focusNode: _focus,
+                expands: true,
+                minLines: null,
+                maxLines: null,
+                textAlignVertical: TextAlignVertical.top,
+                autocorrect: false,
+                enableSuggestions: false,
+                style: const TextStyle(
+                  fontFamily: 'Consolas',
+                  fontSize: 13,
+                  height: 1.6,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'async function download(ctx) {}',
+                  contentPadding: EdgeInsets.all(16),
+                ),
+                onChanged: (_) {
+                  setState(() {
+                    _dirty = _editor.text.trim() != widget.script.trim();
+                  });
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '${_editor.text.split('\n').length} lines',
+            style: ui.AppTextStyle.caption1
+                .of(context)
+                .copyWith(color: context.colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    ),
   );
 }
 

@@ -131,7 +131,7 @@ void main() {
       .toSet();
 
   Future<void> selectScope(WidgetTester tester, String label) async {
-    await tester.tap(find.byKey(const ValueKey('library-scope-menu')));
+    await tester.tap(find.byKey(const ValueKey('scaffold-title-menu')));
     await settle(tester);
     final menu = tester.widget<ui.CommonPopupMenu>(
       find.byType(ui.CommonPopupMenu),
@@ -182,8 +182,9 @@ void main() {
       await mount(tester, initialTab: 1);
       final element = tester.element(find.byType(LibraryPage));
       expect(visibleIds(tester), {20, 30});
+      expect(find.text('Steam games'), findsOneWidget);
       await openSearch(tester);
-      expect(find.text('Library'), findsOneWidget);
+      expect(find.text('Steam games'), findsOneWidget);
       expect(
         tester.getSize(find.byType(TextField).first).width,
         lessThanOrEqualTo(300),
@@ -210,6 +211,25 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+
+  testWidgets('Steam game actions expose both online launch arguments', (
+    tester,
+  ) async {
+    await mount(tester, initialTab: 1);
+    await tester.tap(find.byKey(const ValueKey('online-launch-20')));
+    await settle(tester);
+    final menu = tester.widget<ui.CommonPopupMenu>(
+      find.byType(ui.CommonPopupMenu),
+    );
+    expect(
+      menu.items.map((item) => item.label),
+      containsAll([
+        'Online launch (-onlinefix)',
+        'Online launch (-onlinefix -realappid)',
+      ]),
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets(
     'ordinary rebuild keeps selected scope and search; explicit request retargets it',

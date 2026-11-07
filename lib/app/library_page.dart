@@ -768,7 +768,41 @@ class _LibraryPageState extends State<LibraryPage> {
   Widget _actions(GameEntry game) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      if (_scope == 1)
+      if (_scope == 1) ...[
+        ui.CommonPopupBox(
+          targetBuilder: (open) => IconButton(
+            key: ValueKey('online-launch-${game.appId}'),
+            tooltip: context.l10n.onlineLaunch,
+            onPressed: game.isRunning ? null : open,
+            icon: const ui.GlyphIcon(ui.AppGlyphs.connections, size: 19),
+          ),
+          popupBuilder: (_) => ui.CommonPopupMenu(
+            items: [
+              ui.CommonPopupMenuItem(
+                label: context.l10n.onlineFixOnly,
+                glyph: ui.AppGlyphs.connections,
+                onPressed: () => showAction(
+                  context,
+                  () => _library.launch(
+                    game.appId,
+                    launchArguments: const ['-onlinefix'],
+                  ),
+                ),
+              ),
+              ui.CommonPopupMenuItem(
+                label: context.l10n.onlineFixWithRealAppId,
+                glyph: ui.AppGlyphs.link,
+                onPressed: () => showAction(
+                  context,
+                  () => _library.launch(
+                    game.appId,
+                    launchArguments: const ['-onlinefix', '-realappid'],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         IconButton(
           tooltip: (game.isRunning
               ? context.l10n.stopGame
@@ -784,6 +818,7 @@ class _LibraryPageState extends State<LibraryPage> {
                 : _library.launch(game.appId),
           ),
         ),
+      ],
       if (_scope == 0 && game.hasLua) ...[
         IconButton(
           tooltip: context.l10n.editLua,
@@ -1058,31 +1093,6 @@ class _LibraryPageState extends State<LibraryPage> {
     ('playtime', context.l10n.playtime),
   ];
 
-  Widget _scopeMenu() => ui.CommonPopupBox(
-    key: const ValueKey('library-scope-menu'),
-    targetBuilder: (open) => ui.DashboardIconButton(
-      glyph: _scope == 0 ? ui.AppGlyphs.code : ui.AppGlyphs.profiles,
-      tooltip: _scope == 0 ? context.l10n.luaLibrary : context.l10n.steamGames,
-      onPressed: open,
-    ),
-    popupBuilder: (_) => ui.CommonPopupMenu(
-      items: [
-        ui.CommonPopupMenuItem(
-          label: context.l10n.luaLibrary,
-          glyph: ui.AppGlyphs.code,
-          checked: _scope == 0,
-          onPressed: () => _selectScope(0),
-        ),
-        ui.CommonPopupMenuItem(
-          label: context.l10n.steamGames,
-          glyph: ui.AppGlyphs.profiles,
-          checked: _scope == 1,
-          onPressed: () => _selectScope(1),
-        ),
-      ],
-    ),
-  );
-
   Widget _viewMenu() => ui.CommonPopupBox(
     key: const ValueKey('library-view-menu'),
     targetBuilder: (open) => ui.DashboardIconButton(
@@ -1312,7 +1322,21 @@ class _LibraryPageState extends State<LibraryPage> {
       final filtering = _search.text.trim().isNotEmpty || _filter != 'all';
       final colors = Theme.of(context).colorScheme;
       return ui.CommonScaffold(
-        title: context.l10n.library,
+        title: _scope == 0 ? context.l10n.luaLibrary : context.l10n.steamGames,
+        titleMenuItems: [
+          ui.CommonPopupMenuItem(
+            label: context.l10n.luaLibrary,
+            glyph: ui.AppGlyphs.code,
+            checked: _scope == 0,
+            onPressed: () => _selectScope(0),
+          ),
+          ui.CommonPopupMenuItem(
+            label: context.l10n.steamGames,
+            glyph: ui.AppGlyphs.profiles,
+            checked: _scope == 1,
+            onPressed: () => _selectScope(1),
+          ),
+        ],
         isLoading: library.isScanning || _importing || _metadataBusy,
         searchState: _searchState,
         searchHint: context.l10n.searchGameNamesOrAppid,
@@ -1340,7 +1364,6 @@ class _LibraryPageState extends State<LibraryPage> {
               ],
             ),
           ),
-          _scopeMenu(),
           _viewMenu(),
         ],
         body: Padding(

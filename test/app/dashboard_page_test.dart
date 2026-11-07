@@ -25,7 +25,10 @@ class _Library extends LibraryService {
   @override
   String? get steamPath => 'C:/FixtureSteam';
   @override
-  Future<void> launch(int appId) async => launched.add(appId);
+  Future<void> launch(
+    int appId, {
+    List<String> launchArguments = const [],
+  }) async => launched.add(appId);
   @override
   Future<void> stop(int appId) async => stopped.add(appId);
 }

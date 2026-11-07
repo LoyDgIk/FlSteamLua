@@ -57,13 +57,6 @@ class _DashboardPageState extends State<DashboardPage> {
     try {
       await services.kernel.loadLocal();
       if (mounted) setState(() => _kernelLoaded = true);
-      if (services.kernel.installed.installed &&
-          services.settings.autoCheckKernelUpdate) {
-        try {
-          await services.kernel.checkForUpdate();
-          if (mounted) setState(() {});
-        } catch (_) {}
-      }
     } catch (error) {
       if (mounted) setState(() => _kernelError = '$error');
     }

@@ -5,6 +5,34 @@ Each release lists Chinese notes first, followed by English.
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-11-07
+
+### 中文
+
+#### 新增
+
+- 应用更新和内核更新统一移到后台自动化设置，可分别选择 1 小时、6 小时、1 天或 7 天检测间隔，默认每天一次，并按上次检查时间避免重复启动检测。
+- Steam 游戏库增加联机启动入口，可选择 `-onlinefix` 或 `-onlinefix -realappid`。
+- 密钥订阅支持用户自定义动态地址 JavaScript，每次更新前执行 `async function download(ctx)` 获取最新地址；SteamToolbox 使用可编辑的内置脚本并自动升级旧配置。
+
+#### 改进
+
+- 库页 Lua / Steam 切换改为 FlClash 标题下拉菜单，内容源使用统一工具图标和右键菜单，取消卡片三点菜单及冗余错误横幅。
+- 应用更新包完成校验后自动清理旧安装包，仅保留最新版本。
+
+### English
+
+#### Added
+
+- Moved application and kernel update automation into Background preferences with independent 1-hour, 6-hour, 1-day and 7-day intervals. Checks default to daily and use the persisted last-check time across launches.
+- Added online launch options for Steam games using `-onlinefix` or `-onlinefix -realappid`.
+- Key subscriptions now support editable JavaScript address resolvers. Each update runs `async function download(ctx)` for fresh URLs; SteamToolbox ships an editable built-in script and upgrades old profiles automatically.
+
+#### Improved
+
+- The library scope uses FlClash's title dropdown, while content sources use shared tool icons and context menus without per-card overflow menus or redundant inline error banners.
+- Verified application update downloads prune older installers and retain only the newest package.
+
 ## [0.1.7] - 2026-11-06
 
 ### 中文

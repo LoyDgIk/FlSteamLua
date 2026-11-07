@@ -167,6 +167,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get play => 'Play';
 
   @override
+  String get onlineLaunch => 'Launch online';
+
+  @override
+  String get onlineLaunchOptions => 'Online launch options';
+
+  @override
+  String get onlineFixOnly => 'Online launch (-onlinefix)';
+
+  @override
+  String get onlineFixWithRealAppId => 'Online launch (-onlinefix -realappid)';
+
+  @override
   String get installWithSteam => 'Install with Steam';
 
   @override
@@ -2084,7 +2096,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String
   get checkAtStartupAndEvery24HoursUsingTheConfiguredFlutterApplicationReleaseRepository =>
-      'Check at startup and every 24 hours using the configured Flutter application release repository.';
+      'Check when the selected interval has elapsed using the configured Flutter application release repository.';
+
+  @override
+  String get applicationUpdateCheckInterval => 'Application update interval';
+
+  @override
+  String get checkForKernelUpdatesAutomatically =>
+      'Check for kernel updates automatically';
+
+  @override
+  String get kernelUpdateCheckInterval => 'Kernel update interval';
+
+  @override
+  String get everyHour => 'Every hour';
+
+  @override
+  String get everyDay => 'Every day';
+
+  @override
+  String everyHours(String hours) {
+    return 'Every $hours hours';
+  }
+
+  @override
+  String everyDays(String days) {
+    return 'Every $days days';
+  }
 
   @override
   String get updateKeySubscriptionsAutomatically =>
@@ -2791,7 +2829,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedSources => 'Needs attention';
 
   @override
-  String get subscriptionSource => 'Subscription';
+  String get subscriptionSource => 'Key subscription';
 
   @override
   String get scriptSource => 'JS script';
@@ -2809,7 +2847,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addContentSource => 'Add content source';
 
   @override
-  String get addSubscriptionSource => 'Add subscription source';
+  String get addSubscriptionSource => 'Add key subscription';
 
   @override
   String get importScriptSource => 'Import JS content source';
@@ -2915,6 +2953,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appTokensUrl => 'App tokens JSON URL';
+
+  @override
+  String get addressSourceMode => 'Address source';
+
+  @override
+  String get useFixedLinks => 'Fixed links';
+
+  @override
+  String get useDynamicScript => 'Script';
+
+  @override
+  String get dynamicSubscriptionSource => 'Dynamic address script';
+
+  @override
+  String get editDynamicScript => 'Edit dynamic script';
+
+  @override
+  String get dynamicSubscriptionScriptConfigured => 'Configured';
+
+  @override
+  String get dynamicSubscriptionScriptNotConfigured => 'Not configured';
+
+  @override
+  String get dynamicSubscriptionScriptDescription =>
+      'Runs custom JavaScript before every update. Define async function download(ctx) and return depotKeysUrl and tokenKeysUrl.';
 
   @override
   String get sourceUpdateInterval => 'Update interval (hours)';
@@ -4908,7 +4971,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Extract this archive first, then select the trainer executable to bind it to a game.';
 
   @override
-  String get testAndUpdateSubscription => 'Test and update subscription';
+  String get testAndUpdateSubscription => 'Test and update key subscription';
 
   @override
   String get cloudOperationBusy =>

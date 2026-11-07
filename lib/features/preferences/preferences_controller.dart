@@ -32,6 +32,7 @@ class PreferencesController extends ChangeNotifier {
     PreferencesTimerFactory? periodicTimer,
     PreferencesUpdateFactory? updateFactory,
     Future<void> Function()? libraryRefresh,
+    this.kernelUpdateCheck,
     this.keyCacheUpdateDue,
     this.watchFiles = true,
     bool? supportsStartup,
@@ -54,6 +55,7 @@ class PreferencesController extends ChangeNotifier {
   final String currentVersion;
   final bool supportsStartup;
   final bool watchFiles;
+  final Future<void> Function()? kernelUpdateCheck;
   final Future<void> Function()? keyCacheUpdateDue;
   final StartupRegistration _startup;
   final PreferencesTimerFactory _periodic;
@@ -63,13 +65,16 @@ class PreferencesController extends ChangeNotifier {
   final List<StreamSubscription<FileSystemEvent>> _watchers = [];
   Timer? _refreshTimer;
   Timer? _updateTimer;
+  Timer? _kernelUpdateTimer;
   Timer? _keyCacheTimer;
   Timer? _fileDebounce;
   Future<void>? _refreshWork;
   Future<void>? _keyCacheWork;
   Future<ApplicationRelease?>? _updateWork;
+  Future<void>? _kernelUpdateWork;
   String? _refreshSignature;
   String? _updateSignature;
+  String? _kernelUpdateSignature;
   bool? _keyCacheEnabled;
   String? _watchSignature;
   int _watchGeneration = 0;
@@ -88,9 +93,15 @@ class PreferencesController extends ChangeNotifier {
   bool get isCheckingUpdate => _updateWork != null;
   bool get autoRefresh => settings.get<bool>('autoLibraryRefresh', true);
   bool get autoUpdateCheck => settings.get<bool>('autoCheckUpdates', true);
+  bool get autoKernelUpdateCheck =>
+      settings.get<bool>('autoCheckKernelUpdate', true);
   bool get autoKeyCacheUpdate =>
       settings.get<bool>('autoUpdateKeyCache', false);
   int get refreshSeconds => settings.get<int>('libraryRefreshSeconds', 30);
+  int get appUpdateIntervalSeconds =>
+      settings.get<int>('appUpdateIntervalSeconds', 86400);
+  int get kernelUpdateIntervalSeconds =>
+      settings.get<int>('kernelUpdateIntervalSeconds', 86400);
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -114,6 +125,23 @@ class PreferencesController extends ChangeNotifier {
   Future<void> setAutoUpdateCheck(bool enabled) =>
       settings.set('autoCheckUpdates', enabled);
 
+  Future<void> setAutoKernelUpdateCheck(bool enabled) =>
+      settings.set('autoCheckKernelUpdate', enabled);
+
+  Future<void> setAppUpdateIntervalSeconds(int seconds) {
+    if (seconds < 3600 || seconds > 30 * 86400) {
+      throw ArgumentError.value(seconds, 'seconds', 'Use 1 hour to 30 days');
+    }
+    return settings.set('appUpdateIntervalSeconds', seconds);
+  }
+
+  Future<void> setKernelUpdateIntervalSeconds(int seconds) {
+    if (seconds < 3600 || seconds > 30 * 86400) {
+      throw ArgumentError.value(seconds, 'seconds', 'Use 1 hour to 30 days');
+    }
+    return settings.set('kernelUpdateIntervalSeconds', seconds);
+  }
+
   Future<void> setAutoKeyCacheUpdate(bool enabled) =>
       settings.set('autoUpdateKeyCache', enabled);
 
@@ -133,22 +161,34 @@ class PreferencesController extends ChangeNotifier {
           : null;
     }
     final repo = settings.releaseRepository;
-    final update = '$autoUpdateCheck:$repo';
+    final update = '$autoUpdateCheck:$appUpdateIntervalSeconds:$repo';
     if (_updateSignature != update) {
       _updateSignature = update;
       _updateTimer?.cancel();
       _updateTimer = null;
-      updateRelease = null;
-      updateError = null;
-      updateCheckedAt = null;
+      if (!autoUpdateCheck) {
+        updateRelease = null;
+        updateError = null;
+        updateCheckedAt = null;
+      }
       if (autoUpdateCheck && _configuredRepository(repo)) {
-        _launch(() async {
-          await checkUpdates();
+        final interval = Duration(seconds: appUpdateIntervalSeconds);
+        _launch(_checkAppUpdateIfDue);
+        _updateTimer = _periodic(interval, (_) {
+          _launch(_checkAppUpdateIfDue);
         });
-        _updateTimer = _periodic(const Duration(hours: 24), (_) {
-          _launch(() async {
-            await checkUpdates();
-          });
+      }
+    }
+    final kernelUpdate = '$autoKernelUpdateCheck:$kernelUpdateIntervalSeconds';
+    if (_kernelUpdateSignature != kernelUpdate) {
+      _kernelUpdateSignature = kernelUpdate;
+      _kernelUpdateTimer?.cancel();
+      _kernelUpdateTimer = null;
+      if (autoKernelUpdateCheck && kernelUpdateCheck != null) {
+        final interval = Duration(seconds: kernelUpdateIntervalSeconds);
+        _launch(_checkKernelUpdateIfDue);
+        _kernelUpdateTimer = _periodic(interval, (_) {
+          _launch(_checkKernelUpdateIfDue);
         });
       }
     }
@@ -298,6 +338,45 @@ class PreferencesController extends ChangeNotifier {
     return _updateWork!;
   }
 
+  Future<void> _checkAppUpdateIfDue() async {
+    if (_stopping ||
+        !autoUpdateCheck ||
+        !_configuredRepository(settings.releaseRepository) ||
+        !_checkDue(
+          'appUpdateLastCheckAt',
+          Duration(seconds: appUpdateIntervalSeconds),
+        )) {
+      return;
+    }
+    await checkUpdates();
+  }
+
+  Future<void> _checkKernelUpdateIfDue() {
+    if (_stopping ||
+        !autoKernelUpdateCheck ||
+        kernelUpdateCheck == null ||
+        !_checkDue(
+          'kernelUpdateLastCheckAt',
+          Duration(seconds: kernelUpdateIntervalSeconds),
+        )) {
+      return Future.value();
+    }
+    return _kernelUpdateWork ??= _runKernelUpdateCheck().whenComplete(() {
+      _kernelUpdateWork = null;
+    });
+  }
+
+  Future<void> _runKernelUpdateCheck() async {
+    try {
+      await kernelUpdateCheck!();
+    } finally {
+      await settings.set(
+        'kernelUpdateLastCheckAt',
+        DateTime.now().toUtc().toIso8601String(),
+      );
+    }
+  }
+
   Future<ApplicationRelease?> _checkUpdates(String repository) async {
     final service = _updateFactory(repository);
     try {
@@ -317,8 +396,23 @@ class PreferencesController extends ChangeNotifier {
       }
       rethrow;
     } finally {
-      service.dispose();
+      try {
+        await settings.set(
+          'appUpdateLastCheckAt',
+          DateTime.now().toUtc().toIso8601String(),
+        );
+      } finally {
+        service.dispose();
+      }
     }
+  }
+
+  bool _checkDue(String key, Duration interval) {
+    final value = settings.get<String>(key, '');
+    final checkedAt = DateTime.tryParse(value)?.toUtc();
+    if (checkedAt == null) return true;
+    final elapsed = DateTime.now().toUtc().difference(checkedAt);
+    return elapsed.isNegative || elapsed >= interval;
   }
 
   Future<void> refreshPlatformState() async {
@@ -414,6 +508,7 @@ class PreferencesController extends ChangeNotifier {
     }
     _refreshTimer?.cancel();
     _updateTimer?.cancel();
+    _kernelUpdateTimer?.cancel();
     _keyCacheTimer?.cancel();
     _fileDebounce?.cancel();
     _watchGeneration++;
@@ -431,6 +526,11 @@ class PreferencesController extends ChangeNotifier {
       await _updateWork;
     } catch (_) {
       /* State and task retain errors. */
+    }
+    try {
+      await _kernelUpdateWork;
+    } catch (_) {
+      /* Kernel service retains the update state and error. */
     }
     try {
       await _refreshWork;

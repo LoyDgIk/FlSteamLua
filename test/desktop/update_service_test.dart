@@ -7,6 +7,7 @@ import 'package:fl_steam_lua/platform/desktop/update_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:path/path.dart' as p;
 
 void main() {
   group('version ordering', () {
@@ -201,6 +202,48 @@ void main() {
     );
     final file = await service.downloadRelease(release, directory);
     expect(await file.readAsBytes(), bytes);
+  });
+
+  test('release download keeps only the newest application package', () async {
+    final directory = await Directory.systemTemp.createTemp(
+      'flsteamlua-update-',
+    );
+    addTearDown(() => directory.delete(recursive: true));
+    final oldInstaller = File(
+      p.join(directory.path, 'FlSteamLua-0.1.6-windows-x64-setup.exe'),
+    );
+    final oldPortable = File(
+      p.join(directory.path, 'FlSteamLua-0.1.6-windows-x64.zip'),
+    );
+    final unrelated = File(p.join(directory.path, 'notes.txt'));
+    await oldInstaller.writeAsString('old installer');
+    await oldPortable.writeAsString('old portable');
+    await unrelated.writeAsString('keep');
+
+    final bytes = utf8.encode('new update');
+    final expected = sha256.convert(bytes).toString();
+    final asset = ReleaseAsset(
+      name: 'FlSteamLua-0.1.7-windows-x64-setup.exe',
+      url: Uri.https('github.com', '/example/app/update.exe'),
+      size: bytes.length,
+      sha256: expected,
+    );
+    final release = ApplicationRelease(
+      version: 'v0.1.7',
+      url: Uri.parse('https://github.com/example/app/releases/tag/v0.1.7'),
+      notes: '',
+      assets: [asset],
+    );
+    final service = UpdateService(
+      repository: 'example/app',
+      client: MockClient((_) async => http.Response.bytes(bytes, 200)),
+    );
+
+    final current = await service.downloadRelease(release, directory);
+    expect(current.path, endsWith(asset.name));
+    expect(await oldInstaller.exists(), isFalse);
+    expect(await oldPortable.exists(), isFalse);
+    expect(await unrelated.readAsString(), 'keep');
   });
 
   test('release download deletes a checksum mismatch', () async {

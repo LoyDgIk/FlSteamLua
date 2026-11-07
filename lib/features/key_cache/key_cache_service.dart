@@ -17,9 +17,45 @@ import '../../platform/windows/dpapi.dart';
 import '../steam_protocol/app_info.dart';
 import '../steam_protocol/steam_protocol_service.dart'
     show SteamProtocolService;
+import '../manifests/manifest_http_host.dart';
+import '../manifests/manifest_script_runner.dart';
 import 'key_cache_models.dart';
 
 export 'key_cache_models.dart';
+
+const steamToolboxDynamicScript = r'''
+async function download(ctx) {
+  const response = await ctx.http.get(
+    "https://gitee.com/biaogeNB/SteamToolbox/raw/master/toolbox2.txt",
+    { responseType: "text", timeout: 30, allowNonSuccess: true }
+  );
+  if (!response.ok) {
+    throw new Error("SteamToolbox address script returned HTTP " + response.status);
+  }
+  const lines = String(response.text || "").split(/\r?\n/);
+  function findUrl(label) {
+    for (const raw of lines) {
+      const line = raw.trim();
+      const ascii = line.indexOf(":");
+      const fullWidth = line.indexOf("：");
+      const candidates = [ascii, fullWidth].filter((value) => value >= 0);
+      const index = candidates.length > 0 ? Math.min(...candidates) : -1;
+      if (index < 0) continue;
+      if (line.slice(0, index).trim().toLowerCase() !== label) continue;
+      return line.slice(index + 1).trim();
+    }
+    return "";
+  }
+  const depotKeysUrl = findUrl("depotkeys");
+  const tokenKeysUrl = findUrl("appaccesstokens");
+  if (!depotKeysUrl || !tokenKeysUrl) {
+    throw new Error("SteamToolbox address script did not return both key URLs");
+  }
+  return { depotKeysUrl, tokenKeysUrl };
+}
+''';
+
+const steamToolboxName = 'SteamToolbox';
 
 typedef KeyCacheMetadataLoader =
     Future<SteamAppInfo> Function(int appId, String? accessToken);
@@ -29,11 +65,14 @@ class KeyCacheService extends ChangeNotifier {
     required this.paths,
     required this.settings,
     http.Client? httpClient,
+    ManifestScriptRunner? dynamicScriptRunner,
     String Function(String)? protect,
     String Function(String)? unprotect,
     this.metadataLoader,
   }) : _http = httpClient ?? http.Client(),
        _ownsHttp = httpClient == null,
+       _dynamicScriptRunner =
+           dynamicScriptRunner ?? const QuickJsManifestRunner(),
        _protect = protect ?? _protectData,
        _unprotect = unprotect ?? _unprotectData;
 
@@ -41,6 +80,7 @@ class KeyCacheService extends ChangeNotifier {
   final SettingsStore settings;
   final http.Client _http;
   final bool _ownsHttp;
+  final ManifestScriptRunner _dynamicScriptRunner;
   final String Function(String) _protect;
   final String Function(String) _unprotect;
   final KeyCacheMetadataLoader? metadataLoader;
@@ -83,9 +123,11 @@ class KeyCacheService extends ChangeNotifier {
         ),
         KeyCacheSubscription(
           id: 'steam-toolbox',
-          name: 'SteamToolbox 兼容缓存',
-          depotKeysUrl: 'https://pan.qzyun.net/f/d/QQBkSX/depotkeys.json',
-          tokenKeysUrl: 'https://pan.qzyun.net/f/d/z204cw/appaccesstokens.json',
+          name: steamToolboxName,
+          depotKeysUrl: '',
+          tokenKeysUrl: '',
+          dynamicScript: steamToolboxDynamicScript,
+          addressMode: KeySubscriptionAddressMode.script,
         ),
       ]);
     } else {
@@ -94,16 +136,40 @@ class KeyCacheService extends ChangeNotifier {
         throw const FormatException('Invalid key subscription configuration');
       }
       final ids = <String>{};
+      var changed = false;
       for (final item in raw['sources'] as List) {
         if (item is! Map<String, dynamic>) {
           throw const FormatException('Invalid key subscription configuration');
         }
-        final source = KeyCacheSubscription.fromJson(item);
+        var source = KeyCacheSubscription.fromJson(item);
         _validateSubscription(source);
         if (!ids.add(source.id)) {
           throw const FormatException('Duplicate key subscription ID');
         }
+        if (source.id == 'steam-toolbox' &&
+            source.dynamicScript.trim().isEmpty) {
+          source = source.copyWith(
+            name: source.name.contains('兼容缓存') ? steamToolboxName : source.name,
+            depotKeysUrl: '',
+            tokenKeysUrl: '',
+            dynamicScript: steamToolboxDynamicScript,
+            addressMode: KeySubscriptionAddressMode.script,
+          );
+          changed = true;
+        }
         _subscriptions.add(source);
+      }
+      if (changed) {
+        await _writeAtomic(
+          File(_configPath),
+          _protect(
+            jsonEncode({
+              'sources': _subscriptions
+                  .map((source) => source.toJson())
+                  .toList(),
+            }),
+          ),
+        );
       }
     }
     _changed();
@@ -151,8 +217,47 @@ class KeyCacheService extends ChangeNotifier {
 
   Future<void> update(String id, {TaskContext? task}) => _serialize(() async {
     await load();
-    final source = _source(id);
+    var source = _source(id);
     if (!source.enabled) throw StateError('This subscription is disabled');
+    if (source.addressMode == KeySubscriptionAddressMode.script) {
+      task?.report('Running dynamic key subscription address script');
+      try {
+        final host = ManifestHttpHost(_http);
+        final output = await _dynamicScriptRunner.invoke(
+          script: source.dynamicScript,
+          function: 'download',
+          params: const {},
+          task: task,
+          request: (request) => host.request(request, task: task),
+          log: task?.report ?? (_) {},
+        );
+        if (output is! Map) {
+          throw const FormatException(
+            'Dynamic address script must return an object',
+          );
+        }
+        final depotKeysUrl = output['depotKeysUrl'];
+        final tokenKeysUrl = output['tokenKeysUrl'];
+        if (depotKeysUrl is! String || tokenKeysUrl is! String) {
+          throw const FormatException(
+            'Dynamic address script must return depotKeysUrl and tokenKeysUrl',
+          );
+        }
+        _validateUrl(depotKeysUrl);
+        _validateUrl(tokenKeysUrl);
+        source = source.copyWith(
+          depotKeysUrl: depotKeysUrl,
+          tokenKeysUrl: tokenKeysUrl,
+        );
+      } catch (error) {
+        if (source.depotKeysUrl.isEmpty || source.tokenKeysUrl.isEmpty) {
+          rethrow;
+        }
+        task?.report(
+          'Dynamic subscription unavailable; using saved fallback addresses',
+        );
+      }
+    }
     task?.report('Downloading depot keys');
     final downloads = await Future.wait([
       _download(Uri.parse(source.depotKeysUrl), task),
@@ -431,8 +536,24 @@ class KeyCacheService extends ChangeNotifier {
         source.tokenCount < 0) {
       throw const FormatException('Invalid key subscription fields');
     }
-    _validateUrl(source.depotKeysUrl);
-    _validateUrl(source.tokenKeysUrl);
+    switch (source.addressMode) {
+      case KeySubscriptionAddressMode.script:
+        if (!RegExp(
+          r'\bfunction\s+download\s*\(',
+        ).hasMatch(source.dynamicScript)) {
+          throw const FormatException(
+            'Dynamic address script must define async function download(ctx)',
+          );
+        }
+      case KeySubscriptionAddressMode.links:
+        if (source.depotKeysUrl.isEmpty || source.tokenKeysUrl.isEmpty) {
+          throw const FormatException(
+            'Key subscription link mode requires both key URLs',
+          );
+        }
+        _validateUrl(source.depotKeysUrl);
+        _validateUrl(source.tokenKeysUrl);
+    }
   }
 
   static void _validateUrl(String value) {
